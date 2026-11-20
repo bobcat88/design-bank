@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check catalog freshness & Design DNA schema
+        run: node tools/catalog.mjs --check
+
+      - name: Validate Wrangler & package JSON
+        run: node -e "import fs from 'node:fs'; JSON.parse(fs.readFileSync('wrangler.jsonc','utf8')); JSON.parse(fs.readFileSync('package.json','utf8'));"
+
+      - name: Install Playwright Chromium for verification
+        run: npm install --no-save playwright && npx playwright install --with-deps chromium
+
+      - name: Run 60-check Playwright QA suite
+        run: node tools/verify.mjs

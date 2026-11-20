@@ -12,8 +12,19 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { loadPlaywright } from 'file:///D:/Second Brain/AI-Agents/skills/ui-ux-qloop/scripts/slop-scan/slop-scan.mjs';
-import { launchGpu } from 'file:///D:/Second Brain/AI-Agents/skills/ui-ux-qloop/scripts/ref-capture/ref-capture.mjs';
+
+async function openBrowser() {
+  const localSlop = 'D:/Second Brain/AI-Agents/skills/ui-ux-qloop/scripts/slop-scan/slop-scan.mjs';
+  const localRef = 'D:/Second Brain/AI-Agents/skills/ui-ux-qloop/scripts/ref-capture/ref-capture.mjs';
+  if (fs.existsSync(localSlop) && fs.existsSync(localRef)) {
+    const { loadPlaywright } = await import(pathToFileURL(localSlop).href);
+    const { launchGpu } = await import(pathToFileURL(localRef).href);
+    const { browser } = await launchGpu(await loadPlaywright());
+    return browser;
+  }
+  const { chromium } = await import('playwright');
+  return chromium.launch({ headless: true });
+}
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const MAKE_POSTERS = process.argv.includes('--posters');
@@ -27,7 +38,7 @@ const styleFiles = fs.readdirSync(path.join(ROOT, 'styles')).filter((f) => f.end
 const protoFiles = fs.readdirSync(path.join(ROOT, 'protos')).filter((f) => f.endsWith('.html')).sort().map((f) => `protos/${f}`);
 const allPages = ['index.html', 'lab.html', ...styleFiles, ...protoFiles];
 
-const { browser } = await launchGpu(await loadPlaywright());
+const browser = await openBrowser();
 const failures = [];
 const report = [];
 

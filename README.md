@@ -62,6 +62,20 @@ node tools/verify.mjs
 node tools/verify.mjs --posters
 ```
 
+## Déploiement Cloudflare Workers (Wrangler / Cloudflare MCP)
+
+Configuré pour **Cloudflare Workers Static Assets** via `wrangler.jsonc` + `.assetsignore` (n'envoie que les fichiers du site : `index.html`, `lab.html`, `404.html`, `styles/`, `protos/`, `shared/`, `posters/`, `data/` — exclut `tools/`, `qa/`, `refs/`, `schema/` et la doc) :
+
+```bash
+# Aperçu local via Wrangler
+npm run dev
+
+# Vérification catalogue/schéma puis déploiement Cloudflare Workers
+npm run deploy
+```
+
+Compatible également avec le serveur **Cloudflare MCP** (Worker `design-bank`, `not_found_handling: "404-page"`).
+
 ## Pipeline 3D (si un proto passe du shader plat à une vraie scène)
 1. **Assets** : modéliser dans Blender ou capturer en Gaussian splatting, exporter en glTF/GLB. Vérifier la licence avant livraison (CC0 libre, CC BY = crédit, NC = pas d'usage commercial).
 2. **Compression** : géométrie en Draco/Meshopt, textures en KTX2 ; budget octets fixé avant modélisation.

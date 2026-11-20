@@ -1,0 +1,16 @@
+{
+  "name": "design-bank",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Standalone multi-style design bank, interactive Design Lab mixer, shader engine, and Design DNA contract",
+  "scripts": {
+    "catalog": "node tools/catalog.mjs",
+    "catalog:check": "node tools/catalog.mjs --check",
+    "ingest": "node tools/ingest-refs.mjs",
+    "verify": "node tools/verify.mjs",
+    "posters": "node tools/verify.mjs --posters",
+    "dev": "npx wrangler dev",
+    "deploy": "node tools/catalog.mjs --check && npx wrangler deploy"
+  }
+}

@@ -1,0 +1,16 @@
+# Exclude non-site repo files from Cloudflare Workers Static Assets uploads
+.git
+.github
+.gitignore
+.assetsignore
+.wrangler
+node_modules
+qa
+refs
+schema
+tools
+package.json
+package-lock.json
+wrangler.jsonc
+README.md
+REFERENCES.md

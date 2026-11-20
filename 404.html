@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="fr" data-palette="ink">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>404 · Banque de design</title>
+<link rel="stylesheet" href="/shared/bank.css">
+<style>
+  main { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding: 32px; text-align: center; }
+  .box { max-width: 480px; display: grid; gap: 16px; justify-items: center; }
+  h1 { font-size: clamp(44px, 7vw, 84px); line-height: 1; margin: 0; }
+  p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.5; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
+  a { padding: 10px 18px; border-radius: 999px; border: 1px solid var(--line); color: var(--text); text-decoration: none; font-size: 14px; font-weight: 500; transition: background-color .2s var(--ease-out); }
+  a.primary { background: var(--tile); color: var(--tile-ink); border-color: transparent; font-weight: 600; }
+  a:hover { background: var(--line); } a.primary:hover { filter: brightness(1.06); background: var(--tile); }
+</style>
+</head>
+<body>
+<main>
+  <div class="box">
+    <span class="eyebrow">Erreur 404</span>
+    <h1>Page introuvable.</h1>
+    <p>Ce prototype ou cet archétype n'existe pas à cette adresse.</p>
+    <div class="row">
+      <a class="primary" href="/index.html">← Retour à la banque</a>
+      <a href="/lab.html">Ouvrir le Design Lab</a>
+    </div>
+  </div>
+</main>
+</body>
+</html>

@@ -55,17 +55,24 @@
     toggles: [{ key: "dot", label: "Curseur personnalisé", value: true }],
   });
   const $ = (s) => document.querySelector(s), mag = $(".mag"), tilt = $(".tilt"), dot = $("#dot");
+  const spots = [...document.querySelectorAll(".spot")], cTilt = $("#cTilt");
   const embed = document.documentElement.classList.contains("embed"), fine = matchMedia("(pointer: fine)").matches;
-  let ptr = { x: -999, y: -999 }, dx = -999, dy = -999, real = false;
+  let ptr = { x: -999, y: -999 }, dx = -999, dy = -999, real = false, rects = new Map(), dirty = true;
+  const cells = ["#cMag", "#cSpot", "#cTilt", "#cDot"].map($);
+  const tracked = [mag, cTilt, tilt, ...spots, ...cells];
+  const measure = () => { rects.clear(); tracked.forEach((el) => rects.set(el, el.getBoundingClientRect())); dirty = false; };
+  addEventListener("resize", () => { dirty = true; }, { passive: true });
+  addEventListener("scroll", () => { dirty = true; }, { passive: true });
   addEventListener("pointermove", (e) => { real = true; ptr = { x: e.clientX, y: e.clientY }; });
   document.querySelectorAll(".links a, .mag").forEach((a) => { a.addEventListener("pointerenter", () => dot.classList.add("big")); a.addEventListener("pointerleave", () => dot.classList.remove("big")); });
-  const local = (el) => { const r = el.getBoundingClientRect(); return { r, x: ptr.x - r.left, y: ptr.y - r.top, in: ptr.x > r.left && ptr.x < r.right && ptr.y > r.top && ptr.y < r.bottom }; };
-  const cells = ["#cMag", "#cSpot", "#cTilt", "#cDot"].map($);
+  const local = (el) => { const r = rects.get(el); return { r, x: ptr.x - r.left, y: ptr.y - r.top, in: ptr.x > r.left && ptr.x < r.right && ptr.y > r.top && ptr.y < r.bottom }; };
   (function frame(now) {
     requestAnimationFrame(frame);
+    if (document.hidden) return;
+    if (dirty) measure();
     const red = Bank.reduced();
-    if (embed && !real) { // thumbnail: a fake pointer visits each cell in turn
-      const k = Math.floor(now / 2200) % 4, r = cells[k].getBoundingClientRect(), t = now / 700;
+    if (embed && !real && !red) { // thumbnail: a fake pointer visits each cell in turn
+      const k = Math.floor(now / 2200) % 4, r = rects.get(cells[k]), t = now / 700;
       ptr = { x: r.left + r.width * (.5 + .28 * Math.cos(t)), y: r.top + r.height * (.5 + .28 * Math.sin(t * 1.3)) };
     }
     // magnetic: button and its label drift toward the pointer
@@ -74,9 +81,9 @@
     mag.style.transform = near ? `translate(${mx * s}px, ${my * s}px)` : ""; mag.firstChild.style.transform = near ? `translate(${mx * s * .4}px, ${my * s * .4}px)` : "";
     mag.style.transition = near ? "none" : "transform .5s var(--ease-out)";
     // spotlight: one pointer position, every card reads it in its own coordinates
-    document.querySelectorAll(".spot").forEach((c) => { const l = local(c); c.style.setProperty("--x", l.x + "px"); c.style.setProperty("--y", l.y + "px"); c.style.setProperty("--sz", cfg.sz + "px"); });
+    spots.forEach((c) => { const l = local(c); c.style.setProperty("--x", l.x + "px"); c.style.setProperty("--y", l.y + "px"); c.style.setProperty("--sz", cfg.sz + "px"); });
     // tilt + glare
-    const tl = local($("#cTilt")), tc = local(tilt);
+    const tl = local(cTilt), tc = local(tilt);
     if (tl.in && !red) { const u = tc.x / tc.r.width - .5, v = tc.y / tc.r.height - .5;
       tilt.style.transform = `rotateX(${-v * cfg.tilt}deg) rotateY(${u * cfg.tilt}deg)`; tilt.style.setProperty("--gx", (u + .5) * 100 + "%"); tilt.style.setProperty("--gy", (v + .5) * 100 + "%"); tilt.style.transition = "none"; }
     else { tilt.style.transform = ""; tilt.style.transition = "transform .6s var(--ease-out)"; }

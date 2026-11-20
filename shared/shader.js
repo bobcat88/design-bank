@@ -136,10 +136,12 @@ o = vec4(c + w * .12 + pow(max(w, 0.0), 6.0) * .5, 1);`,
     // the frame loop runs only while playing and visible; paused shaders cost nothing
     const loop = (now) => { raf = 0; if (!on || !vis || document.hidden) return; const dt = last ? now - last : 16; last = now;
       t = (t + Math.min(dt, 50)) % PERIOD; m[0] += (mt[0] - m[0]) * .08; m[1] += (mt[1] - m[1]) * .08; draw(); raf = requestAnimationFrame(loop); };
-    const kick = () => { if (!raf && on && vis) { last = 0; raf = requestAnimationFrame(loop); } };
+    const kick = () => { if (!raf && on && vis && !Bank.reduced?.()) { last = 0; raf = requestAnimationFrame(loop); } };
     document.addEventListener('visibilitychange', kick);
-    return { period: PERIOD, get: () => t, set: (x) => { t = x; draw(); }, play: () => { on = true; kick(); }, pause: () => { on = false; }, playing: () => on,
+    window.addEventListener('bank:reduced', () => { if (Bank.reduced?.()) { on = false; } else kick(); });
+    return { period: PERIOD, get: () => t, set: (x) => { t = x; draw(); }, play: () => { if (Bank.reduced?.()) return; on = true; kick(); }, pause: () => { on = false; }, playing: () => on,
       redraw: () => { if (gl) colors(); draw(); }, code: S.lib ? S.lib + '\n// main()\n' + S.main : S };
   }
-  Bank.shader = shader; Bank.SHADERS = SHADERS;
+  const shaderCode = (name) => { const S = SHADERS[name]; return !S ? '' : (typeof S === 'string' ? S : (S.lib ? S.lib + '\n// main()\n' + S.main : S.main || '')); };
+  Bank.shader = shader; Bank.SHADERS = SHADERS; Bank.shaderCode = shaderCode;
 })();

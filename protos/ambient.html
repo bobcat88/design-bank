@@ -27,12 +27,13 @@
   const cv = document.getElementById("bg"), ctx = cv.getContext("2d");
   let W, H, items = [];
   const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const applyBlur = () => { cv.style.filter = cfg.blur ? `blur(${cfg.kind === "blobs" ? cfg.blur * 2 : cfg.blur / 4}px)` : ""; };
   var cfg = Bank.panel({
     title: "Fonds ambiants", values: { palette: "forest", mode: "loop" },
     selects: [{ key: "kind", label: "Fond", value: "particles", options: [["particles", "Particules"], ["blobs", "Blobs"], ["polys", "Polygones"], ["tiles", "Tuiles"]] },
               { key: "mode", label: "Animation", value: "loop", options: [["loop", "Boucle"], ["scroll", "Parallaxe au scroll"]] }],
     sliders: [{ key: "density", label: "Densité", min: 4, max: 80, value: 30 }, { key: "speed", label: "Vitesse", min: 0, max: 30, value: 10 }, { key: "blur", label: "Flou", min: 0, max: 40, value: 6 }],
-    onChange: (c, k) => { if (k !== "speed" && k !== "mode" && W) seed(); },
+    onChange: (c, k) => { cfg = c; applyBlur(); if (k !== "speed" && k !== "mode" && k !== "blur" && W) seed(); },
   });
   function size() { const d = document.documentElement.classList.contains("embed") ? 1 : Math.min(devicePixelRatio, 2); W = innerWidth; H = innerHeight; cv.width = W * d; cv.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); }
   function seed() {
@@ -50,8 +51,6 @@
     // per-second speed, so a 144 Hz screen is not faster than 60 Hz; sp=1 → 12 px/s
     const red = Bank.reduced(), sp = red ? 0 : cfg.speed / 10, f = dt * 12, par = cfg.mode === "scroll" ? scrollY : 0;
     clock += dt * sp * .25; const t = clock;
-    // blur on the canvas element (GPU), not ctx.filter, which re-blurs on the CPU every frame
-    cv.style.filter = cfg.blur ? `blur(${cfg.kind === "blobs" ? cfg.blur * 2 : cfg.blur / 4}px)` : "";
     ctx.clearRect(0, 0, W, H);
     if (cfg.kind === "tiles") {   // grid of shapes that turn one after another
       const s = Math.max(40, 260 - cfg.density * 2.6), cols = Math.ceil(W / s) + 1;

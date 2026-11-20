@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KESTREL · Chaleureux organique</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap">
+<link rel="stylesheet" href="../shared/bank.css">
+<style>
+  :root {
+    --bg: #f6f0e6; --panel: #ede4d5; --tile: #b8502c; --tile-ink: #fffaf3;
+    --sage: #4a6352; --text: #27211c; --muted: #685c52; --line: rgba(39, 33, 28, .13);
+    --font: "DM Sans", system-ui, sans-serif;
+    --serif: "Newsreader", Georgia, serif;
+    --sh-a: #d97757; --sh-b: #7ca38c;
+  }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); margin: 0; }
+  a { color: inherit; text-decoration: none; }
+
+  .top { max-width: 1240px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 24px 32px; }
+  .brand { font: 500 22px/1 var(--serif); letter-spacing: -.01em; }
+  .top nav { display: flex; gap: 28px; font-size: 15px; color: var(--muted); }
+  .top nav a:hover { color: var(--text); }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 999px; background: var(--tile); color: var(--tile-ink); font-weight: 500; font-size: 15px; transition: background-color .3s var(--ease-out), transform .3s var(--ease-out); }
+  .btn:hover { background: #9c4020; transform: translateY(-1px); }
+  .btn.alt { background: transparent; color: var(--text); border: 1px solid var(--line); }
+  .btn.alt:hover { background: var(--panel); }
+
+  /* Centered airy hero with light-mode lava WebGL shader */
+  .hero-wrap { max-width: 1240px; margin: 0 auto; padding: 8px 32px 0; }
+  .hero { position: relative; min-height: 68vh; min-height: 68dvh; border-radius: 32px; overflow: hidden; border: 1px solid var(--line); background: #f4eee4; display: grid; place-items: center; text-align: center; padding: 56px 32px; }
+  .hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: .72; }
+  .hero.no-gl { background: radial-gradient(60% 70% at 30% 35%, rgba(217,119,87,.28), transparent 60%), radial-gradient(50% 60% at 75% 65%, rgba(124,163,140,.28), transparent 60%), #f4eee4; }
+  .hero-in { position: relative; z-index: 2; max-width: 680px; display: grid; gap: 20px; justify-items: center; }
+  .chip { padding: 7px 16px; border-radius: 999px; background: rgba(246,240,230,.85); border: 1px solid var(--line); font-size: 13px; color: var(--sage); font-weight: 500; }
+  h1 { font: 400 clamp(40px, 5.4vw, 72px)/1.04 var(--serif); letter-spacing: -.02em; margin: 0; }
+  h1 em { font-style: italic; color: var(--tile); }
+  .hero-in p { margin: 0; font-size: 18px; line-height: 1.6; color: #473d35; max-width: 48ch; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 6px; }
+  .hero .player { left: 50%; right: auto; width: 280px; translate: -50% 6px; } .hero:hover .player, .hero:focus-within .player { translate: -50% 0; }
+
+  /* Soft organic bento & metrics */
+  .sec { max-width: 1240px; margin: 0 auto; padding: 72px 32px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 26px; padding: 32px; display: grid; gap: 10px; }
+  .card strong { font: 400 44px/1 var(--serif); color: var(--tile); font-variant-numeric: tabular-nums; }
+  .card h2 { font: 500 22px/1.2 var(--serif); margin: 0; }
+  .card p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.55; }
+
+  footer { max-width: 1240px; margin: 0 auto; padding: 24px 32px 56px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; font-size: 14px; color: var(--muted); }
+
+  html.embed .sec, html.embed footer, html.embed .player { display: none; } html.embed .hero { min-height: 82vh; }
+  @media (max-width: 820px) { .top { padding: 18px 20px; } .top nav { display: none; } .hero-wrap, .sec { padding-inline: 18px; } .grid3 { grid-template-columns: 1fr; } footer { padding: 20px 18px; flex-direction: column; gap: 8px; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="#top" id="top">Kestrel</a>
+  <nav aria-label="Principale"><a href="#valeurs">Approche</a><a href="#mesures">Chiffres</a></nav>
+  <a class="btn" href="#mesures">Découvrir</a>
+</header>
+<div class="hero-wrap">
+  <section class="hero" id="hero">
+    <canvas aria-label="Fond shader doux terre cuite et sauge sur papier crème"></canvas>
+    <div class="hero-in">
+      <span class="chip">Archétype 06 · Chaleureux organique</span>
+      <h1>Mesurer chaque site, décider <em>sereinement</em>.</h1>
+      <p>Des capteurs discrets reliés à un carnet de bord apaisé : une technologie qui s'efface au profit de l'attention humaine.</p>
+      <div class="row">
+        <a class="btn" href="#mesures">Explorer le carnet</a>
+        <a class="btn alt" href="#valeurs">Notre démarche</a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<section class="sec" id="mesures">
+  <div class="grid3" id="valeurs">
+    <article class="card"><strong>412</strong><h2>Stations reliées</h2><p>Déployées au plus près du terrain, calibrées pour durer sans maintenance lourde.</p></article>
+    <article class="card"><strong>18 ms</strong><h2>Lecture instantanée</h2><p>Les informations arrivent calmement, déjà triées par ordre d'importance réelle.</p></article>
+    <article class="card"><strong>99,98 %</strong><h2>Continuité durable</h2><p>Une sobriété technique qui protège les équipes de la fatigue d'alerte.</p></article>
+  </div>
+</section>
+
+<footer>
+  <span>KESTREL · SPÉCIMEN CHALEUREUX ORGANIQUE (CRÈME + TERRE CUITE + NEWSREADER)</span>
+  <span>DESIGN BANK · ARCHÉTYPE 06</span>
+</footer>
+<script src="../shared/bank.js"></script>
+<script src="../shared/shader.js"></script>
+<script>
+  const hero = document.getElementById("hero");
+  Bank.player(hero, Bank.shader(hero.querySelector("canvas"), "lava", hero));
+</script>
+</body>
+</html>

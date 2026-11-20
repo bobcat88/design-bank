@@ -81,7 +81,7 @@
 @keyframes d10 { to { rotate: 1turn; } }
       </style></article>
 
-    <article id="w11" data-sup="interpolate-size: allow-keywords"><h3>Barre latérale repliable</h3><p>La largeur passe de la barre complète au rail d'icônes ; les libellés s'effacent un peu avant.</p>
+    <article id="w11"><h3>Barre latérale repliable</h3><p>La largeur passe de la barre complète au rail d'icônes ; les libellés s'effacent un peu avant.</p>
       <div class="demo"><div id="d11"><nav><button type="button" data-act="w11" aria-label="Replier">≡</button><a><i></i><span>Accueil</span></a><a><i></i><span>Sources</span></a><a><i></i><span>Réglages</span></a></nav><section></section></div></div>
       <style>
 #d11 { display: flex; width: 88%; height: 170px; border-radius: 14px; border: 1px solid var(--line); overflow: hidden; }
@@ -224,13 +224,29 @@
 <script src="../shared/bank.js"></script>
 <script src="../shared/cards.js"></script>
 <script>
-  const $ = (s) => document.querySelector(s), red = Bank.reduced();
+  const $ = (s) => document.querySelector(s);
+  const isRed = () => Bank.reduced();
   // split text demos into per-unit spans before the player reads their animations
   const split = (el, re) => { el.innerHTML = el.textContent.split(re).map((w, i) => `<span style="--i:${i}">${w}</span>`).join(""); };
   split($("#d7"), /(?<= )/); $("#d16").textContent = "Variable"; split($("#d16"), "");
   const META = { w1: [4, "wd"], w3: [3, "d"], w4: [4, "wd"], w5: [3, "wd"], w8: [4, "wd"], w10: [3, "wdm"], w11: [2, "d"], w12: [2, "d"], w9: [3, "wdm"], w17: [2, "wdm"],
     w2: [5, "wdm"], w6: [5, "wdm"], w7: [4, "wdm"], w13: [4, "wdm"], w14: [4, "wd"], w15: [4, "wdm"], w16: [4, "w"], w18: [3, "wd"], w19: [5, "wd"], w20: [2, "wdm"] };
-  Bank.cards(META, ["w6", "w7", "w8", "w16", "w18", "w20"]);
+  // Custom non-destructive replays for JS-bound / canvas demos so listeners & observers never detach.
+  const REPLAYS = {
+    w1: () => $("#d1").classList.toggle("open"),
+    w2: false,
+    w4: () => vt(() => $("#d4").classList.toggle("open")),
+    w9: () => { odo = 4210; drawOdo(); },
+    w10: () => { const b = $("#d10"); delete b.dataset.s; },
+    w11: () => $("#d11").classList.toggle("mini"),
+    w12: false,
+    w13: () => burst($("#d13 button")),
+    w14: false,
+    w15: () => $("#d15").click(),
+    w17: () => $("#d17").click(),
+    w19: false,
+  };
+  Bank.cards(META, ["w6", "w7", "w8", "w16", "w18", "w20"], {}, REPLAYS);
 
   // odometer
   let odo = 4210;
@@ -239,7 +255,7 @@
     [...s].forEach((d, i) => $("#d9").children[i].style.translate = `0 ${-d}em`); };
   drawOdo();
 
-  const vt = (fn) => document.startViewTransition && !red ? document.startViewTransition(fn) : fn();
+  const vt = (fn) => document.startViewTransition && !isRed() ? document.startViewTransition(fn) : fn();
   document.addEventListener("click", (e) => {
     const t = e.target.closest("[data-act]"); if (!t) return;
     const act = t.dataset.act;
@@ -249,11 +265,14 @@
     if (act === "w10" && !t.dataset.s) { t.dataset.s = "load"; setTimeout(() => t.dataset.s = "done", 1400); setTimeout(() => delete t.dataset.s, 3200); }
     if (act === "w11") $("#d11").classList.toggle("mini");
     if (act === "w13") burst(t);
-    if (act === "w15") { const top = t.lastElementChild; if (red) { t.prepend(top); return; } top.classList.add("out"); setTimeout(() => { top.classList.remove("out"); t.prepend(top); }, 250); }
+    if (act === "w15") { const top = t.lastElementChild; if (isRed()) { t.prepend(top); return; } top.classList.add("out"); setTimeout(() => { top.classList.remove("out"); t.prepend(top); }, 250); }
     if (act === "w17") { t.classList.remove("ring"); void t.offsetWidth; t.classList.add("ring"); t.querySelector("b").textContent = +t.querySelector("b").textContent + 1; }
   });
   $("#d15").addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.currentTarget.click(); } });
-  document.addEventListener("keydown", (e) => { if (e.ctrlKey && e.key.toLowerCase() === "k") { e.preventDefault(); $("#d1").classList.toggle("open"); } if (e.key === "Escape") { $("#d1").classList.remove("open"); $("#d12").classList.remove("open"); } });
+  document.addEventListener("keydown", (e) => {
+    if (e.ctrlKey && e.key.toLowerCase() === "k" && !/INPUT|TEXTAREA/.test(document.activeElement?.tagName || "")) { e.preventDefault(); $("#d1").classList.toggle("open"); }
+    if (e.key === "Escape") { $("#d1").classList.remove("open"); $("#d12").classList.remove("open"); }
+  });
   // context menu at the pointer
   $("#d12").addEventListener("contextmenu", (e) => { e.preventDefault(); const r = e.currentTarget.getBoundingClientRect();
     e.currentTarget.style.setProperty("--x", Math.min(e.clientX - r.left, r.width - 170) + "px"); e.currentTarget.style.setProperty("--y", Math.min(e.clientY - r.top, r.height - 120) + "px"); e.currentTarget.classList.add("open"); });
@@ -265,14 +284,16 @@
   const at = (s, now) => { const el = $(s), p = live.get(s); if (p && now - p.t < 1500) return p;
     return { x: el.clientWidth * (.5 + .32 * Math.cos(now / 1400)), y: el.clientHeight * (.5 + .25 * Math.sin(now / 1100)) }; };
 
-  // dot grid
+  // dot grid (cached colour instead of per-frame getComputedStyle)
   const cv = $("#d19 canvas"), ctx = cv.getContext("2d"); let dots = [];
+  let tileColor = getComputedStyle(document.documentElement).getPropertyValue("--tile").trim() || "#f2b84b";
+  new MutationObserver(() => { tileColor = getComputedStyle(document.documentElement).getPropertyValue("--tile").trim() || "#f2b84b"; }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-palette"] });
   const sizeGrid = () => { cv.width = cv.clientWidth; cv.height = cv.clientHeight; dots = [];
     for (let y = 14; y < cv.height; y += 18) for (let x = 14; x < cv.width; x += 18) dots.push({ ox: x, oy: y, x, y, vx: 0, vy: 0 }); };
   new ResizeObserver(sizeGrid).observe(cv);
   // confetti
   const cc = $("#d13 canvas"), cx2 = cc.getContext("2d"); let bits = [];
-  function burst(btn) { if (red) return; cc.width = cc.clientWidth; cc.height = cc.clientHeight;
+  function burst(btn) { if (isRed()) return; cc.width = cc.clientWidth; cc.height = cc.clientHeight;
     const st = getComputedStyle(document.documentElement), cols = ["--tile", "--l1", "--l2", "--l3"].map((v) => st.getPropertyValue(v));
     const r = btn.getBoundingClientRect(), o = cc.getBoundingClientRect();
     for (let i = 0; i < 90; i++) { const a = -Math.PI / 2 + (Math.random() - .5) * 1.8, v = 5 + Math.random() * 7;
@@ -283,10 +304,10 @@
   ["#d2", "#d14", "#d19", "#d13"].forEach((s) => io.observe($(s)));
   (function frame(now) {
     requestAnimationFrame(frame); if (document.hidden) return;
-    if (vis.has($("#d2"))) { const p = at("#d2", now); $("#d2 .lens").style.setProperty("--x", p.x - 75 + "px"); $("#d2 .lens").style.setProperty("--y", p.y - 55 + "px"); }
-    if (vis.has($("#d14"))) { const p = at("#d14", now); $("#d14 .lit").style.setProperty("--x", p.x - 24 + "px"); $("#d14 .lit").style.setProperty("--y", p.y + "px"); }
-    if (vis.has($("#d19")) && !red) { const p = at("#d19", now), col = getComputedStyle($("#d19")).getPropertyValue("--tile");
-      ctx.clearRect(0, 0, cv.width, cv.height); ctx.fillStyle = col;
+    if (vis.has($("#d2")) && !isRed()) { const p = at("#d2", now); $("#d2 .lens").style.setProperty("--x", p.x - 75 + "px"); $("#d2 .lens").style.setProperty("--y", p.y - 55 + "px"); }
+    if (vis.has($("#d14")) && !isRed()) { const p = at("#d14", now); $("#d14 .lit").style.setProperty("--x", p.x - 24 + "px"); $("#d14 .lit").style.setProperty("--y", p.y + "px"); }
+    if (vis.has($("#d19")) && !isRed()) { const p = at("#d19", now);
+      ctx.clearRect(0, 0, cv.width, cv.height); ctx.fillStyle = tileColor;
       for (const d of dots) { const dx = d.x - p.x, dy = d.y - p.y, dd = dx * dx + dy * dy, f = dd < 6400 ? (6400 - dd) / 6400 * 2.2 : 0, l = Math.sqrt(dd) || 1;
         d.vx += dx / l * f + (d.ox - d.x) * .08; d.vy += dy / l * f + (d.oy - d.y) * .08; d.vx *= .8; d.vy *= .8; d.x += d.vx; d.y += d.vy;
         const k = Math.min(1, Math.hypot(d.x - d.ox, d.y - d.oy) / 14); ctx.globalAlpha = .35 + k * .65; ctx.beginPath(); ctx.arc(d.x, d.y, 1.6 + k * 1.6, 0, 7); ctx.fill(); } }

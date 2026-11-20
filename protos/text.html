@@ -53,14 +53,15 @@
   let gp = 0;
   Bank.drive({ el: document.querySelector("main"), mode: () => cfg.mode, dur: () => cfg.dur * 1000 + 1200, hold: 1400, scroll: () => 1, setP: (p) => (gp = p) });
   (function frame() {
+    requestAnimationFrame(frame);
+    if (document.hidden) return;
     rows.forEach((r, i) => {
       let p;
       if (Bank.reduced()) p = 1;
       else if (cfg.mode === "scroll") { const b = r.h.getBoundingClientRect(); p = Bank.clamp01((innerHeight * .9 - b.top) / (innerHeight * .45)); }
       else p = Bank.seg(gp, i * .12, i * .12 + .6);
-      if (p !== r.last || r.fx === "scramble" && p < 1) { r.last = p; render(r, p); }
+      if (p !== r.last || (r.fx === "scramble" && p > 0 && p < 1 && !Bank.reduced())) { r.last = p; render(r, p); }
     });
-    requestAnimationFrame(frame);
   })();
 </script>
 </body>

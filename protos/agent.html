@@ -52,7 +52,7 @@
   let state = "idle", since = performance.now(), blinkAt = 0;
   const group = document.querySelector(".states");
   const setState = (s) => { state = s; since = performance.now(); status.textContent = STATES[s]; group.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.s === s)); };
-  Object.entries(STATES).forEach(([k, v]) => { const b = document.createElement("button"); b.type = "button"; b.dataset.s = k; b.textContent = v; b.onclick = () => { cfg.cycle = false; setState(k); }; group.appendChild(b); });
+  Object.entries(STATES).forEach(([k, v]) => { const b = document.createElement("button"); b.type = "button"; b.dataset.s = k; b.textContent = v; b.onclick = () => { cfg.cycle = false; cfg._sync?.(); setState(k); }; group.appendChild(b); });
   const dropEls = [0, 1].map(() => { const c = document.createElementNS(NS, "circle"); drops.appendChild(c); return c; });
   const tents = [0, 1, 2, 3].map(() => { const p = document.createElementNS(NS, "path"); tent.appendChild(p); return p; });
 
@@ -71,6 +71,8 @@
     return d + "Z"; };
   const ORDER = ["idle", "listen", "think", "speak"];
   (function frame(now) {
+    requestAnimationFrame(frame);
+    if (document.hidden) return;
     const red = Bank.reduced(), t = red ? 0 : now / 1000, age = (now - since) / 1000;
     if (cfg.cycle && !red && age > 3.2) setState(ORDER[(ORDER.indexOf(state) + 1) % 4]);
     const cy = 190 + Math.sin(t * 1.3) * cfg.float * .6, cx = 200 + (state === "listen" ? 10 : 0);
@@ -98,7 +100,6 @@
     [["eL", -30], ["eR", 30]].forEach(([id, dx]) => { const e = $(id); e.setAttribute("cx", cx + dx + (state === "listen" ? 6 : 0)); e.setAttribute("cy", cy - 12 + look); e.setAttribute("ry", 13 * blink * wide); });
     const open = state === "speak" ? 6 + Math.abs(Math.sin(t * 9)) * 12 : state === "idle" ? 6 : 2, my = cy + 26;
     $("mouth").setAttribute("d", state === "think" ? `M${cx - 10} ${my} L${cx + 10} ${my}` : `M${cx - 16} ${my} Q${cx} ${my + open} ${cx + 16} ${my}`);
-    requestAnimationFrame(frame);
   })(performance.now());
 </script>
 </body>

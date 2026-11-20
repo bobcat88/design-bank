@@ -1,7 +1,8 @@
 // Shared catalogue behaviour for css.html, wow.html, webgl.html:
 // code viewer, support badge, wow/platform tag, sort and platform filter, player or replay.
 // META: { id: [wow 1–5, "wdm" platforms] }; PLAY: ids that get Bank.player (or a custom src via srcs[id]).
-Bank.cards = function (META, PLAY = [], srcs = {}) {
+// replays: optional { id: fn | false } — fn runs custom reset without cloning DOM; false hides Rejouer on interactive/canvas demos.
+Bank.cards = function (META, PLAY = [], srcs = {}, replays = {}) {
   if (/[?&]embed/.test(location.search)) document.documentElement.classList.add("embed");
   document.querySelectorAll(".fill").forEach((f) => { f.innerHTML = "<i></i>".repeat(+f.dataset.n); });
   const NAMES = { w: "site", d: "bureau", m: "mobile" }, arts = [...document.querySelectorAll("article")], home = new Map(arts.map((a) => [a, a.parentNode]));
@@ -18,6 +19,7 @@ Bank.cards = function (META, PLAY = [], srcs = {}) {
     const [w, p] = META[a.id] || [0, "wdm"];
     a.querySelector("h3").insertAdjacentHTML("afterend", `<span class="tag">wow ${w}/5 · ${[...p].map((c) => NAMES[c]).join(", ")}</span>`);
     if (PLAY.includes(a.id)) { Bank.player(a.querySelector(".demo"), srcs[a.id]); return; }
+    if (replays[a.id] === false) return;
     let tools = a.querySelector(".tools");
     if (!tools) { tools = document.createElement("div"); tools.className = "tools"; a.querySelector(".demo").after(tools); }
     tools.insertAdjacentHTML("beforeend", '<button type="button" data-act="replay">Rejouer</button>');
@@ -37,6 +39,8 @@ Bank.cards = function (META, PLAY = [], srcs = {}) {
     chips.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", x === b)); apply(); };
   document.addEventListener("click", (e) => {
     const t = e.target.closest("[data-act=replay]"); if (!t) return;
-    const d = t.closest("article").querySelector(".demo"); d.replaceWith(d.cloneNode(true));
+    const art = t.closest("article");
+    if (typeof replays[art.id] === "function") { replays[art.id](art); return; }
+    const d = art.querySelector(".demo"); d.replaceWith(d.cloneNode(true));
   });
 };

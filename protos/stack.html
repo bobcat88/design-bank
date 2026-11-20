@@ -115,7 +115,6 @@
     const tc = Bank.seg(p, .3, .45);
     cubesG.style.opacity = e(tc); cubesG.setAttribute('transform', `translate(0 ${lerp(-40, 0, e(tc))})`);
     lis.forEach((li, i) => { const t = Bank.seg(p, .45 + i * .025, .55 + i * .025); li.style.opacity = t; li.style.transform = `translateY(${lerp(14, 0, t)}px)`; });
-    legend.parentNode.style.setProperty('--x', 0);
     const tt = e(Bank.seg(p, .6, .8));
     topG.setAttribute('transform', `translate(0 ${lerp(-150, 0, tt)})`);
     topG.style.opacity = lerp(.25, 1, tt);

@@ -18,7 +18,7 @@
   .fx-glow .tile:hover svg { filter: drop-shadow(0 0 10px currentColor); }
   .fx-wiggle .tile:hover svg { animation: wig .5s ease-in-out; }
   @keyframes pulse { 50% { transform: scale(1.2); } } @keyframes wig { 25% { transform: rotate(-10deg); } 75% { transform: rotate(10deg); } }
-  .rows { padding-bottom: 20vh; }
+  .rows { padding-bottom: 20vh; overflow: hidden; }
   html.embed header { padding: 8vh 24px 5vh; } html.embed header p { display: none; }
 </style>
 </head>
@@ -55,11 +55,12 @@
   document.querySelector(".rows").addEventListener("pointerenter", () => hover = true);
   document.querySelector(".rows").addEventListener("pointerleave", () => hover = false);
   (function frame(now) {
+    requestAnimationFrame(frame);
+    if (document.hidden) { last = now; return; }
     const dt = Math.min(.05, (now - last) / 1000); last = now;
     if (!Bank.reduced() && !(cfg.pause && hover)) off += cfg.speed * dt;
     const pos = cfg.mode === "scroll" ? scrollY * .8 : off;
     rows.forEach((r, k) => { const w = r.scrollWidth / 3, x = pos % w; r.style.transform = `translateX(${k ? x - w : -x}px)`; });
-    requestAnimationFrame(frame);
   })(last);
 </script>
 </body>

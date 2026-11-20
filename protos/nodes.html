@@ -21,6 +21,8 @@
   .nt { font: 500 15px var(--font); fill: var(--text); text-anchor: middle; dominant-baseline: central; }
   .nt.on { fill: var(--tile-ink); }
   .cap { position: absolute; left: 16px; top: 12px; font: 600 11px var(--font); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  html.embed main { padding: 3vh 3vw; } html.embed header { display: none; } html.embed .graph { margin-bottom: 18px; }
+  @media (max-width: 680px) { main { padding: 32px 16px 100px; } .graph { overflow-x: auto; aspect-ratio: auto; min-height: 280px; } .graph svg { min-width: 640px; height: 280px; } }
 </style>
 </head>
 <body>
@@ -51,7 +53,7 @@
   ];
   const NS = "http://www.w3.org/2000/svg", VW = 1000, VH = 437;
   const mk = (t, a, p) => { const n = document.createElementNS(NS, t); for (const k in a) n.setAttribute(k, a[k]); p.appendChild(n); return n; };
-  let cfg, boxes = [];
+  let cfg, boxes = [], observers = [];
   const shapePath = (n) => {
     const x = n.x, y = n.y, hw = n.w / 2, hh = n.h / 2, r = cfg.nodeRound / 100 * Math.min(n.w, n.h) / 2;
     const pts = cfg.shape === "diamond" ? [[x, y - hh], [x + hw, y], [x, y + hh], [x - hw, y]]
@@ -60,6 +62,7 @@
     return Bank.roundPath(pts, r);
   };
   function draw() {
+    observers.forEach((io) => io.disconnect()); observers = [];
     const host = document.getElementById("graphs"); host.innerHTML = ""; boxes = [];
     GRAPHS.forEach((g) => {
       const box = document.createElement("div"); box.className = "graph"; box.innerHTML = "<span class=\"cap\"></span>"; box.firstChild.textContent = g.cap;
@@ -80,8 +83,10 @@
         if (cfg.signal) E.s = mk("circle", { r: 4, class: "sig" }, svg);
         E.ph = Math.random();
       });
-      boxes.push({ box, edges, vis: false, t0: performance.now() });
-      new IntersectionObserver((en) => { const b = boxes.find((x) => x.box === box); if (b) { b.vis = en[0].isIntersecting; if (b.vis && !b.seen) { b.seen = true; b.t0 = performance.now(); } } }, { threshold: .4 }).observe(box);
+      const entry = { box, edges, vis: false, seen: false, t0: performance.now() };
+      boxes.push(entry);
+      const io = new IntersectionObserver((en) => { entry.vis = en[0].isIntersecting; if (entry.vis && !entry.seen) { entry.seen = true; entry.t0 = performance.now(); } }, { threshold: .25 });
+      io.observe(box); observers.push(io);
     });
   }
   cfg = Bank.panel({
@@ -98,8 +103,12 @@
     onChange: (c) => { cfg = c; draw(); },
   });
   (function loop(now) {
+    requestAnimationFrame(loop);
+    if (document.hidden) return;
+    const reduced = Bank.reduced();
     boxes.forEach((b) => {
-      const r = b.box.getBoundingClientRect(), reduced = Bank.reduced();
+      if (!b.vis && !reduced) return;
+      const r = b.box.getBoundingClientRect();
       let p = 1;
       if (!reduced) {
         if (cfg.mode === "scroll") p = Bank.clamp01((innerHeight * .9 - r.top) / (innerHeight * .5));
@@ -111,7 +120,6 @@
         if (E.s && !reduced) { const pt = E.p.getPointAtLength(((now / 3200 + E.ph) % 1) * E.len); E.s.setAttribute("cx", pt.x); E.s.setAttribute("cy", pt.y); }
       });
     });
-    requestAnimationFrame(loop);
   })(performance.now());
 </script>
 </body>

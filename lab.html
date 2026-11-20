@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="fr" data-palette="ink">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Design Lab · Propositions & Mixeur</title>
+<link rel="stylesheet" href="shared/bank.css">
+<style>
+  body { background: #0d0e13; color: #f1f2f6; margin: 0; }
+  .wrap { max-width: 1480px; margin: 0 auto; padding: 32px 36px 120px; display: grid; gap: 36px; }
+  .head { display: flex; justify-content: space-between; align-items: end; gap: 24px; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: 24px; }
+  .head h1 { font-size: clamp(32px, 4vw, 56px); line-height: 1.02; margin: 8px 0 0; }
+  .head p { margin: 10px 0 0; color: var(--muted); max-width: 66ch; font-size: 16px; line-height: 1.5; }
+  .intent-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .intent-bar button { padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--muted); font: 500 13px var(--font); transition: background-color .18s, color .18s; }
+  .intent-bar button[aria-pressed="true"] { background: var(--tile); color: var(--tile-ink); border-color: transparent; }
+
+  /* 6-proposal grid: 3 close + 3 deliberately far */
+  .sec-title { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+  .sec-title h2 { font-size: 28px; margin: 0; }
+  .sec-title span { font: 500 12px var(--mono); color: var(--muted); }
+  .proposals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+  .card { background: #151720; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; transition: border-color .2s; }
+  .card.liked { border-color: #4ade80; }
+  .card.disliked { opacity: .48; border-color: #f87171; }
+  .shot { position: relative; aspect-ratio: 16 / 10; background: #0a0b0f; border-bottom: 1px solid var(--line); overflow: hidden; }
+  .shot img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+  .shot .swatch-preview { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 18px; }
+  .badge-dist { position: absolute; left: 10px; top: 10px; z-index: 2; padding: 4px 10px; border-radius: 999px; font: 600 11px var(--mono); letter-spacing: .04em; background: rgba(11,11,15,.85); border: 1px solid var(--line); }
+  .badge-dist.near { color: #86efac; border-color: rgba(134,239,172,.4); }
+  .badge-dist.far { color: #fda4af; border-color: rgba(253,164,175,.4); }
+  .open-link { position: absolute; right: 10px; top: 10px; z-index: 2; padding: 5px 10px; border-radius: 999px; font: 500 11px var(--mono); background: rgba(11,11,15,.85); color: #fff; text-decoration: none; border: 1px solid var(--line); }
+  .open-link:hover { border-color: var(--tile); }
+
+  .cbody { padding: 16px; display: grid; gap: 12px; flex: 1; }
+  .ctop { display: flex; justify-content: space-between; align-items: start; gap: 8px; }
+  .ctop strong { font-size: 17px; display: block; }
+  .ctop small { color: var(--muted); font: 400 12px var(--mono); }
+  .react { display: flex; gap: 6px; }
+  .react button { padding: 5px 10px; border-radius: 8px; border: 1px solid var(--line); background: transparent; font-size: 12px; }
+  .react button.on-like { background: #14532d; border-color: #4ade80; color: #dcfce7; }
+  .react button.on-no { background: #450a0a; border-color: #f87171; color: #fee2e2; }
+  .desc { margin: 0; font-size: 13.5px; line-height: 1.45; color: var(--muted); }
+  .picks { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
+  .picks button { padding: 5px 9px; border-radius: 7px; border: 1px solid var(--line); background: rgba(255,255,255,.03); color: #d6d8e1; font: 500 11px var(--mono); transition: background-color .15s, color .15s, border-color .15s; }
+  .picks button:hover { border-color: var(--tile); }
+  .picks button[aria-pressed="true"] { background: var(--tile); color: var(--tile-ink); border-color: transparent; }
+
+  /* Hybrid Mixer Bench */
+  .mixer { display: grid; grid-template-columns: minmax(0, 1.35fr) 360px; gap: 20px; align-items: start; }
+  .stage-box { border: 1px solid var(--line); border-radius: 18px; overflow: hidden; background: #151720; }
+  .stage-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 16px; border-bottom: 1px solid var(--line); font: 500 12px var(--mono); color: var(--muted); }
+  .recipe { display: flex; flex-wrap: wrap; gap: 6px; }
+  .recipe span { padding: 3px 8px; border-radius: 6px; background: rgba(255,255,255,.06); color: #eef0f6; }
+
+  /* Live mixed preview driven strictly by OKLCH + token CSS variables */
+  .pv {
+    --p-bg: #111; --p-surface: #1a1a1f; --p-text: #f5f5f7; --p-muted: #a1a1aa; --p-line: #333;
+    --p-accent: #f2b84b; --p-ink: #111; --p-r: 12px; --p-s: 1; --p-dur: 220ms;
+    --p-display: "Fraunces", serif; --p-body: "Inter", sans-serif; --p-dw: 600;
+    --p-h1: 48px; --p-h2: 28px; --p-small: 13px;
+    background: var(--p-bg); color: var(--p-text); font-family: var(--p-body); padding: calc(28px * var(--p-s)); display: grid; gap: calc(24px * var(--p-s)); min-height: 500px;
+    transition: background-color var(--p-dur) ease-out, color var(--p-dur) ease-out;
+  }
+  .pv-nav { display: flex; justify-content: space-between; align-items: center; padding-bottom: calc(14px * var(--p-s)); border-bottom: 1px solid var(--p-line); }
+  .pv-nav b { font: var(--p-dw) 16px/1 var(--p-display); letter-spacing: .06em; }
+  .pv-nav .links { display: flex; gap: 18px; font-size: var(--p-small); color: var(--p-muted); }
+  .pv-hero { position: relative; border-radius: var(--p-r); border: 1px solid var(--p-line); background: var(--p-surface); padding: calc(32px * var(--p-s)); overflow: hidden; display: grid; gap: 14px; }
+  .pv-hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .38; pointer-events: none; }
+  .pv-hero > :not(canvas) { position: relative; z-index: 1; }
+  .pv-hero h3 { margin: 0; font: var(--p-dw) var(--p-h1)/1.02 var(--p-display); letter-spacing: -.025em; max-width: 15ch; }
+  .pv-hero p { margin: 0; max-width: 48ch; color: var(--p-muted); font-size: calc(16px * var(--p-s)); line-height: 1.5; }
+  .pv-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .pv-btn { padding: calc(10px * var(--p-s)) calc(18px * var(--p-s)); border-radius: var(--p-r); border: 1px solid var(--p-accent); background: var(--p-accent); color: var(--p-ink); font: 600 13px var(--p-body); }
+  .pv-btn.alt { background: transparent; color: var(--p-text); border-color: var(--p-line); }
+  .pv-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(12px * var(--p-s)); }
+  .pv-kpi { background: var(--p-surface); border: 1px solid var(--p-line); border-radius: var(--p-r); padding: calc(16px * var(--p-s)); }
+  .pv-kpi strong { display: block; font: var(--p-dw) var(--p-h2)/1.1 var(--p-display); font-variant-numeric: tabular-nums; }
+  .pv-kpi span { font-size: var(--p-small); color: var(--p-muted); }
+
+  /* Right controls & export panel */
+  .ctrl { background: #151720; border: 1px solid var(--line); border-radius: 18px; padding: 18px; display: grid; gap: 14px; }
+  .ctrl h3 { margin: 0; font: 600 12px var(--mono); text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  .checks { display: grid; gap: 5px; font: 400 12px var(--mono); }
+  .checks .pass { color: #86efac; } .checks .fail { color: #fca5a5; }
+  .btn-stack { display: grid; gap: 8px; }
+  .act-btn { padding: 10px 14px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--text); font: 500 13px var(--font); text-align: left; transition: background-color .18s; }
+  .act-btn.primary { background: var(--tile); color: var(--tile-ink); border-color: transparent; font-weight: 600; }
+  .act-btn:hover { background: rgba(255,255,255,.08); }
+  .act-btn.primary:hover { filter: brightness(1.06); background: var(--tile); }
+  .io-ta { width: 100%; min-height: 110px; border-radius: 10px; border: 1px solid var(--line); background: #0c0d12; color: #d8d6e2; font: 11.5px/1.45 var(--mono); padding: 10px; resize: vertical; }
+  .status-line { font: 500 12px var(--mono); color: #86efac; min-height: 16px; }
+
+  @media (max-width: 1120px) { .proposals { grid-template-columns: repeat(2, minmax(0, 1fr)); } .mixer { grid-template-columns: 1fr; } }
+  @media (max-width: 680px) { .wrap { padding: 20px 16px 100px; } .proposals, .pv-kpis { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <div>
+      <div class="eyebrow">Design Lab · Propositions & Mixeur Hybride</div>
+      <h1>6 directions contrastées, puis on mélange ce qui plaît.</h1>
+      <p>Choisis l'intention client : le lab sélectionne automatiquement 3 styles proches et 3 styles volontairement éloignés (distance 6 axes). Clique sur les parties aimées (palette, typo, géométrie, motion, WebGL) pour composer le système final compatible <code>design-studio</code>.</p>
+    </div>
+    <div class="intent-bar" id="intents" role="group" aria-label="Intention client"></div>
+  </header>
+
+  <section aria-label="Six propositions">
+    <div class="sec-title"><h2>1. Les 6 propositions</h2><span id="intent-summary"></span></div>
+    <div class="proposals" id="proposals"></div>
+  </section>
+
+  <section aria-label="Mixeur hybride">
+    <div class="sec-title"><h2>2. Mixeur hybride & Export Design Studio</h2><span>Combine des parties de plusieurs directions et vérifie le contraste WCAG en direct</span></div>
+    <div class="mixer">
+      <div class="stage-box">
+        <div class="stage-bar">
+          <div class="recipe" id="recipe"></div>
+          <button type="button" class="act-btn" id="reset-mix" style="padding:5px 10px">Réinitialiser</button>
+        </div>
+        <div class="pv" id="pv">
+          <div class="pv-nav"><b>KESTREL</b><div class="links"><span>Systèmes</span><span>Stations</span><span>API</span></div></div>
+          <div class="pv-hero" id="pv-hero">
+            <canvas id="pv-cv" aria-label="Aperçu shader WebGL du mixeur" hidden></canvas>
+            <h3 id="pv-h">Mesurer chaque site, décider à la seconde.</h3>
+            <p>Des capteurs autonomes reliés à une console unique pour suivre vos infrastructures critiques sans bruit ni délai.</p>
+            <div class="pv-row"><button type="button" class="pv-btn">Démarrer</button><button type="button" class="pv-btn alt">Documentation</button></div>
+          </div>
+          <div class="pv-kpis">
+            <div class="pv-kpi"><strong>412</strong><span>stations actives</span></div>
+            <div class="pv-kpi"><strong>18 ms</strong><span>latence médiane</span></div>
+            <div class="pv-kpi"><strong>99,98 %</strong><span>disponibilité 2026</span></div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="ctrl" aria-label="Contrôle et export">
+        <h3>Contraste WCAG (OKLCH)</h3>
+        <div class="checks" id="checks" aria-live="polite"></div>
+        <h3>Exports compatibles moteur</h3>
+        <div class="btn-stack">
+          <button type="button" class="act-btn primary" id="exp-dna">Copier Design DNA JSON</button>
+          <button type="button" class="act-btn" id="exp-studio">Copier studio.json (design-studio/build.py)</button>
+          <button type="button" class="act-btn" id="exp-css">Copier tokens.css</button>
+          <button type="button" class="act-btn" id="imp-dna">Importer un DNA JSON depuis la zone ci-dessous</button>
+        </div>
+        <textarea class="io-ta" id="io-ta" aria-label="Zone JSON Design DNA"></textarea>
+        <div class="status-line" id="msg" aria-live="polite"></div>
+      </aside>
+    </div>
+  </section>
+</div>
+
+<script src="shared/bank.js"></script>
+<script src="shared/shader.js"></script>
+<script src="shared/archetypes.js"></script>
+<script>
+  // Pure OKLCH + WCAG helpers aligned with AI-Agents/skills/design-studio/studio/studio.template.html
+  const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+  const toLin = (c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  const toGam = (c) => (c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055);
+  const hexToRgb = (hex) => { const h = hex.replace("#", ""); const n = parseInt(h.length === 3 ? h.split("").map((x) => x + x).join("") : h, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+  const rgbToHex = ([r, g, b]) => "#" + [r, g, b].map((v) => Math.round(clamp(v, 0, 255)).toString(16).padStart(2, "0")).join("");
+  function oklchToHex(L, C, H) {
+    const h = (H * Math.PI) / 180, a = C * Math.cos(h), b = C * Math.sin(h);
+    const l_ = L + 0.3963377774 * a + 0.2158037573 * b, m_ = L - 0.1055613458 * a - 0.0638541728 * b, s_ = L - 0.0894841775 * a - 1.291485548 * b;
+    const l = l_ ** 3, m = m_ ** 3, s = s_ ** 3;
+    return rgbToHex([4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s, -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s, -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s].map((c) => toGam(clamp(c, 0, 1)) * 255));
+  }
+  const lum = (hex) => { const [r, g, b] = hexToRgb(hex).map((v) => toLin(v / 255)); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+  const contrast = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+  function derivePalette(t) {
+    const hue = 255 - ((t.warmth + 1) / 2) * 185, c = t.tint / 100;
+    const P = t.theme === "dark"
+      ? { bg: oklchToHex(0.17, c, hue), surface: oklchToHex(0.215, c, hue), text: oklchToHex(0.95, c * 0.5, hue), muted: oklchToHex(0.74, c, hue), line: oklchToHex(0.31, c, hue) }
+      : { bg: oklchToHex(0.975, c * 0.6, hue), surface: oklchToHex(0.995, c * 0.3, hue), text: oklchToHex(0.22, c, hue), muted: oklchToHex(0.47, c, hue), line: oklchToHex(0.89, c, hue) };
+    P.accent = t.accent;
+    P.ink = contrast(t.accent, "#ffffff") >= contrast(t.accent, "#101114") ? "#ffffff" : "#101114";
+    return P;
+  }
+
+  const DATA = window.ARCHETYPES_DATA;
+  const ARCHS = DATA.archetypes;
+  const byId = Object.fromEntries(ARCHS.map((a) => [a.id, a]));
+  const AXES = ["temperature", "formality", "density", "geometry", "motion", "decoration"];
+  const dist = (a, b) => Math.hypot(...AXES.map((k) => (a[k] ?? 0) - (b[k] ?? 0)));
+
+  const loadedFonts = new Set();
+  function ensureFont(name) {
+    if (!name || loadedFonts.has(name)) return;
+    loadedFonts.add(name);
+    const l = document.createElement("link"); l.rel = "stylesheet";
+    l.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(name).replace(/%20/g, "+")}:wght@300..800&display=swap`;
+    document.head.appendChild(l);
+  }
+
+  let intentId = DATA.intents[0].id;
+  const reactions = {}; // id -> "like" | "dislike" | null
+  let mix = {
+    paletteFrom: ARCHS[0].id,
+    typoFrom: ARCHS[0].id,
+    geometryFrom: ARCHS[0].id,
+    motionFrom: ARCHS[0].id,
+    webglFrom: "immersive-cinematic",
+    tokens: Object.assign({}, ARCHS[0].tokens),
+    webgl: Object.assign({}, ARCHS[0].webgl),
+  };
+
+  function pickSix(intent) {
+    const scored = ARCHS.map((a) => ({ a, d: dist(a.axes, intent.target) })).sort((x, y) => x.d - y.d);
+    const near = scored.slice(0, 3).map((x) => ({ ...x, kind: "near" }));
+    const far = scored.slice(-3).reverse().map((x) => ({ ...x, kind: "far" }));
+    return [...near, ...far];
+  }
+
+  function renderIntents() {
+    const host = document.getElementById("intents");
+    host.innerHTML = DATA.intents.map((it) => `<button type="button" data-id="${it.id}" aria-pressed="${it.id === intentId}">${it.label}</button>`).join("");
+    host.onclick = (e) => {
+      const b = e.target.closest("button"); if (!b) return;
+      intentId = b.dataset.id;
+      renderIntents(); renderProposals();
+    };
+  }
+
+  function applySlot(slot, archId) {
+    const a = byId[archId]; if (!a) return;
+    if (slot === "palette") {
+      mix.paletteFrom = archId;
+      Object.assign(mix.tokens, { theme: a.tokens.theme, accent: a.tokens.accent, warmth: a.tokens.warmth, tint: a.tokens.tint });
+    } else if (slot === "typo") {
+      mix.typoFrom = archId;
+      Object.assign(mix.tokens, { display: a.tokens.display, dweight: a.tokens.dweight, body: a.tokens.body, scale: a.tokens.scale });
+    } else if (slot === "geometry") {
+      mix.geometryFrom = archId;
+      Object.assign(mix.tokens, { radius: a.tokens.radius, density: a.tokens.density });
+    } else if (slot === "motion") {
+      mix.motionFrom = archId;
+      mix.tokens.motion = a.tokens.motion;
+    } else if (slot === "webgl") {
+      mix.webglFrom = archId;
+      mix.webgl = Object.assign({}, a.webgl);
+    }
+    renderProposals();
+    renderMixer();
+  }
+
+  function renderProposals() {
+    const intent = DATA.intents.find((x) => x.id === intentId);
+    const six = pickSix(intent);
+    document.getElementById("intent-summary").textContent = `${intent.label} → 3 proches + 3 écarts volontaires`;
+    const grid = document.getElementById("proposals");
+    grid.innerHTML = six.map(({ a, d, kind }) => {
+      const P = derivePalette(a.tokens);
+      const react = reactions[a.id] || "";
+      const cls = react === "like" ? "liked" : react === "dislike" ? "disliked" : "";
+      return `<article class="card ${cls}" data-id="${a.id}">
+        <div class="shot">
+          <div class="swatch-preview" style="background:${P.bg};color:${P.text};font-family:'${a.tokens.display}',system-ui,sans-serif">
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;opacity:.75"><span>KESTREL</span><span style="width:12px;height:12px;border-radius:${Math.min(a.tokens.radius, 6)}px;background:${P.accent}"></span></div>
+            <div style="font-size:26px;line-height:1.05;font-weight:${a.tokens.dweight};letter-spacing:-.02em">Mesurer chaque site.</div>
+            <div style="display:flex;gap:8px"><span style="padding:6px 12px;border-radius:${a.tokens.radius}px;background:${P.accent};color:${P.ink};font-size:11px;font-weight:600">Action</span><span style="padding:6px 12px;border-radius:${a.tokens.radius}px;border:1px solid ${P.line};font-size:11px">${a.tokens.display}</span></div>
+          </div>
+          <img src="posters/${a.id}.jpg" alt="Aperçu ${a.name}" width="1280" height="800" loading="lazy" onerror="this.remove()">
+          <span class="badge-dist ${kind}">${kind === "near" ? "Proche" : "Écart"} · d=${d.toFixed(2)}</span>
+          <a class="open-link" href="${a.page}">Ouvrir ↗</a>
+        </div>
+        <div class="cbody">
+          <div class="ctop">
+            <div><strong>${a.name}</strong><small>${a.references.join(" · ")}</small></div>
+            <div class="react">
+              <button type="button" data-react="like" class="${react === "like" ? "on-like" : ""}" aria-label="Aimer ${a.name}">+ Aime</button>
+              <button type="button" data-react="dislike" class="${react === "dislike" ? "on-no" : ""}" aria-label="Rejeter ${a.name}">− Non</button>
+            </div>
+          </div>
+          <p class="desc">${a.tagline}</p>
+          <div class="picks" role="group" aria-label="Prendre une partie de ${a.name}">
+            <button type="button" data-slot="palette" aria-pressed="${mix.paletteFrom === a.id}">Palette</button>
+            <button type="button" data-slot="typo" aria-pressed="${mix.typoFrom === a.id}">Typo</button>
+            <button type="button" data-slot="geometry" aria-pressed="${mix.geometryFrom === a.id}">Géométrie</button>
+            <button type="button" data-slot="motion" aria-pressed="${mix.motionFrom === a.id}">Motion</button>
+            ${a.webgl?.allowed ? `<button type="button" data-slot="webgl" aria-pressed="${mix.webglFrom === a.id && !!mix.webgl.shader}">WebGL (${a.webgl.shader})</button>` : `<button type="button" data-slot="webgl" aria-pressed="${mix.webglFrom === a.id && !mix.webgl.shader}">Sans WebGL</button>`}
+          </div>
+        </div>
+      </article>`;
+    }).join("");
+    grid.onclick = (e) => {
+      const card = e.target.closest(".card"); if (!card) return;
+      const id = card.dataset.id;
+      const rb = e.target.closest("[data-react]");
+      if (rb) { reactions[id] = reactions[id] === rb.dataset.react ? null : rb.dataset.react; renderProposals(); return; }
+      const sb = e.target.closest("[data-slot]");
+      if (sb) { applySlot(sb.dataset.slot, id); }
+    };
+  }
+
+  let activeShaderSrc = null;
+  function renderMixer() {
+    const t = mix.tokens;
+    ensureFont(t.display); ensureFont(t.body);
+    const P = derivePalette(t);
+    const pv = document.getElementById("pv");
+    const h1 = Math.min(64, Math.round(16 * (t.scale ** 4)));
+    const h2 = Math.round(16 * (t.scale ** 2.4));
+    const dur = t.motion === "none" ? "0ms" : t.motion === "subtle" ? "180ms" : "300ms";
+    Object.entries({
+      "--p-bg": P.bg, "--p-surface": P.surface, "--p-text": P.text, "--p-muted": P.muted, "--p-line": P.line,
+      "--p-accent": P.accent, "--p-ink": P.ink, "--p-r": t.radius + "px", "--p-s": t.density, "--p-dur": dur,
+      "--p-display": `"${t.display}", system-ui, sans-serif`, "--p-body": `"${t.body}", system-ui, sans-serif`,
+      "--p-dw": t.dweight, "--p-h1": h1 + "px", "--p-h2": h2 + "px",
+    }).forEach(([k, v]) => pv.style.setProperty(k, v));
+
+    // Optional WebGL shader backdrop inside hybrid hero (single poster frame unless user toggles)
+    const cv = document.getElementById("pv-cv"), hero = document.getElementById("pv-hero");
+    if (mix.webgl && mix.webgl.allowed && mix.webgl.shader && Bank.SHADERS[mix.webgl.shader]) {
+      cv.hidden = false;
+      hero.style.setProperty("--sh-a", (mix.webgl.colors && mix.webgl.colors[0]) || P.accent);
+      hero.style.setProperty("--sh-b", (mix.webgl.colors && mix.webgl.colors[1]) || P.muted);
+      const fresh = cv.cloneNode(false); cv.replaceWith(fresh);
+      activeShaderSrc = Bank.shader(fresh, mix.webgl.shader, hero);
+      activeShaderSrc.set(4200);
+    } else {
+      cv.hidden = true; activeShaderSrc = null;
+    }
+
+    document.getElementById("recipe").innerHTML = [
+      `Palette: ${byId[mix.paletteFrom]?.name || "custom"}`,
+      `Typo: ${t.display} / ${t.body}`,
+      `Rayon: ${t.radius}px`,
+      `Motion: ${t.motion}`,
+      `WebGL: ${mix.webgl?.shader || "aucun"}`,
+    ].map((x) => `<span>${x}</span>`).join("");
+
+    const checks = [
+      ["Texte / fond", contrast(P.text, P.bg), 4.5],
+      ["Secondaire / fond", contrast(P.muted, P.bg), 4.5],
+      ["Texte / surface", contrast(P.text, P.surface), 4.5],
+      ["Bouton / accent", contrast(P.ink, P.accent), 4.5],
+      ["Accent / fond (UI)", contrast(P.accent, P.bg), 3],
+    ];
+    document.getElementById("checks").innerHTML = checks.map(([lbl, r, need]) => {
+      const ok = r >= need;
+      return `<div class="${ok ? "pass" : "fail"}">${ok ? "PASS" : "FAIL"} · ${lbl}: ${r.toFixed(2)}:1 (min ${need}:1)</div>`;
+    }).join("");
+
+    document.getElementById("io-ta").value = JSON.stringify(buildDNA(), null, 2);
+  }
+
+  function buildDNA() {
+    return {
+      version: "1.0",
+      intent: intentId,
+      reactions,
+      sources: { palette: mix.paletteFrom, typography: mix.typoFrom, geometry: mix.geometryFrom, motion: mix.motionFrom, webgl: mix.webglFrom },
+      tokens: mix.tokens,
+      webgl: mix.webgl,
+    };
+  }
+
+  function buildStudioConfig() {
+    const intent = DATA.intents.find((x) => x.id === intentId);
+    const liked = ARCHS.filter((a) => reactions[a.id] === "like");
+    const picked = (liked.length >= 2 ? liked : pickSix(intent).map((x) => x.a)).slice(0, 3);
+    const directions = [
+      { id: "D1", name: "Mix hybride", line: "Direction composée dans le Design Lab.", refs: Object.values(buildDNA().sources), tokens: mix.tokens },
+      ...picked.map((a, i) => ({ id: `D${i + 2}`, name: a.name, line: a.tagline, refs: a.references, tokens: a.tokens })),
+    ].slice(0, 4);
+    return {
+      project: DATA.brief.brand,
+      kind: "page",
+      subtitle: `Exporté depuis Design Lab (${intent.label}).`,
+      preview: {
+        nav: ["Systèmes", "Stations", "Télémétrie", "API"],
+        cta: "Démarrer", cta2: "Documentation",
+        headline: DATA.brief.headline, lede: DATA.brief.lede,
+        badge: "99,98 % disponibilité 2026", caption: "412 stations actives",
+        series: [72, 76, 79, 81, 84, 86, 88, 91, 93, 95, 97, 99],
+        features: [["Collecte", "Acquisition terrain IP68 horodatée."], ["Corrélation", "Latence médiane 18 ms sur l'ensemble du parc."], ["Restitution", "Console opérateur sobre et vérifiée."]],
+      },
+      directions,
+    };
+  }
+
+  function buildCssTokens() {
+    const P = derivePalette(mix.tokens), t = mix.tokens;
+    return `:root {\n  --bg: ${P.bg};\n  --surface: ${P.surface};\n  --text: ${P.text};\n  --muted: ${P.muted};\n  --line: ${P.line};\n  --accent: ${P.accent};\n  --accent-ink: ${P.ink};\n  --radius: ${t.radius}px;\n  --density: ${t.density};\n  --font-display: "${t.display}", system-ui, sans-serif;\n  --font-body: "${t.body}", system-ui, sans-serif;\n  --display-weight: ${t.dweight};\n}\n`;
+  }
+
+  const msg = (txt) => { document.getElementById("msg").textContent = txt; };
+  async function copyText(str, label) {
+    document.getElementById("io-ta").value = str;
+    try { await navigator.clipboard.writeText(str); msg(`${label} copié dans le presse-papiers.`); }
+    catch { msg(`${label} prêt dans la zone texte ci-dessous.`); }
+  }
+  document.getElementById("exp-dna").onclick = () => copyText(JSON.stringify(buildDNA(), null, 2), "Design DNA JSON");
+  document.getElementById("exp-studio").onclick = () => copyText(JSON.stringify(buildStudioConfig(), null, 2), "studio.json");
+  document.getElementById("exp-css").onclick = () => copyText(buildCssTokens(), "tokens.css");
+  document.getElementById("imp-dna").onclick = () => {
+    try {
+      const parsed = JSON.parse(document.getElementById("io-ta").value);
+      if (parsed.tokens) mix.tokens = Object.assign({}, mix.tokens, parsed.tokens);
+      if (parsed.webgl) mix.webgl = Object.assign({}, mix.webgl, parsed.webgl);
+      if (parsed.intent && DATA.intents.some((x) => x.id === parsed.intent)) intentId = parsed.intent;
+      renderIntents(); renderProposals(); renderMixer();
+      msg("Design DNA importé et appliqué.");
+    } catch { msg("Erreur : JSON invalide."); }
+  };
+  document.getElementById("reset-mix").onclick = () => {
+    mix = { paletteFrom: ARCHS[0].id, typoFrom: ARCHS[0].id, geometryFrom: ARCHS[0].id, motionFrom: ARCHS[0].id, webglFrom: ARCHS[0].id, tokens: Object.assign({}, ARCHS[0].tokens), webgl: Object.assign({}, ARCHS[0].webgl) };
+    renderProposals(); renderMixer(); msg("Mixeur réinitialisé.");
+  };
+
+  renderIntents();
+  renderProposals();
+  renderMixer();
+</script>
+</body>
+</html>

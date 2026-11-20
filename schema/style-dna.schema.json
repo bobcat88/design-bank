@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://design-bank.local/schema/style-dna.schema.json",
+  "title": "Design Bank Style DNA & Lab Spec",
+  "description": "Unified contract between design-bank archetypes, Design Lab mixing, design-studio/studio/build.py tokens.json, and future code generators.",
+  "type": "object",
+  "required": ["version", "id", "name", "family", "tokens", "axes", "slots"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "name": { "type": "string" },
+    "family": { "type": "string" },
+    "tagline": { "type": "string" },
+    "page": { "type": "string" },
+    "clientTypes": { "type": "array", "items": { "type": "string" } },
+    "references": { "type": "array", "items": { "type": "string" } },
+    "tokens": {
+      "description": "100% compatible with AI-Agents/skills/design-studio/studio/build.py TOKEN_KEYS.",
+      "type": "object",
+      "required": ["theme", "accent", "warmth", "tint", "radius", "density", "scale", "display", "dweight", "body", "motion"],
+      "properties": {
+        "theme": { "enum": ["light", "dark"] },
+        "accent": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "warmth": { "type": "number", "minimum": -1, "maximum": 1 },
+        "tint": { "type": "number", "minimum": 0, "maximum": 6 },
+        "radius": { "type": "integer", "minimum": 0, "maximum": 28 },
+        "density": { "type": "number", "minimum": 0.8, "maximum": 1.3 },
+        "scale": { "type": "number", "minimum": 1.125, "maximum": 1.5 },
+        "display": {
+          "enum": [
+            "Hanken Grotesk", "Geist", "Instrument Sans", "Manrope", "Figtree",
+            "Plus Jakarta Sans", "Sora", "Bricolage Grotesque", "DM Sans",
+            "Outfit", "Montserrat", "Fraunces", "Newsreader", "Source Serif 4", "JetBrains Mono"
+          ]
+        },
+        "dweight": { "type": "integer", "minimum": 100, "maximum": 900 },
+        "body": {
+          "enum": [
+            "Hanken Grotesk", "Geist", "Instrument Sans", "Manrope", "Figtree",
+            "Plus Jakarta Sans", "Sora", "Bricolage Grotesque", "DM Sans",
+            "Outfit", "Montserrat", "Fraunces", "Newsreader", "Source Serif 4", "JetBrains Mono"
+          ]
+        },
+        "motion": { "enum": ["none", "subtle", "lively"] }
+      }
+    },
+    "axes": {
+      "description": "6-axis style coordinates for Design Lab near/far proposal sampling.",
+      "type": "object",
+      "required": ["temperature", "formality", "density", "geometry", "motion", "decoration"],
+      "properties": {
+        "temperature": { "type": "number", "minimum": -1, "maximum": 1, "description": "-1 cold/monochrome .. +1 warm/organic" },
+        "formality": { "type": "number", "minimum": -1, "maximum": 1, "description": "-1 playful/expressive .. +1 sober/institutional" },
+        "density": { "type": "number", "minimum": -1, "maximum": 1, "description": "-1 airy/editorial .. +1 dense/technical" },
+        "geometry": { "type": "number", "minimum": -1, "maximum": 1, "description": "-1 sharp 0px .. +1 organic/pill" },
+        "motion": { "type": "number", "minimum": 0, "maximum": 1, "description": "0 still .. 1 cinematic/WebGL" },
+        "decoration": { "type": "number", "minimum": 0, "maximum": 1, "description": "0 raw hairline .. 1 atmospheric/shader/glass" }
+      }
+    },
+    "slots": {
+      "description": "Composable parts users can cherry-pick and mix in Design Lab.",
+      "type": "object",
+      "required": ["hero", "surface", "typography", "geometry", "motion", "signature"],
+      "properties": {
+        "hero": { "type": "string" },
+        "surface": { "type": "string" },
+        "typography": { "type": "string" },
+        "geometry": { "type": "string" },
+        "motion": { "type": "string" },
+        "signature": { "type": "string" }
+      }
+    },
+    "webgl": {
+      "type": "object",
+      "properties": {
+        "allowed": { "type": "boolean" },
+        "shader": { "type": ["string", "null"] },
+        "colors": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

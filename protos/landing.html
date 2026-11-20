@@ -14,47 +14,65 @@
   .frame { position: fixed; inset: 40px; border: 1px solid var(--hud); border-radius: 28px; pointer-events: none; }
   .ui { position: fixed; inset: 40px; display: grid; grid-template-rows: auto 1fr auto; font: 600 12px/1.2 var(--mono); letter-spacing: .12em; text-transform: uppercase; }
   header { display: flex; align-items: center; gap: 28px; padding: 16px 16px 0 32px; }
-  .logo { margin-right: auto; display: flex; align-items: center; gap: 10px; font-size: 20px; letter-spacing: .3em; }
+  .logo { margin-right: auto; display: flex; align-items: center; gap: 10px; font-size: 20px; letter-spacing: .3em; color: inherit; text-decoration: none; }
   .logo i { width: 18px; height: 18px; background: var(--g); clip-path: polygon(0 0, 100% 0, 100% 70%, 70% 100%, 0 100%); }
-  header nav { display: flex; gap: 24px; } header a { color: inherit; text-decoration: none; opacity: .85; } header a:hover { opacity: 1; color: var(--g2); }
-  .cut { --c: 12px; display: inline-flex; align-items: center; gap: 10px; padding: 16px 26px; border: 0; color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; background: rgb(196 255 217 / .07);
-    clip-path: polygon(0 0, calc(100% - var(--c)) 0, 100% var(--c), 100% 100%, var(--c) 100%, 0 calc(100% - var(--c))); transition: background .2s, color .2s; }
+  header nav { display: flex; gap: 24px; } header a { color: inherit; text-decoration: none; opacity: .85; transition: opacity .2s, color .2s; } header a:hover { opacity: 1; color: var(--g2); }
+  .cut { --c: 12px; display: inline-flex; align-items: center; gap: 10px; padding: 14px 24px; border: 0; color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; background: rgb(196 255 217 / .07); text-decoration: none;
+    clip-path: polygon(0 0, calc(100% - var(--c)) 0, 100% var(--c), 100% 100%, var(--c) 100%, 0 calc(100% - var(--c))); transition: background-color .2s, color .2s; }
   .cut:hover { background: var(--g); color: var(--ink); } .cut.solid { background: #e6fff0; color: var(--ink); }
   .cut::before { content: ""; width: 7px; height: 7px; background: currentColor; clip-path: polygon(0 0, 100% 50%, 0 100%); }
-  main { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: end; text-align: center; padding-bottom: 6vh; gap: 22px; }
+  main { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: end; text-align: center; padding-bottom: 6vh; gap: 20px; }
   h1 { font: 700 clamp(32px, 2.6vw, 52px)/1.08 Inter, system-ui, sans-serif; letter-spacing: .06em; text-transform: uppercase; max-width: 20ch; text-shadow: 0 2px 30px rgb(0 0 0 / .6); }
-  main p { margin: 0; max-width: 58ch; font: 400 17px/1.55 Inter, system-ui, sans-serif; letter-spacing: 0; text-transform: none; opacity: .75; }
-  .chapters { position: absolute; left: 0; top: 50%; translate: 0 -50%; display: grid; gap: 18px; padding-left: 14px; text-align: left; }
-  .chapters button { background: none; border: 0; padding: 0; font: inherit; letter-spacing: .18em; text-transform: inherit; color: rgb(230 255 240 / .35); display: flex; gap: 12px; align-items: center; }
+  main p { margin: 0; max-width: 58ch; font: 400 17px/1.55 Inter, system-ui, sans-serif; letter-spacing: 0; text-transform: none; opacity: .82; }
+  .chapters { position: absolute; left: 0; top: 50%; translate: 0 -50%; display: grid; gap: 16px; padding-left: 14px; text-align: left; }
+  .chapters button { background: none; border: 0; padding: 4px 0; min-height: 28px; font: inherit; letter-spacing: .18em; text-transform: inherit; color: rgb(230 255 240 / .45); display: flex; gap: 12px; align-items: center; transition: color .2s; }
+  .chapters button:hover { color: #e6fff0; }
   .chapters button[aria-current="true"] { color: #e6fff0; } .chapters button[aria-current="true"]::before { content: ""; width: 7px; height: 7px; background: var(--g); }
   .hint { position: absolute; left: 260px; top: 70px; opacity: .8; display: flex; gap: 8px; } .hint::before { content: ""; width: 7px; height: 7px; margin-top: 2px; background: var(--g2); }
   footer { display: flex; justify-content: space-between; align-items: stretch; border-top: 1px solid var(--hud); }
-  footer > * { padding: 22px 32px; display: flex; align-items: center; gap: 10px; } footer > :first-child { border-right: 1px solid var(--hud); } footer > :last-child { border-left: 1px solid var(--hud); }
-  .state { opacity: .55; font-weight: 500; }
+  footer > * { padding: 18px 28px; display: flex; align-items: center; gap: 10px; } footer > :first-child { border-right: 1px solid var(--hud); } footer > :last-child { border-left: 1px solid var(--hud); }
+  .state { opacity: .7; font-weight: 500; }
+  .ui .player { left: 50%; right: auto; bottom: 86px; width: 280px; translate: -50% 6px; }
+  .ui:hover .player, .ui:focus-within .player { translate: -50% 0; }
+  html.embed .ui, html.embed .frame { inset: 20px; }
+  html.embed .hint, html.embed .player { display: none; }
   @media (max-width: 900px) { .ui, .frame { inset: 12px; } header nav, .chapters, .hint { display: none; } h1 { font-size: 26px; } main p { font-size: 15px; padding: 0 16px; } }
 </style>
 </head>
 <body>
-<canvas aria-hidden="true"></canvas>
+<canvas aria-label="Scène WebGL : orbe chromé au-dessus d'une eau sombre réfléchissante"></canvas>
 <div class="frame"></div>
-<div class="ui">
-  <header><a class="logo" href="#" aria-label="Accueil"><i></i>NODAL</a>
-    <nav aria-label="Principale"><a href="#">Projets</a><a href="#">Méthode</a><a href="#">Équipe</a><a href="#">Contact</a></nav>
-    <a class="cut" href="#">Espace client</a></header>
+<div class="ui" id="stage">
+  <header><a class="logo" href="#top" id="top" aria-label="Accueil"><i></i>NODAL</a>
+    <nav aria-label="Principale"><a href="#ch-0" data-ch="0">Projets</a><a href="#ch-2" data-ch="2">Méthode</a><a href="#ch-3" data-ch="3">Échelle</a><a href="#ch-4" data-ch="4">Héritage</a></nav>
+    <button class="cut" type="button" id="toggle-play">Lecture / Pause</button></header>
   <main>
     <span class="hint">Bougez la souris</span>
-    <nav class="chapters" aria-label="Chapitres"><button type="button" aria-current="true">Matière</button><button type="button">Réseau</button><button type="button">Méthode</button><button type="button">Échelle</button><button type="button">Héritage</button></nav>
-    <h1>Une seule matière, mille formes.</h1>
-    <p>Nous concevons des systèmes qui s'adaptent : solides quand il faut tenir, liquides quand il faut changer. Trente ans d'ingénierie, une seule exigence.</p>
-    <a class="cut solid" href="#">Voir nos projets</a>
+    <nav class="chapters" aria-label="Chapitres">
+      <button type="button" data-ch="0" aria-current="true">Matière</button>
+      <button type="button" data-ch="1">Réseau</button>
+      <button type="button" data-ch="2">Méthode</button>
+      <button type="button" data-ch="3">Échelle</button>
+      <button type="button" data-ch="4">Héritage</button>
+    </nav>
+    <h1 id="ch-title">Une seule matière, mille formes.</h1>
+    <p id="ch-body">Nous concevons des systèmes qui s'adaptent : solides quand il faut tenir, liquides quand il faut changer. Trente ans d'ingénierie, une seule exigence.</p>
+    <button class="cut solid" type="button" id="next-ch">Chapitre suivant</button>
   </main>
-  <footer><span class="state" id="state">État · solide</span><a class="cut" href="#" style="background:none">Nous écrire</a></footer>
+  <footer><span class="state" id="state">État · solide</span><span class="state" id="ch-idx">01 / 05</span></footer>
 </div>
 <script src="../shared/bank.js"></script>
 <script src="../shared/shader.js"></script>
 <script>
-  // chrome orb over dark reflective water, green horizon, drifting motes; camera follows the pointer.
-  // k: 0 = solid sphere, 1 = liquid surface. Alternates every 3 s (6 s cycle; the 24 s loop is a multiple of it).
+  const CHAPTERS = [
+    { name: "Matière", title: "Une seule matière, mille formes.", body: "Nous concevons des systèmes qui s'adaptent : solides quand il faut tenir, liquides quand il faut changer. Trente ans d'ingénierie, une seule exigence.", a: "#3dff8a", b: "#c4ffd9" },
+    { name: "Réseau", title: "Chaque nœud répond à la charge.", body: "Des infrastructures distribuées qui absorbent les pics sans latence visible, mesurées à la milliseconde près.", a: "#4be3ff", b: "#d0f8ff" },
+    { name: "Méthode", title: "Mesurer avant de transformer.", body: "Chaque prototype est testé en conditions réelles, réduit à l'essentiel, puis industrialisé sans compromis.", a: "#f2b84b", b: "#fff0cc" },
+    { name: "Échelle", title: "Du laboratoire au continent.", body: "Une architecture unique, déployable sur site isolé comme sur trois cents points de présence mondiaux.", a: "#a882ff", b: "#e6dbff" },
+    { name: "Héritage", title: "Construit pour durer trente ans.", body: "Des choix sobres, réparables et documentés qui traversent les cycles technologiques sans dette cachée.", a: "#3dff8a", b: "#c4ffd9" },
+  ];
+
+  // chrome orb over dark reflective water, horizon, drifting motes; camera follows the pointer.
   Bank.SHADERS.orbscene = { lib: `
 float K() { return smoothstep(.3, .7, .5 - .5 * cos(t * 1.0472)); }
 float map(vec3 q, float k) { vec3 c = q - vec3(0, .35, 0); float r = .62 * (1.0 + .025 * sin(t * 2.0944));
@@ -64,11 +82,11 @@ vec3 sky(vec3 d) { float h = d.y, a = atan(d.x, -d.z);
   vec3 c = mix(vec3(.004, .018, .01), vec3(.01, .06, .03), smoothstep(-.1, .6, h)) + A * .7 * exp(-abs(h - .01) * 22.0);
   float hill = .02 + .16 * fbm(vec2(a * 2.2, 4.0)) * smoothstep(.15, .9, abs(a));
   if (h > -.02 && h < hill) c = vec3(.003, .012, .007) + A * .35 * smoothstep(hill - .04, hill, h) * smoothstep(.2, 1.0, abs(a));
-  c += B * .18 * smoothstep(.2, 1.0, h); // soft overhead light so the chrome has something to mirror
+  c += B * .18 * smoothstep(.2, 1.0, h);
   c += B * 1.4 * pow(max(0.0, dot(d, normalize(vec3(-.7, .45, .6)))), 24.0) + A * .5 * pow(max(0.0, dot(d, normalize(vec3(.8, .2, .4)))), 10.0);
   return c; }
 bool orb(vec3 ro, vec3 rd, float k, out vec3 col) { float d = 0.0; col = vec3(0);
-  for (int i = 0; i < 80; i++) { float h = map(ro + rd * d, k); if (h < .001 || d > 8.0) break; d += h * .8; }
+  for (int i = 0; i < 64; i++) { float h = map(ro + rd * d, k); if (h < .001 || d > 8.0) break; d += h * .85; }
   if (d > 8.0) return false;
   vec3 q = ro + rd * d; vec2 e = vec2(.002, 0);
   vec3 n = normalize(vec3(map(q + e.xyy, k) - map(q - e.xyy, k), map(q + e.yxy, k) - map(q - e.yxy, k), map(q + e.yyx, k) - map(q - e.yyx, k)));
@@ -85,13 +103,79 @@ if (!orb(ro, rd, k, c)) {
 vec2 g = gl_FragCoord.xy / R.y * 36.0 + vec2(t * .25, t * .5), id = floor(g);
 c += A * step(.94, hash(id)) * smoothstep(.1, .0, length(fract(g) - .5 - .3 * vec2(sin(t + id.x), cos(t + id.y)))) * .7;
 o = vec4(c, 1);` };
-  document.body.style.setProperty("--sh-a", "#3dff8a"); document.body.style.setProperty("--sh-b", "#c4ffd9");
+
+  let curCh = 0;
+  function setTint(a, b) {
+    document.documentElement.style.setProperty("--g", a);
+    document.documentElement.style.setProperty("--g2", b);
+    document.body.style.setProperty("--sh-a", a);
+    document.body.style.setProperty("--sh-b", b);
+  }
+  setTint(CHAPTERS[0].a, CHAPTERS[0].b);
   const src = Bank.shader(document.querySelector("canvas"), "orbscene", document.body, 24000);
-  if (!Bank.reduced()) src.play(); else src.set(4000);
-  // state label follows the same 6 s cycle (solid / liquid)
-  setInterval(() => { const k = .5 - .5 * Math.cos(src.get() / 1000 * 1.0472); document.getElementById("state").textContent = `État · ${k > .5 ? "liquide" : "solide"}`; }, 250);
-  document.querySelector(".chapters").onclick = (e) => { const b = e.target.closest("button"); if (!b) return;
-    document.querySelectorAll(".chapters button").forEach((x) => x.setAttribute("aria-current", x === b)); };
+  const player = Bank.player(document.getElementById("stage"), src);
+
+  function selectChapter(i) {
+    curCh = (i + CHAPTERS.length) % CHAPTERS.length;
+    const ch = CHAPTERS[curCh];
+    document.getElementById("ch-title").textContent = ch.title;
+    document.getElementById("ch-body").textContent = ch.body;
+    document.getElementById("ch-idx").textContent = `0${curCh + 1} / 0${CHAPTERS.length}`;
+    document.querySelectorAll(".chapters button").forEach((b, k) => b.setAttribute("aria-current", String(k === curCh)));
+    setTint(ch.a, ch.b);
+    src.redraw();
+  }
+
+  var cfg = Bank.panel({
+    title: "Landing orbe",
+    hidePalette: true,
+    values: { palette: "ink", chapter: "0", autoplay: !Bank.isEmbed },
+    selects: [{ key: "chapter", label: "Chapitre", value: "0", options: CHAPTERS.map((c, i) => [String(i), c.name]) }],
+    toggles: [{ key: "autoplay", label: "Animer la scène", value: !Bank.isEmbed }],
+    onChange: (c, k) => {
+      if (k === "chapter" || k === "import") selectChapter(+c.chapter);
+      if (c.autoplay && !Bank.reduced() && !Bank.isEmbed) src.play();
+      else { src.pause(); if (k === "init") src.set(4200); }
+      player.sync();
+    },
+  });
+
+  // Pause raymarching inside gallery thumbnail (?embed): render one crisp poster frame instead of burning GPU.
+  if (Bank.isEmbed) { src.pause(); src.set(4200); }
+
+  const stateEl = document.getElementById("state");
+  const syncState = () => {
+    const k = .5 - .5 * Math.cos(src.get() / 1000 * 1.0472);
+    stateEl.textContent = `État · ${k > .5 ? "liquide" : "solide"}`;
+  };
+  let stateTimer = 0;
+  function pollState() {
+    if (document.hidden || !src.playing()) { stateTimer = 0; return; }
+    syncState();
+    stateTimer = setTimeout(pollState, 300);
+  }
+  const origPlay = src.play;
+  src.play = () => { origPlay(); if (!stateTimer) pollState(); };
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && src.playing() && !stateTimer) pollState(); });
+  syncState();
+  if (src.playing()) pollState();
+
+  document.querySelector(".chapters").onclick = (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    cfg.chapter = b.dataset.ch; cfg._sync?.(); selectChapter(+b.dataset.ch);
+  };
+  document.querySelector("header nav").onclick = (e) => {
+    const a = e.target.closest("[data-ch]"); if (!a) return;
+    e.preventDefault(); cfg.chapter = a.dataset.ch; cfg._sync?.(); selectChapter(+a.dataset.ch);
+  };
+  document.getElementById("next-ch").onclick = () => {
+    const n = (curCh + 1) % CHAPTERS.length; cfg.chapter = String(n); cfg._sync?.(); selectChapter(n);
+  };
+  document.getElementById("toggle-play").onclick = () => {
+    if (src.playing()) { src.pause(); cfg.autoplay = false; }
+    else { src.play(); cfg.autoplay = true; }
+    cfg._sync?.(); player.sync();
+  };
 </script>
 </body>
 </html>

@@ -241,7 +241,7 @@ html.vt-theme::view-transition-new(root) { animation: d10 .7s cubic-bezier(.2, .
 
   <h2>Mouvement</h2>
   <div class="grid">
-    <article id="c25" data-sup="inherits: false" data-prop="1"><h3>Bordure dégradée qui tourne</h3><p><code>@property</code> type l'angle d'un dégradé conique : le navigateur peut alors l'interpoler.</p>
+    <article id="c25" data-prop="1"><h3>Bordure dégradée qui tourne</h3><p><code>@property</code> type l'angle d'un dégradé conique : le navigateur peut alors l'interpoler.</p>
       <div class="demo"><div id="d25">Carte en vedette</div></div>
       <style>
 @property --a25 { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
@@ -386,7 +386,7 @@ html.vt-theme::view-transition-new(root) { animation: d10 .7s cubic-bezier(.2, .
     c11: [2, "wdm"], c12: [2, "wdm"], c13: [1, "wdm"], c14: [1, "wdm"], c15: [2, "wdm"], c16: [3, "wd"], c17: [1, "wd"], c18: [2, "wdm"], c19: [3, "wd"], c20: [1, "wdm"],
     c21: [3, "wdm"], c22: [1, "wdm"], c23: [1, "wm"], c24: [2, "wdm"], c25: [4, "wd"], c26: [3, "wm"], c27: [4, "w"], c28: [3, "w"], c29: [2, "wd"], c30: [3, "w"],
     c31: [4, "w"], c32: [3, "wm"], c33: [3, "wd"], c34: [4, "wdm"], c35: [3, "w"], c36: [3, "wdm"], c37: [2, "wd"], c38: [2, "wd"], c39: [1, "wdm"], c40: [1, "wdm"] };
-  Bank.cards(META, PLAY);
+  Bank.cards(META, PLAY, {}, { c20: false, c22: false, c23: false });
   const vt = (fn) => document.startViewTransition ? document.startViewTransition(fn) : (fn(), null);
   document.addEventListener("click", (e) => {
     const t = e.target.closest("[data-act]"); if (!t) return;

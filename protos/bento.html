@@ -18,6 +18,14 @@
   .lbl.on { color: var(--active-ink); }
   .lbl b { display: block; font: 400 clamp(20px, 2.2vw, 32px)/1.1 var(--serif); letter-spacing: -.01em; }
   .lbl span { display: block; margin-top: 6px; font-size: 14px; opacity: .78; max-width: 22ch; }
+  html.embed main { padding: 3vh 3vw; } html.embed header { display: none; }
+  @media (max-width: 720px) {
+    main { padding: 32px 16px 100px; }
+    #stage { aspect-ratio: auto; display: grid; gap: 12px; }
+    #stage svg { display: none; }
+    .lbl { position: static; pointer-events: auto; transform: none !important; padding: 20px; border-radius: var(--r); background: var(--tile); cursor: pointer; }
+    .lbl.on { background: var(--active); }
+  }
 </style>
 </head>
 <body>
@@ -44,23 +52,30 @@
   const svg = document.createElementNS(NS, 'svg');
   stage.appendChild(svg);
   const paths = [], lbls = [];
+  let active = 0, pinned = null, hovered = false;
+  function togglePin(i) { pinned = pinned === i ? null : i; setActive(i); }
   TILES.forEach((tile, i) => {
     const p = document.createElementNS(NS, 'path');
     p.setAttribute('role', 'listitem'); p.setAttribute('tabindex', '0'); p.setAttribute('aria-label', tile.t);
-    p.addEventListener('click', () => { pinned = i; setActive(i); });
-    p.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { pinned = i; setActive(i); } });
+    p.addEventListener('click', () => togglePin(i));
+    p.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); togglePin(i); } });
     svg.appendChild(p); paths.push(p);
     const l = document.createElement('div'); l.className = 'lbl';
     l.innerHTML = `<b></b><span></span>`;
     l.querySelector('b').textContent = tile.t; l.querySelector('span').textContent = tile.s;
+    l.addEventListener('click', () => togglePin(i));
     stage.appendChild(l); lbls.push(l);
   });
+  stage.addEventListener('pointerenter', () => { hovered = true; });
+  stage.addEventListener('pointerleave', () => { hovered = false; });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') pinned = null; });
 
-  let active = 0, pinned = null;
   function setActive(i) { active = i; paths.forEach((p, k) => p.classList.toggle("on", k === i)); lbls.forEach((l, k) => l.classList.toggle("on", k === i)); }
 
   function layout() {
-    const W = stage.clientWidth, H = stage.clientHeight, cw = W / 4, ch = H / 3;
+    const W = stage.clientWidth, H = stage.clientHeight;
+    if (!W || !H || innerWidth <= 720) return;
+    const cw = W / 4, ch = H / 3;
     svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
     TILES.forEach((tile, i) => {
       const px = tile.pts.map(([x, y]) => [x * cw, y * ch]);
@@ -88,7 +103,7 @@
   Bank.drive({
     el: stage, mode: () => cfg.mode, dur: () => N * 1800, hold: 0,
     scroll: () => { const r = stage.getBoundingClientRect(); return Bank.clamp01((innerHeight * 0.85 - r.top) / (innerHeight * 0.85 + r.height * 0.4)); },
-    setP: (p) => { if (pinned === null) setActive(Math.min(N - 1, Math.floor(p * N))); },
+    setP: (p) => { if (pinned === null && !hovered) setActive(Math.min(N - 1, Math.floor(p * N))); },
   });
 </script>
 </body>

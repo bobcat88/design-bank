@@ -22,6 +22,7 @@
   #info p { color: var(--muted); font-size: 18px; line-height: 1.55; margin: 0; }
   #info > div { transition: opacity .35s ease, transform .5s var(--ease-out); }
   #info.swap > div { opacity: 0; transform: translateY(10px); }
+  html.embed main { padding: 3vh 4vw; }
   @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
 </style>
 </head>
@@ -49,9 +50,10 @@
     const b = document.createElement('button'); b.type = 'button'; b.className = 'pill'; b.setAttribute('role', 'tab'); b.textContent = s.t;
     const a = (-90 + i * (360 / STEPS.length)) * Math.PI / 180;
     b.style.left = 50 + 46 * Math.cos(a) + '%'; b.style.top = 50 + 46 * Math.sin(a) + '%';
-    b.addEventListener('click', () => { pinned = true; go(i); });
+    b.addEventListener('click', () => { pinned = cur === i ? !pinned : true; go(i); });
     orbit.appendChild(b); return b;
   });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') pinned = false; });
   const [num, h2, p] = [info.querySelector('.num'), info.querySelector('h2'), info.querySelector('p')];
   let cur = -1;
   function go(i) {

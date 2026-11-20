@@ -64,12 +64,16 @@ Promoteur immobilier, site plein WebGL. Inspiration seulement : structure et mou
 Ce qui manque à la banque et vaut un proto si Johan le demande : grille vidéo sobre (anduril), cadre de visée qui s'ouvre au scroll + phrase scindée (north), badge circulaire rotatif et titre serif/sans (5lab), bouton « réduire les effets » relié à `Bank.reduced()` (orchestrated).
 
 ## Archétypes de style (pour les propositions du Design Lab)
-Chaque référence est rangée par intention de marque. Le Design Lab propose 5 à 6 directions : 2 ou 3 proches de l'intention détectée, et 2 ou 3 volontairement éloignées pour voir ce qui plaît. L'utilisateur dit ce qu'il aime ou rejette dans chaque direction, puis on mélange ses choix.
+Chaque référence est rangée par intention de marque. Le Design Lab (`lab.html`) propose 6 directions : 3 proches de l'intention détectée et 3 volontairement éloignées (calculées sur 6 axes dans `data/archetypes.json`). L'utilisateur note, pioche des parties (palette, typo, géométrie, motion, WebGL) et exporte vers `design-studio/studio/build.py`.
 
-| Archétype | Pour quel client | Références | Protos de la banque |
+| Archétype | Pour quel client | Références | Spécimen complet & protos |
 |---|---|---|---|
-| Industriel sobre | défense, industrie, hardware | anduril | (à faire : grille vidéo) |
-| Immersif cinéma | portfolio, studio motion, luxe | orchestrated.nl, hubtown | landing.html, webgl (orb, chrome) |
-| Joueur éditorial | agence, studio créatif | 5lab | text.html, marquee.html |
-| Technique SaaS | finance, cloud, outils dev | north.cloud, LangChain | nodes.html, webgl (flow, ascii, globe) |
-| Produit clair | app, startup grand public | Mode, SVGator | bento.html, stack.html, agent.html |
+| Industriel sobre | défense, industrie, hardware | anduril.com | `styles/industrial-sober.html` |
+| Éditorial monochrome | architecture, conseil, tech premium | `editorial-taste-new-site`, fabric.vc | `styles/monochrome-editorial.html` |
+| Immersif cinéma | portfolio, studio motion, luxe | orchestrated.nl, hubtown.co.in, lusion.co | `styles/immersive-cinematic.html`, `protos/landing.html`, `protos/webgl.html` (orb, chrome) |
+| Joueur éditorial | agence, studio créatif | 5lab.co, ventriloc.ca | `styles/playful-editorial.html`, `protos/text.html`, `protos/marquee.html` |
+| Technique SaaS | finance, cloud, outils dev | north.cloud, langchain.com, avaros.ai | `styles/technical-saas.html`, `protos/nodes.html`, `protos/webgl.html` (flow, ascii, globe) |
+| Chaleureux organique | bien-être, artisanat, hospitalité | mode.com, svgator.com | `styles/warm-organic.html`, `protos/bento.html`, `protos/stack.html`, `protos/agent.html` |
+| Suisse brutaliste | édition, culture, écart volontaire | International Typographic Style | `styles/swiss-brutalist.html` |
+
+Index unifié des références (`refs/` + Vault `400 Resources/Tech/UI/References/` + `editorial-taste-new-site`) généré via `node tools/ingest-refs.mjs` → `data/references-index.json`.

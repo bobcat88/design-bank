@@ -25,5 +25,6 @@ details.code pre { font: 12.5px/1.5 var(--mono); max-height: 280px; overflow: au
 html.embed main { padding: 3vh 3vw; } html.embed h1, html.embed .lead, html.embed details.code { display: none; }
 @media (max-width: 520px) { main { padding: 40px 16px 80px; } .grid { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { .demo *, .demo *::before, .demo *::after { animation: none !important; transition: none !important; } }
+html.reduced-motion .demo *, html.reduced-motion .demo *::before, html.reduced-motion .demo *::after { animation: none !important; transition: none !important; }
 /* landing from the gallery on page.html#id */
 article { scroll-margin-top: 90px; } article:target { outline: 2px solid var(--tile); outline-offset: 4px; }

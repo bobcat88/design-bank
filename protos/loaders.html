@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="fr" data-palette="ink">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Loaders tracés</title>
+<link rel="stylesheet" href="../shared/bank.css">
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 56px 32px 140px; }
+  header { max-width: 720px; margin-bottom: 40px; }
+  h1 { font-size: clamp(36px, 4.4vw, 64px); line-height: 1.05; }
+  header p { color: var(--muted); font-size: 18px; line-height: 1.5; margin: 18px 0 0; }
+  #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+  figure { margin: 0; aspect-ratio: 1; border-radius: var(--r); background: var(--panel); display: grid; place-items: center; position: relative; }
+  figure svg { width: 70%; overflow: visible; }
+  figcaption { position: absolute; left: 18px; bottom: 14px; font-size: 13px; color: var(--muted); }
+  .track { fill: none; stroke: var(--line); stroke-linecap: round; stroke-linejoin: round; }
+  .run { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  html.embed main { padding: 6vh 6vw; } html.embed header { display: none; } html.embed #grid { grid-template-columns: repeat(2, 1fr); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Des traits qui se dessinent.</h1>
+    <p>Un rail discret, un segment en dégradé qui le parcourt. Le même mécanisme que les fils des diagrammes : la longueur du tracé et un décalage.</p>
+  </header>
+  <div id="grid"></div>
+</main>
+<script src="../shared/bank.js"></script>
+<script>
+  const SHAPES = [
+    { name: "Vague", c: ["#c6f432", "#7ad13a"], d: "M10 50 Q22.5 25 35 50 T60 50 T85 50 T110 50 T135 50" },
+    { name: "Infini", c: ["#38bdf8", "#2563eb"], d: "M72 50 C72 30 102 30 102 50 C102 70 72 70 72 50 C72 30 42 30 42 50 C42 70 72 70 72 50Z" },
+    { name: "Commande", c: ["#a855f7", "#f472b6"], d: "M55 40 H85 M55 60 H85 M55 40 V60 M85 40 V60 M55 40 A12 12 0 1 1 43 28 A12 12 0 0 1 55 40 M85 40 A12 12 0 1 0 97 28 A12 12 0 0 0 85 40 M55 60 A12 12 0 1 0 43 72 A12 12 0 0 0 55 60 M85 60 A12 12 0 1 1 97 72 A12 12 0 0 1 85 60" },
+    { name: "Boucles", c: ["#fbbf24", "#f43f5e"], d: "M15 55 C30 75 50 75 55 55 C58 38 45 35 45 45 C45 60 70 65 72 50 C74 38 62 35 62 45 C62 62 90 75 115 55" },
+  ];
+  const NS = "http://www.w3.org/2000/svg", grid = document.getElementById("grid");
+  const runs = SHAPES.map((s, i) => {
+    const f = document.createElement("figure"); grid.appendChild(f);
+    f.innerHTML = `<svg viewBox="0 0 145 100" aria-hidden="true"><defs><linearGradient id="g${i}" x1="0" x2="1"><stop offset="0" stop-color="${s.c[0]}"/><stop offset="1" stop-color="${s.c[1]}"/></linearGradient></defs><path class="track" d="${s.d}"/><path class="run" d="${s.d}" stroke="url(#g${i})"/></svg><figcaption></figcaption>`;
+    f.querySelector("figcaption").textContent = s.name;
+    const p = f.querySelector(".run"); return { p, track: f.querySelector(".track"), len: p.getTotalLength() };
+  });
+  var cfg = Bank.panel({
+    title: "Loaders tracés", values: { palette: "ink", mode: "loop" },
+    selects: [{ key: "mode", label: "Animation", value: "loop", options: [["loop", "Boucle"], ["once", "Une fois"], ["scroll", "Au scroll"]] }],
+    sliders: [{ key: "w", label: "Épaisseur", min: 2, max: 12, value: 6 }, { key: "seg", label: "Segment (%)", min: 10, max: 90, value: 35 }, { key: "speed", label: "Durée (s)", min: 1, max: 5, step: .1, value: 2 }],
+  });
+  (function frame(now) {
+    const red = Bank.reduced();
+    runs.forEach(({ p, track, len }, i) => {
+      p.style.strokeWidth = track.style.strokeWidth = cfg.w;
+      if (cfg.mode === "loop" && !red) {   // a fixed segment travels the rail
+        const seg = len * cfg.seg / 100, ph = ((now / 1000 / cfg.speed) + i * .17) % 1;
+        p.style.strokeDasharray = `${seg} ${len}`; p.style.strokeDashoffset = -ph * (len + seg) + seg;
+      } else {                             // the line draws itself, once or with scroll
+        const pr = red ? 1 : cfg.mode === "scroll" ? Bank.clamp01(scrollY / Math.max(1, document.body.scrollHeight - innerHeight) * 1.6) : Bank.clamp01((now - (window.t0 ||= now)) / 1000 / cfg.speed);
+        p.style.strokeDasharray = len; p.style.strokeDashoffset = len * (1 - Bank.easeOut(pr));
+      }
+    });
+    requestAnimationFrame(frame);
+  })(performance.now());
+</script>
+</body>
+</html>

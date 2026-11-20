@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="fr" data-palette="ink">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Effets 2026</title>
+<link rel="stylesheet" href="../shared/bank.css">
+<link rel="stylesheet" href="../shared/cards.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="w2f" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".012 .018" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="38" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
+<main>
+  <h1>Vingt effets qui font 2026.</h1>
+  <p class="lead">Les gestes qui donnent aujourd'hui la sensation d'un produit soigné, côté application de bureau et côté site. Démos maison, CSS d'abord, JS seulement quand il le faut. Les démos qui se jouent seules ont des contrôles de lecteur vidéo.</p>
+  <div class="bar2" role="toolbar" aria-label="Trier et filtrer">
+    <label>Ordre <select id="sort"><option value="theme">Par thème</option><option value="wow">Plus spectaculaire d'abord</option><option value="use">Plus utile d'abord</option></select></label>
+    <div class="chips" id="plat"><button type="button" aria-pressed="true" data-p="all">Tout</button><button type="button" aria-pressed="false" data-p="web">Site web</button><button type="button" aria-pressed="false" data-p="desk">App bureau</button><button type="button" aria-pressed="false" data-p="mob">Mobile</button></div>
+  </div>
+  <div class="grid" id="flat" hidden></div>
+
+  <h2>Application de bureau</h2>
+  <div class="grid">
+    <article id="w1"><h3>Palette de commandes</h3><p>Entrée en fondu, léger zoom et flou qui se dissipe ; les résultats arrivent en cascade de 35 ms.</p>
+      <div class="demo" id="d1"><button type="button" data-act="w1">Ouvrir (Ctrl K)</button><div class="pal" role="dialog" aria-label="Commandes"><p class="q">Rechercher une action…</p><div style="--i:0">Nouveau document</div><div style="--i:1">Ouvrir récent</div><div style="--i:2">Changer de thème</div><div style="--i:3">Partager le lien</div><div style="--i:4">Réglages</div></div></div>
+      <style>
+#d1 .pal { position: absolute; top: 18px; width: 78%; padding: 8px; border-radius: 16px; background: var(--panel); border: 1px solid var(--line); box-shadow: 0 30px 60px -20px rgb(0 0 0 / .6);
+  opacity: 0; scale: .96; filter: blur(6px); translate: 0 -8px; pointer-events: none; transition: opacity .22s, scale .22s var(--ease-out), filter .22s, translate .22s var(--ease-out); }
+#d1.open .pal { opacity: 1; scale: 1; filter: none; translate: 0; pointer-events: auto; }
+#d1 .q { margin: 0 0 6px; padding: 8px 10px; border-bottom: 1px solid var(--line); color: var(--muted); }
+#d1 .pal div { padding: 7px 10px; border-radius: 9px; font-size: 14px; opacity: 0; translate: 0 6px; transition: opacity .25s, translate .25s var(--ease-out); transition-delay: calc(var(--i) * 35ms); }
+#d1.open .pal div { opacity: 1; translate: 0; }
+#d1 .pal div:first-of-type { background: color-mix(in srgb, var(--tile) 22%, transparent); }
+      </style></article>
+
+    <article id="w3" data-sup="selector(:has(+ a))"><h3>Dock qui grossit</h3><p>CSS seul : l'icône survolée grossit, ses voisines aussi un peu, grâce à <code>:has(+ i:hover)</code> pour celle d'avant.</p>
+      <div class="demo"><div id="d3"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+      <style>
+#d3 { display: flex; align-items: end; gap: 8px; padding: 10px 12px; border-radius: 20px; background: color-mix(in srgb, var(--panel) 70%, transparent); border: 1px solid var(--line); }
+#d3 i { width: 44px; height: 44px; border-radius: 12px; background: var(--tile); transform-origin: bottom; transition: scale .2s var(--ease-out), margin .2s var(--ease-out); }
+#d3 i:nth-child(3n) { background: var(--l2); } #d3 i:nth-child(3n+1) { background: var(--l1); }
+#d3 i:hover { scale: 1.6; margin: 0 14px; }
+#d3 i:has(+ i:hover), #d3 i:hover + i { scale: 1.28; margin: 0 6px; }
+      </style></article>
+
+    <article id="w4" data-sup="view-transition-name: a"><h3>Fenêtre qui naît de son icône</h3><p>Icône et fenêtre portent le même <code>view-transition-name</code> : le navigateur morphe l'une en l'autre.</p>
+      <div class="demo" id="d4"><button type="button" class="ico" data-act="w4" aria-label="Ouvrir la fenêtre"></button><div class="win"><span></span><span></span><span></span><p>Une fenêtre qui sait d'où elle vient.</p><button type="button" data-act="w4">Fermer</button></div></div>
+      <style>
+#d4 .ico { width: 58px; height: 58px; border-radius: 16px; border: 0; background: var(--tile); view-transition-name: w4win; }
+#d4 .win { display: none; width: 82%; height: 160px; padding: 12px 14px; border-radius: 16px; background: var(--panel); border: 1px solid var(--line); }
+#d4 .win span { display: inline-block; width: 10px; height: 10px; margin-right: 6px; border-radius: 50%; background: var(--line); }
+#d4.open .ico { display: none; } #d4.open .win { display: block; view-transition-name: w4win; }
+::view-transition-group(w4win) { animation-duration: .45s; animation-timing-function: cubic-bezier(.2, .9, .2, 1); }
+      </style></article>
+
+    <article id="w5"><h3>Pile de notifications</h3><p>Repliées en pile (échelle et décalage), elles se déploient au survol. Transitions seules.</p>
+      <div class="demo"><div id="d5"><b>Export terminé</b><b>3 nouvelles sources</b><b>Index à jour</b></div></div>
+      <style>
+#d5 { position: relative; width: 72%; height: 190px; }
+#d5 b { position: absolute; left: 0; right: 0; bottom: 0; height: 52px; padding: 0 16px; display: flex; align-items: center; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); font-weight: 500; transition: translate .35s var(--ease-out), scale .35s var(--ease-out), opacity .35s; }
+#d5 b:nth-child(1) { z-index: 3; } #d5 b:nth-child(2) { z-index: 2; translate: 0 -10px; scale: .94; } #d5 b:nth-child(3) { z-index: 1; translate: 0 -20px; scale: .88; opacity: .7; }
+#d5:hover b:nth-child(2) { translate: 0 -62px; scale: 1; } #d5:hover b:nth-child(3) { translate: 0 -124px; scale: 1; opacity: 1; }
+      </style></article>
+
+    <article id="w8" data-prop="1"><h3>Faisceau sur la bordure</h3><p>Un arc lumineux court le long du champ (<code>@property</code> + dégradé conique) : le signe « l'agent travaille ».</p>
+      <div class="demo"><label id="d8"><input placeholder="Demander à l'agent…" aria-label="Demande"></label></div>
+      <style>
+@property --a8 { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+#d8 { display: block; width: 80%; padding: 2px; border-radius: 16px; background: conic-gradient(from var(--a8), transparent 0 72%, var(--tile) 86%, #fff 90%, transparent 94%), var(--line); animation: d8 2.6s linear infinite; box-shadow: 0 0 40px -12px var(--tile); }
+#d8 input { width: 100%; padding: 14px 16px; border: 0; border-radius: 14px; background: var(--panel); color: inherit; font-size: 16px; outline: none; }
+@keyframes d8 { to { --a8: 360deg; } }
+      </style></article>
+
+    <article id="w10"><h3>Envoyer, charger, validé</h3><p>Un seul bouton change d'état : il se rétracte en cercle qui tourne, puis trace une coche.</p>
+      <div class="demo"><button type="button" id="d10" data-act="w10"><span>Envoyer</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button></div>
+      <style>
+#d10 { position: relative; width: 180px; height: 52px; border: 0; border-radius: 26px; background: var(--tile); color: var(--tile-ink); font-weight: 600; transition: width .35s var(--ease-out), background .3s; }
+#d10 svg { position: absolute; inset: 0; margin: auto; width: 26px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-dasharray: 24; stroke-dashoffset: 24; }
+#d10[data-s="load"], #d10[data-s="done"] { width: 52px; } #d10[data-s] span { opacity: 0; }
+#d10[data-s="load"] { background: transparent; border: 3px solid var(--line); border-top-color: var(--tile); animation: d10 .8s linear infinite; }
+#d10[data-s="done"] svg { stroke-dashoffset: 0; transition: stroke-dashoffset .4s .1s var(--ease-out); }
+@keyframes d10 { to { rotate: 1turn; } }
+      </style></article>
+
+    <article id="w11" data-sup="interpolate-size: allow-keywords"><h3>Barre latérale repliable</h3><p>La largeur passe de la barre complète au rail d'icônes ; les libellés s'effacent un peu avant.</p>
+      <div class="demo"><div id="d11"><nav><button type="button" data-act="w11" aria-label="Replier">≡</button><a><i></i><span>Accueil</span></a><a><i></i><span>Sources</span></a><a><i></i><span>Réglages</span></a></nav><section></section></div></div>
+      <style>
+#d11 { display: flex; width: 88%; height: 170px; border-radius: 14px; border: 1px solid var(--line); overflow: hidden; }
+#d11 nav { width: 160px; padding: 8px; background: var(--panel); display: grid; align-content: start; gap: 4px; transition: width .3s var(--ease-out); }
+#d11 nav button { justify-self: start; width: 36px; height: 30px; border: 0; border-radius: 8px; background: transparent; }
+#d11 a { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 9px; white-space: nowrap; }
+#d11 a:first-of-type { background: color-mix(in srgb, var(--tile) 22%, transparent); }
+#d11 i { flex: none; width: 18px; height: 18px; border-radius: 6px; background: var(--tile); }
+#d11 span { transition: opacity .15s; }
+#d11.mini nav { width: 52px; } #d11.mini span { opacity: 0; }
+#d11 section { flex: 1; background: repeating-linear-gradient(var(--bg) 0 22px, var(--line) 22px 23px); }
+      </style></article>
+
+    <article id="w12"><h3>Menu contextuel au curseur</h3><p>Clic droit dans la zone : le menu s'ouvre là où est le pointeur, en grandissant depuis ce coin (<code>transform-origin</code>).</p>
+      <div class="demo" id="d12"><p>Clic droit ici</p><div class="ctx" role="menu"><div role="menuitem">Copier</div><div role="menuitem">Citer la source</div><div role="menuitem">Épingler</div></div></div>
+      <style>
+#d12 p { color: var(--muted); }
+#d12 .ctx { position: absolute; left: var(--x, 50%); top: var(--y, 50%); min-width: 160px; padding: 6px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); box-shadow: 0 20px 40px -14px rgb(0 0 0 / .6);
+  transform-origin: 0 0; opacity: 0; scale: .85; pointer-events: none; transition: opacity .14s, scale .18s var(--ease-out); }
+#d12.open .ctx { opacity: 1; scale: 1; pointer-events: auto; }
+#d12 .ctx div { padding: 7px 10px; border-radius: 8px; font-size: 14px; } #d12 .ctx div:hover { background: color-mix(in srgb, var(--tile) 22%, transparent); }
+      </style></article>
+
+    <article id="w9"><h3>Odomètre</h3><p>Chaque chiffre est une colonne 0–9 qui roule jusqu'à sa valeur ; chiffres tabulaires, rien ne saute.</p>
+      <div class="demo"><div id="d9" aria-live="polite"></div><button type="button" data-act="w9" style="position:absolute;bottom:16px">Ajouter</button></div>
+      <style>
+#d9 { display: flex; font-size: 64px; font-weight: 700; line-height: 1; height: 1em; overflow: hidden; font-variant-numeric: tabular-nums; }
+#d9 .col { display: flex; flex-direction: column; transition: translate .9s cubic-bezier(.2, .9, .2, 1); transition-delay: calc(var(--i) * 60ms); }
+      </style></article>
+
+    <article id="w17"><h3>Cloche et pastille</h3><p>La cloche oscille, la pastille saute avec un ressort <code>linear()</code>. Rejoué à chaque notification.</p>
+      <div class="demo"><button type="button" id="d17" data-act="w17" aria-label="Notifications"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0-6 6v4l-2 3h16l-2-3V9a6 6 0 0 0-6-6zm-2 16a2 2 0 0 0 4 0"/></svg><b>2</b></button></div>
+      <style>
+#d17 { position: relative; width: 64px; height: 64px; border-radius: 18px; border: 1px solid var(--line); background: var(--panel); }
+#d17 svg { width: 30px; fill: none; stroke: currentColor; stroke-width: 1.8; transform-origin: 50% 10%; }
+#d17 b { position: absolute; top: -6px; right: -6px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--tile); color: var(--tile-ink); font-size: 12px; display: grid; place-items: center; }
+#d17.ring svg { animation: d17a .7s ease-in-out; }
+#d17.ring b { animation: d17b .6s linear(0, .25 7%, .7 15%, 1.06 25%, 1.12 32%, 1.04 45%, .98 58%, 1.01 75%, 1); }
+@keyframes d17a { 20% { rotate: 16deg; } 40% { rotate: -14deg; } 60% { rotate: 8deg; } 80% { rotate: -4deg; } }
+@keyframes d17b { from { scale: 0; } }
+      </style></article>
+  </div>
+
+  <h2>Site web</h2>
+  <div class="grid">
+    <article id="w2"><h3>Verre liquide qui réfracte</h3><p>Une lentille déforme ce qui passe dessous : <code>backdrop-filter: url(#filtre)</code> avec un déplacement SVG, plus un reflet de bord. Chromium seulement ; ailleurs, simple flou.</p>
+      <div class="demo" id="d2"><p class="bg">Ce qui est sous le verre<br>se tord comme dans l'eau.</p><div class="lens"></div></div>
+      <style>
+#d2 { background: repeating-linear-gradient(115deg, var(--bg) 0 18px, color-mix(in srgb, var(--tile) 25%, var(--bg)) 18px 22px); }
+#d2 .bg { font-size: 28px; font-weight: 700; line-height: 1.15; text-align: center; margin: 0; }
+#d2 .lens { position: absolute; left: 0; top: 0; width: 150px; height: 110px; border-radius: 40px; translate: var(--x, 120px) var(--y, 50px);
+  backdrop-filter: url(#w2f) blur(.5px) saturate(1.6) brightness(1.1); -webkit-backdrop-filter: blur(6px) saturate(1.6);
+  box-shadow: inset 0 1px 1px rgb(255 255 255 / .7), inset 0 -10px 20px rgb(255 255 255 / .08), 0 12px 30px -10px rgb(0 0 0 / .5); border: 1px solid rgb(255 255 255 / .25); }
+      </style></article>
+
+    <article id="w6"><h3>Îlot qui se transforme</h3><p>Une pastille noire qui s'étire pour montrer un état puis un lecteur, avec un léger dépassement (<code>cubic-bezier</code> au-delà de 1).</p>
+      <div class="demo"><div id="d6"><div class="a"><i></i>Synchronisation · 3 sources</div><div class="b"><strong>Rapport trimestriel</strong><span>Lecture du résumé</span><em></em></div></div></div>
+      <style>
+#d6 { position: relative; width: 120px; height: 36px; border-radius: 18px; background: #000; color: #fff; overflow: hidden; animation: d6 6s cubic-bezier(.3, 1.3, .5, 1) infinite; }
+@keyframes d6 { 0%, 12% { width: 120px; height: 36px; border-radius: 18px; } 22%, 45% { width: 290px; height: 58px; border-radius: 29px; } 55%, 85% { width: 300px; height: 130px; border-radius: 32px; } 95%, 100% { width: 120px; height: 36px; border-radius: 18px; } }
+#d6 > div { position: absolute; inset: 0; padding: 0 22px; display: flex; align-items: center; gap: 10px; white-space: nowrap; opacity: 0; }
+#d6 .a { animation: d6a 6s infinite; } #d6 .a i { width: 10px; height: 10px; border-radius: 50%; background: #5fd38a; }
+#d6 .b { flex-direction: column; align-items: start; justify-content: center; gap: 4px; animation: d6b 6s infinite; } #d6 .b span { color: #aaa; font-size: 14px; }
+#d6 .b em { width: 100%; height: 4px; border-radius: 2px; background: linear-gradient(90deg, #fff 40%, #444 40%); margin-top: 8px; }
+@keyframes d6a { 0%, 20% { opacity: 0; } 27%, 42% { opacity: 1; } 48%, 100% { opacity: 0; } }
+@keyframes d6b { 0%, 56% { opacity: 0; } 63%, 82% { opacity: 1; } 88%, 100% { opacity: 0; } }
+      </style></article>
+
+    <article id="w7"><h3>Réponse en streaming</h3><p>Chaque mot arrive flou puis net, décalé de 70 ms : le rythme d'une réponse d'IA, sans saccade.</p>
+      <div class="demo"><p id="d7">Selon vos sources, le contrat a été signé le 12 mars et la clause de résiliation renvoie à l'annexe B.</p></div>
+      <style>
+#d7 { width: 84%; font-size: 20px; line-height: 1.45; }
+#d7 span { display: inline-block; white-space: pre; animation: d7 .45s ease-out both; animation-delay: calc(var(--i) * 70ms); }
+@keyframes d7 { from { opacity: 0; filter: blur(6px); translate: 0 4px; } }
+      </style></article>
+
+    <article id="w13"><h3>Confettis de réussite</h3><p>Une salve de particules en canvas (gravité, rotation, fondu) lancée depuis le bouton. Rien sous mouvement réduit.</p>
+      <div class="demo" id="d13"><canvas></canvas><button type="button" data-act="w13">C'est validé</button></div>
+      <style>
+#d13 canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+#d13 button { position: relative; padding: 12px 22px; background: var(--tile); color: var(--tile-ink); border: 0; font-weight: 600; }
+      </style></article>
+
+    <article id="w14"><h3>Titre éclairé au curseur</h3><p>Deux copies du titre : la seconde, en couleur, n'apparaît que dans un disque qui suit le pointeur (<code>mask-image</code> radial).</p>
+      <div class="demo" id="d14"><p aria-hidden="true">Ce que vous cherchez s'éclaire.</p><p class="lit">Ce que vous cherchez s'éclaire.</p></div>
+      <style>
+#d14 p { grid-area: 1 / 1; margin: 0 24px; font-size: 40px; font-weight: 700; line-height: 1.05; color: var(--line); text-align: center; }
+#d14 .lit { color: var(--tile); mask-image: radial-gradient(circle 110px at var(--x, 50%) var(--y, 50%), #000 30%, transparent 100%); -webkit-mask-image: radial-gradient(circle 110px at var(--x, 50%) var(--y, 50%), #000 30%, transparent 100%); }
+      </style></article>
+
+    <article id="w15"><h3>Paquet de cartes</h3><p>Clic : la carte du dessus s'envole puis repasse dessous ; les autres remontent d'un cran.</p>
+      <div class="demo"><div id="d15" data-act="w15" role="button" tabindex="0" aria-label="Carte suivante"><b>1</b><b>2</b><b>3</b><b>4</b></div></div>
+      <style>
+#d15 { position: relative; width: 180px; height: 120px; cursor: pointer; }
+#d15 b { position: absolute; inset: 0; border-radius: 18px; display: grid; place-items: center; font-size: 34px; background: var(--tile); color: var(--tile-ink); box-shadow: 0 10px 24px -10px rgb(0 0 0 / .6); transition: translate .4s var(--ease-out), scale .4s var(--ease-out), rotate .4s var(--ease-out); }
+#d15 b:nth-child(2) { background: var(--l2); } #d15 b:nth-child(3) { background: var(--l1); } #d15 b:nth-child(4) { background: var(--l3); }
+#d15 b:nth-last-child(2) { translate: 0 -10px; scale: .95; rotate: -3deg; } #d15 b:nth-last-child(3) { translate: 0 -20px; scale: .9; rotate: 3deg; } #d15 b:nth-last-child(n+4) { translate: 0 -28px; scale: .85; }
+#d15 b.out { animation: d15 .5s var(--ease-out); }
+@keyframes d15 { 50% { translate: 0 -140px; rotate: -12deg; } }
+      </style></article>
+
+    <article id="w16"><h3>Vague de graisse</h3><p>Une police variable : chaque lettre passe de fin à gras, décalée de sa voisine. La vague traverse le mot.</p>
+      <div class="demo"><p id="d16" aria-label="Variable"></p></div>
+      <style>
+#d16 { font-family: var(--serif); font-size: 76px; margin: 0; }
+#d16 span { display: inline-block; font-weight: 200; animation: d16 2.4s ease-in-out infinite; animation-delay: calc(var(--i) * 120ms); }
+@keyframes d16 { 50% { font-weight: 900; } }
+      </style></article>
+
+    <article id="w18" data-sup="offset-path: path('M0 0')"><h3>Courbe qui se trace</h3><p>Le tracé se dessine (<code>stroke-dashoffset</code>) et un point lumineux suit sa tête sur le même chemin (<code>offset-path</code>).</p>
+      <div class="demo" id="d18"><svg viewBox="0 0 300 120" aria-hidden="true"><path d="M0,100 C40,90 60,40 100,60 S160,110 200,50 S260,10 300,20"/></svg><b></b></div>
+      <style>
+#d18 svg { width: 300px; overflow: visible; }
+#d18 path { fill: none; stroke: var(--tile); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 420; animation: d18a 3s cubic-bezier(.4, 0, .2, 1) infinite; }
+#d18 b { position: absolute; left: calc(50% - 150px); top: calc(50% - 60px); width: 12px; height: 12px; margin: -6px; border-radius: 50%; background: #fff; box-shadow: 0 0 16px 4px var(--tile); offset-path: path("M0,100 C40,90 60,40 100,60 S160,110 200,50 S260,10 300,20"); offset-rotate: 0deg; animation: d18b 3s cubic-bezier(.4, 0, .2, 1) infinite; }
+@keyframes d18a { from { stroke-dashoffset: 420; } 80%, to { stroke-dashoffset: 0; } }
+@keyframes d18b { from { offset-distance: 0%; } 80%, to { offset-distance: 100%; } }
+      </style></article>
+
+    <article id="w19"><h3>Grille de points qui réagit</h3><p>Canvas : chaque point fuit le pointeur puis revient par un ressort. Sans pointeur, une source invisible se promène.</p>
+      <div class="demo" id="d19"><canvas></canvas></div>
+      <style>
+#d19 canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+      </style></article>
+
+    <article id="w20"><h3>Du squelette au contenu</h3><p>Le contenu remplace le squelette en fondu, en sortant d'un léger flou : l'œil ne voit pas de saut.</p>
+      <div class="demo"><div id="d20"><div class="sk"><b class="av"></b><div><b></b><b class="s"></b></div></div><div class="ct"><i></i><div><strong>Claire Martin</strong><span>A cité 4 sources</span></div></div></div></div>
+      <style>
+#d20 { display: grid; width: 75%; }
+#d20 > div { grid-area: 1 / 1; display: flex; gap: 14px; align-items: center; }
+#d20 > div > div { flex: 1; display: grid; gap: 8px; }
+#d20 .sk b { display: block; height: 14px; border-radius: 7px; background: var(--panel); } #d20 .sk .av, #d20 .ct i { width: 56px; height: 56px; border-radius: 50%; flex: none; } #d20 .sk .s { width: 60%; }
+#d20 .ct i { background: linear-gradient(135deg, var(--tile), var(--l2)); } #d20 .ct span { color: var(--muted); font-size: 14px; }
+#d20 .sk { animation: d20a 4s infinite; } #d20 .ct { animation: d20b 4s infinite; }
+@keyframes d20a { 0%, 40% { opacity: 1; } 50%, 90% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes d20b { 0%, 40% { opacity: 0; filter: blur(8px); } 55%, 90% { opacity: 1; filter: blur(0); } 100% { opacity: 0; filter: blur(8px); } }
+      </style></article>
+  </div>
+</main>
+<script src="../shared/bank.js"></script>
+<script src="../shared/cards.js"></script>
+<script>
+  const $ = (s) => document.querySelector(s), red = Bank.reduced();
+  // split text demos into per-unit spans before the player reads their animations
+  const split = (el, re) => { el.innerHTML = el.textContent.split(re).map((w, i) => `<span style="--i:${i}">${w}</span>`).join(""); };
+  split($("#d7"), /(?<= )/); $("#d16").textContent = "Variable"; split($("#d16"), "");
+  const META = { w1: [4, "wd"], w3: [3, "d"], w4: [4, "wd"], w5: [3, "wd"], w8: [4, "wd"], w10: [3, "wdm"], w11: [2, "d"], w12: [2, "d"], w9: [3, "wdm"], w17: [2, "wdm"],
+    w2: [5, "wdm"], w6: [5, "wdm"], w7: [4, "wdm"], w13: [4, "wdm"], w14: [4, "wd"], w15: [4, "wdm"], w16: [4, "w"], w18: [3, "wd"], w19: [5, "wd"], w20: [2, "wdm"] };
+  Bank.cards(META, ["w6", "w7", "w8", "w16", "w18", "w20"]);
+
+  // odometer
+  let odo = 4210;
+  const drawOdo = () => { const s = String(odo); $("#d9").setAttribute("aria-label", s);
+    if ($("#d9").children.length !== s.length) $("#d9").innerHTML = [...s].map((_, i) => `<span class="col" style="--i:${i}">${"0123456789".split("").map((d) => `<span>${d}</span>`).join("")}</span>`).join("");
+    [...s].forEach((d, i) => $("#d9").children[i].style.translate = `0 ${-d}em`); };
+  drawOdo();
+
+  const vt = (fn) => document.startViewTransition && !red ? document.startViewTransition(fn) : fn();
+  document.addEventListener("click", (e) => {
+    const t = e.target.closest("[data-act]"); if (!t) return;
+    const act = t.dataset.act;
+    if (act === "w1") $("#d1").classList.toggle("open");
+    if (act === "w4") vt(() => $("#d4").classList.toggle("open"));
+    if (act === "w9") { odo += 37 + Math.floor(Math.random() * 400); drawOdo(); }
+    if (act === "w10" && !t.dataset.s) { t.dataset.s = "load"; setTimeout(() => t.dataset.s = "done", 1400); setTimeout(() => delete t.dataset.s, 3200); }
+    if (act === "w11") $("#d11").classList.toggle("mini");
+    if (act === "w13") burst(t);
+    if (act === "w15") { const top = t.lastElementChild; if (red) { t.prepend(top); return; } top.classList.add("out"); setTimeout(() => { top.classList.remove("out"); t.prepend(top); }, 250); }
+    if (act === "w17") { t.classList.remove("ring"); void t.offsetWidth; t.classList.add("ring"); t.querySelector("b").textContent = +t.querySelector("b").textContent + 1; }
+  });
+  $("#d15").addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.currentTarget.click(); } });
+  document.addEventListener("keydown", (e) => { if (e.ctrlKey && e.key.toLowerCase() === "k") { e.preventDefault(); $("#d1").classList.toggle("open"); } if (e.key === "Escape") { $("#d1").classList.remove("open"); $("#d12").classList.remove("open"); } });
+  // context menu at the pointer
+  $("#d12").addEventListener("contextmenu", (e) => { e.preventDefault(); const r = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty("--x", Math.min(e.clientX - r.left, r.width - 170) + "px"); e.currentTarget.style.setProperty("--y", Math.min(e.clientY - r.top, r.height - 120) + "px"); e.currentTarget.classList.add("open"); });
+  document.addEventListener("pointerdown", (e) => { if (!e.target.closest("#d12 .ctx")) $("#d12").classList.remove("open"); });
+
+  // pointer tracking for the glass lens, the lit headline and the dot grid; idle drift when no pointer
+  const live = new Map();
+  ["#d2", "#d14", "#d19"].forEach((s) => { const el = $(s); el.addEventListener("pointermove", (e) => { const r = el.getBoundingClientRect(); live.set(s, { x: e.clientX - r.left, y: e.clientY - r.top, t: performance.now() }); }); });
+  const at = (s, now) => { const el = $(s), p = live.get(s); if (p && now - p.t < 1500) return p;
+    return { x: el.clientWidth * (.5 + .32 * Math.cos(now / 1400)), y: el.clientHeight * (.5 + .25 * Math.sin(now / 1100)) }; };
+
+  // dot grid
+  const cv = $("#d19 canvas"), ctx = cv.getContext("2d"); let dots = [];
+  const sizeGrid = () => { cv.width = cv.clientWidth; cv.height = cv.clientHeight; dots = [];
+    for (let y = 14; y < cv.height; y += 18) for (let x = 14; x < cv.width; x += 18) dots.push({ ox: x, oy: y, x, y, vx: 0, vy: 0 }); };
+  new ResizeObserver(sizeGrid).observe(cv);
+  // confetti
+  const cc = $("#d13 canvas"), cx2 = cc.getContext("2d"); let bits = [];
+  function burst(btn) { if (red) return; cc.width = cc.clientWidth; cc.height = cc.clientHeight;
+    const st = getComputedStyle(document.documentElement), cols = ["--tile", "--l1", "--l2", "--l3"].map((v) => st.getPropertyValue(v));
+    const r = btn.getBoundingClientRect(), o = cc.getBoundingClientRect();
+    for (let i = 0; i < 90; i++) { const a = -Math.PI / 2 + (Math.random() - .5) * 1.8, v = 5 + Math.random() * 7;
+      bits.push({ x: r.left - o.left + r.width / 2, y: r.top - o.top, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: Math.random() * 6, s: Math.random() * .3 - .15, c: cols[i % 4], life: 1 }); } }
+
+  // one loop; skips work when the tab is hidden or the demo is off screen
+  const vis = new Set(); const io = new IntersectionObserver((es) => es.forEach((e) => e.isIntersecting ? vis.add(e.target) : vis.delete(e.target)));
+  ["#d2", "#d14", "#d19", "#d13"].forEach((s) => io.observe($(s)));
+  (function frame(now) {
+    requestAnimationFrame(frame); if (document.hidden) return;
+    if (vis.has($("#d2"))) { const p = at("#d2", now); $("#d2 .lens").style.setProperty("--x", p.x - 75 + "px"); $("#d2 .lens").style.setProperty("--y", p.y - 55 + "px"); }
+    if (vis.has($("#d14"))) { const p = at("#d14", now); $("#d14 .lit").style.setProperty("--x", p.x - 24 + "px"); $("#d14 .lit").style.setProperty("--y", p.y + "px"); }
+    if (vis.has($("#d19")) && !red) { const p = at("#d19", now), col = getComputedStyle($("#d19")).getPropertyValue("--tile");
+      ctx.clearRect(0, 0, cv.width, cv.height); ctx.fillStyle = col;
+      for (const d of dots) { const dx = d.x - p.x, dy = d.y - p.y, dd = dx * dx + dy * dy, f = dd < 6400 ? (6400 - dd) / 6400 * 2.2 : 0, l = Math.sqrt(dd) || 1;
+        d.vx += dx / l * f + (d.ox - d.x) * .08; d.vy += dy / l * f + (d.oy - d.y) * .08; d.vx *= .8; d.vy *= .8; d.x += d.vx; d.y += d.vy;
+        const k = Math.min(1, Math.hypot(d.x - d.ox, d.y - d.oy) / 14); ctx.globalAlpha = .35 + k * .65; ctx.beginPath(); ctx.arc(d.x, d.y, 1.6 + k * 1.6, 0, 7); ctx.fill(); } }
+    if (bits.length) { cx2.clearRect(0, 0, cc.width, cc.height);
+      bits = bits.filter((b) => (b.life -= .012) > 0); for (const b of bits) { b.vy += .25; b.vx *= .99; b.x += b.vx; b.y += b.vy; b.r += b.s;
+        cx2.globalAlpha = b.life; cx2.fillStyle = b.c; cx2.save(); cx2.translate(b.x, b.y); cx2.rotate(b.r); cx2.fillRect(-4, -2.5, 8, 5); cx2.restore(); } }
+  })(0);
+</script>
+</body>
+</html>

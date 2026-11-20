@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="fr" data-palette="forest">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bento imbriqué</title>
+<link rel="stylesheet" href="../shared/bank.css">
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 56px 32px 120px; }
+  header { max-width: 720px; margin-bottom: 40px; }
+  h1 { font-size: clamp(36px, 4.4vw, 64px); line-height: 1.05; margin-top: 14px; }
+  header p { color: var(--muted); font-size: 18px; line-height: 1.5; margin: 18px 0 0; }
+  #stage { position: relative; width: 100%; aspect-ratio: 4 / 2.6; }
+  #stage svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  #stage path { fill: var(--tile); cursor: pointer; transition: fill .5s var(--ease-out); }
+  #stage path.on { fill: var(--active); }
+  .lbl { position: absolute; pointer-events: none; padding: 0 0 22px 24px; color: var(--tile-ink); transition: color .5s var(--ease-out); }
+  .lbl.on { color: var(--active-ink); }
+  .lbl b { display: block; font: 400 clamp(20px, 2.2vw, 32px)/1.1 var(--serif); letter-spacing: -.01em; }
+  .lbl span { display: block; margin-top: 6px; font-size: 14px; opacity: .78; max-width: 22ch; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">Banque · Bento imbriqué</div>
+    <h1>Un seul bloc actif, qui passe de tuile en tuile.</h1>
+    <p>Tuiles aux coins en escalier, raccords concaves arrondis, une tuile claire qui circule. Clic : sélection (le changement de mode relance l’animation).</p>
+  </header>
+  <div id="stage" role="list"></div>
+</main>
+<script src="../shared/bank.js"></script>
+<script>
+  // Vertices on a 4x3 cell grid. anchor = bottom-left corner where the label sits.
+  const TILES = [
+    { id: 'collecte',  t: 'Collecte',         s: 'Tout entre au même endroit.',   pts: [[0,0],[1,0],[1,1],[0,1]],                     anchor: [0,1] },
+    { id: 'tableaux',  t: 'Tableaux de bord', s: 'Une vue claire pour décider.',  pts: [[1,0],[4,0],[4,1],[3,1],[3,2],[1,2]],         anchor: [1,2] },
+    { id: 'qualif',    t: 'Qualification',    s: 'Le tri se fait avant la vue.',  pts: [[0,1],[1,1],[1,2],[2,2],[2,3],[0,3]],         anchor: [0,3] },
+    { id: 'rapports',  t: 'Rapports',         s: 'Prêts à partager.',             pts: [[2,2],[3,2],[3,3],[2,3]],                     anchor: [2,3] },
+    { id: 'analyses',  t: 'Analyses',         s: 'Les écarts, expliqués.',        pts: [[3,1],[4,1],[4,3],[3,3]],                     anchor: [3,3] },
+  ];
+  const stage = document.getElementById('stage');
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS, 'svg');
+  stage.appendChild(svg);
+  const paths = [], lbls = [];
+  TILES.forEach((tile, i) => {
+    const p = document.createElementNS(NS, 'path');
+    p.setAttribute('role', 'listitem'); p.setAttribute('tabindex', '0'); p.setAttribute('aria-label', tile.t);
+    p.addEventListener('click', () => { pinned = i; setActive(i); });
+    p.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { pinned = i; setActive(i); } });
+    svg.appendChild(p); paths.push(p);
+    const l = document.createElement('div'); l.className = 'lbl';
+    l.innerHTML = `<b></b><span></span>`;
+    l.querySelector('b').textContent = tile.t; l.querySelector('span').textContent = tile.s;
+    stage.appendChild(l); lbls.push(l);
+  });
+
+  let active = 0, pinned = null;
+  function setActive(i) { active = i; paths.forEach((p, k) => p.classList.toggle("on", k === i)); lbls.forEach((l, k) => l.classList.toggle("on", k === i)); }
+
+  function layout() {
+    const W = stage.clientWidth, H = stage.clientHeight, cw = W / 4, ch = H / 3;
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    TILES.forEach((tile, i) => {
+      const px = tile.pts.map(([x, y]) => [x * cw, y * ch]);
+      paths[i].setAttribute("d", Bank.roundPath(Bank.inset(px, cfg.gap), cfg.radius));
+      const [ax, ay] = tile.anchor;
+      lbls[i].style.left = ax * cw + cfg.gap / 2 + "px";
+      lbls[i].style.top = ay * ch - cfg.gap / 2 + "px";
+      lbls[i].style.transform = "translateY(-100%)";
+    });
+  }
+
+  var cfg = Bank.panel({
+    title: "Bento imbriqué",
+    values: { mode: "loop" },
+    selects: [{ key: "mode", label: "Animation", value: "loop", options: [["loop", "Boucle"], ["once", "Une fois"], ["scroll", "Au scroll"]] }],
+    sliders: [
+      { key: "radius", label: "Rayon (jusqu’au cercle)", min: 0, max: 200, value: 16 },
+      { key: "gap", label: "Écart", min: 0, max: 32, value: 14 },
+    ],
+    onChange: (c, k) => { cfg = c; if (k === "mode") pinned = null; if (typeof layout === "function" && stage) layout(); },
+  });
+  new ResizeObserver(layout).observe(stage);
+  setActive(0); layout();
+  const N = TILES.length;
+  Bank.drive({
+    el: stage, mode: () => cfg.mode, dur: () => N * 1800, hold: 0,
+    scroll: () => { const r = stage.getBoundingClientRect(); return Bank.clamp01((innerHeight * 0.85 - r.top) / (innerHeight * 0.85 + r.height * 0.4)); },
+    setP: (p) => { if (pinned === null) setActive(Math.min(N - 1, Math.floor(p * N))); },
+  });
+</script>
+</body>
+</html>

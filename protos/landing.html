@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Orbe chromé · landing</title>
+<link rel="stylesheet" href="../shared/bank.css">
+<!-- Structure inspired by a full-WebGL real-estate landing (framed HUD, side chapters, object over water). Own brand, copy and scene. -->
+<style>
+  :root { --g: #3dff8a; --g2: #c4ffd9; --ink: #020805; --hud: rgb(196 255 217 / .14); }
+  html, body { height: 100%; } body { background: var(--ink); color: #e6fff0; overflow: hidden; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  .no-gl { background: radial-gradient(circle at 50% 40%, #1d6b3f, var(--ink) 60%); }
+  .frame { position: fixed; inset: 40px; border: 1px solid var(--hud); border-radius: 28px; pointer-events: none; }
+  .ui { position: fixed; inset: 40px; display: grid; grid-template-rows: auto 1fr auto; font: 600 12px/1.2 var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+  header { display: flex; align-items: center; gap: 28px; padding: 16px 16px 0 32px; }
+  .logo { margin-right: auto; display: flex; align-items: center; gap: 10px; font-size: 20px; letter-spacing: .3em; }
+  .logo i { width: 18px; height: 18px; background: var(--g); clip-path: polygon(0 0, 100% 0, 100% 70%, 70% 100%, 0 100%); }
+  header nav { display: flex; gap: 24px; } header a { color: inherit; text-decoration: none; opacity: .85; } header a:hover { opacity: 1; color: var(--g2); }
+  .cut { --c: 12px; display: inline-flex; align-items: center; gap: 10px; padding: 16px 26px; border: 0; color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; background: rgb(196 255 217 / .07);
+    clip-path: polygon(0 0, calc(100% - var(--c)) 0, 100% var(--c), 100% 100%, var(--c) 100%, 0 calc(100% - var(--c))); transition: background .2s, color .2s; }
+  .cut:hover { background: var(--g); color: var(--ink); } .cut.solid { background: #e6fff0; color: var(--ink); }
+  .cut::before { content: ""; width: 7px; height: 7px; background: currentColor; clip-path: polygon(0 0, 100% 50%, 0 100%); }
+  main { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: end; text-align: center; padding-bottom: 6vh; gap: 22px; }
+  h1 { font: 700 clamp(32px, 2.6vw, 52px)/1.08 Inter, system-ui, sans-serif; letter-spacing: .06em; text-transform: uppercase; max-width: 20ch; text-shadow: 0 2px 30px rgb(0 0 0 / .6); }
+  main p { margin: 0; max-width: 58ch; font: 400 17px/1.55 Inter, system-ui, sans-serif; letter-spacing: 0; text-transform: none; opacity: .75; }
+  .chapters { position: absolute; left: 0; top: 50%; translate: 0 -50%; display: grid; gap: 18px; padding-left: 14px; text-align: left; }
+  .chapters button { background: none; border: 0; padding: 0; font: inherit; letter-spacing: .18em; text-transform: inherit; color: rgb(230 255 240 / .35); display: flex; gap: 12px; align-items: center; }
+  .chapters button[aria-current="true"] { color: #e6fff0; } .chapters button[aria-current="true"]::before { content: ""; width: 7px; height: 7px; background: var(--g); }
+  .hint { position: absolute; left: 260px; top: 70px; opacity: .8; display: flex; gap: 8px; } .hint::before { content: ""; width: 7px; height: 7px; margin-top: 2px; background: var(--g2); }
+  footer { display: flex; justify-content: space-between; align-items: stretch; border-top: 1px solid var(--hud); }
+  footer > * { padding: 22px 32px; display: flex; align-items: center; gap: 10px; } footer > :first-child { border-right: 1px solid var(--hud); } footer > :last-child { border-left: 1px solid var(--hud); }
+  .state { opacity: .55; font-weight: 500; }
+  @media (max-width: 900px) { .ui, .frame { inset: 12px; } header nav, .chapters, .hint { display: none; } h1 { font-size: 26px; } main p { font-size: 15px; padding: 0 16px; } }
+</style>
+</head>
+<body>
+<canvas aria-hidden="true"></canvas>
+<div class="frame"></div>
+<div class="ui">
+  <header><a class="logo" href="#" aria-label="Accueil"><i></i>NODAL</a>
+    <nav aria-label="Principale"><a href="#">Projets</a><a href="#">Méthode</a><a href="#">Équipe</a><a href="#">Contact</a></nav>
+    <a class="cut" href="#">Espace client</a></header>
+  <main>
+    <span class="hint">Bougez la souris</span>
+    <nav class="chapters" aria-label="Chapitres"><button type="button" aria-current="true">Matière</button><button type="button">Réseau</button><button type="button">Méthode</button><button type="button">Échelle</button><button type="button">Héritage</button></nav>
+    <h1>Une seule matière, mille formes.</h1>
+    <p>Nous concevons des systèmes qui s'adaptent : solides quand il faut tenir, liquides quand il faut changer. Trente ans d'ingénierie, une seule exigence.</p>
+    <a class="cut solid" href="#">Voir nos projets</a>
+  </main>
+  <footer><span class="state" id="state">État · solide</span><a class="cut" href="#" style="background:none">Nous écrire</a></footer>
+</div>
+<script src="../shared/bank.js"></script>
+<script src="../shared/shader.js"></script>
+<script>
+  // chrome orb over dark reflective water, green horizon, drifting motes; camera follows the pointer.
+  // k: 0 = solid sphere, 1 = liquid surface. Alternates every 3 s (6 s cycle; the 24 s loop is a multiple of it).
+  Bank.SHADERS.orbscene = { lib: `
+float K() { return smoothstep(.3, .7, .5 - .5 * cos(t * 1.0472)); }
+float map(vec3 q, float k) { vec3 c = q - vec3(0, .35, 0); float r = .62 * (1.0 + .025 * sin(t * 2.0944));
+  float w = k * (.05 * sin(c.x * 7.0 + t * 2.0) * sin(c.y * 6.0 - t * 1.6) * sin(c.z * 7.0 + t * 1.3) + .025 * sin(length(c.xy) * 16.0 - t * 3.0));
+  return length(c) - r - w; }
+vec3 sky(vec3 d) { float h = d.y, a = atan(d.x, -d.z);
+  vec3 c = mix(vec3(.004, .018, .01), vec3(.01, .06, .03), smoothstep(-.1, .6, h)) + A * .7 * exp(-abs(h - .01) * 22.0);
+  float hill = .02 + .16 * fbm(vec2(a * 2.2, 4.0)) * smoothstep(.15, .9, abs(a));
+  if (h > -.02 && h < hill) c = vec3(.003, .012, .007) + A * .35 * smoothstep(hill - .04, hill, h) * smoothstep(.2, 1.0, abs(a));
+  c += B * .18 * smoothstep(.2, 1.0, h); // soft overhead light so the chrome has something to mirror
+  c += B * 1.4 * pow(max(0.0, dot(d, normalize(vec3(-.7, .45, .6)))), 24.0) + A * .5 * pow(max(0.0, dot(d, normalize(vec3(.8, .2, .4)))), 10.0);
+  return c; }
+bool orb(vec3 ro, vec3 rd, float k, out vec3 col) { float d = 0.0; col = vec3(0);
+  for (int i = 0; i < 80; i++) { float h = map(ro + rd * d, k); if (h < .001 || d > 8.0) break; d += h * .8; }
+  if (d > 8.0) return false;
+  vec3 q = ro + rd * d; vec2 e = vec2(.002, 0);
+  vec3 n = normalize(vec3(map(q + e.xyy, k) - map(q - e.xyy, k), map(q + e.yxy, k) - map(q - e.yxy, k), map(q + e.yyx, k) - map(q - e.yyx, k)));
+  float fr = pow(1.0 - max(dot(n, -rd), 0.0), 3.0);
+  col = sky(reflect(rd, n)) * (.9 + .6 * fr) * mix(vec3(1), B, .25) + A * .35 * fr; return true; }
+`, main: `float k = K();
+vec3 ro = vec3(M.x * .35, .2 + M.y * .15, 3.4), f = normalize(vec3(0, .02, 0) - ro), r = normalize(cross(vec3(0, 1, 0), f)), u = cross(f, r);
+vec3 rd = normalize(f * 1.9 + p.x * r + p.y * u), c;
+if (!orb(ro, rd, k, c)) {
+  if (rd.y < -.001) { float dist = (-.6 - ro.y) / rd.y; vec3 hp = ro + rd * dist; vec2 g = hp.xz * vec2(2.0, 5.0);
+    vec3 n = normalize(vec3((noise(g + t * .5) - .5) * .18, 1.0, (noise(g.yx * 1.3 - t * .4) - .5) * .35)), rr = reflect(rd, n);
+    if (!orb(hp, rr, k, c)) c = sky(rr); c *= .6 * exp(-dist * .06); }
+  else c = sky(rd); }
+vec2 g = gl_FragCoord.xy / R.y * 36.0 + vec2(t * .25, t * .5), id = floor(g);
+c += A * step(.94, hash(id)) * smoothstep(.1, .0, length(fract(g) - .5 - .3 * vec2(sin(t + id.x), cos(t + id.y)))) * .7;
+o = vec4(c, 1);` };
+  document.body.style.setProperty("--sh-a", "#3dff8a"); document.body.style.setProperty("--sh-b", "#c4ffd9");
+  const src = Bank.shader(document.querySelector("canvas"), "orbscene", document.body, 24000);
+  if (!Bank.reduced()) src.play(); else src.set(4000);
+  // state label follows the same 6 s cycle (solid / liquid)
+  setInterval(() => { const k = .5 - .5 * Math.cos(src.get() / 1000 * 1.0472); document.getElementById("state").textContent = `État · ${k > .5 ? "liquide" : "solide"}`; }, 250);
+  document.querySelector(".chapters").onclick = (e) => { const b = e.target.closest("button"); if (!b) return;
+    document.querySelectorAll(".chapters button").forEach((x) => x.setAttribute("aria-current", x === b)); };
+</script>
+</body>
+</html>

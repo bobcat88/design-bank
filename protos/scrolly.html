@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="fr" data-palette="forest">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Récit au scroll</title>
+<link rel="stylesheet" href="../shared/bank.css">
+<style>
+  #bar { position: fixed; left: 0; top: 0; height: 4px; width: 100%; background: var(--tile); transform-origin: 0 50%; transform: scaleX(0); z-index: 40; }
+  .hero { min-height: 100vh; display: grid; place-items: center; padding: 40px; }
+  .reveal { width: min(1100px, 90vw); aspect-ratio: 16/8; border-radius: 32px; display: grid; place-items: end start; padding: 48px;
+    background: radial-gradient(60% 80% at 20% 30%, var(--l2), transparent 60%), radial-gradient(50% 70% at 80% 70%, var(--l1), transparent 60%), linear-gradient(135deg, var(--tile), var(--l3)); will-change: clip-path; }
+  .reveal h1 { color: #14141c; font-size: clamp(40px, 6vw, 96px); line-height: .98; max-width: 10ch; margin: 0; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 1100px; margin: 0 auto; padding: 18vh 40px; }
+  .stats div { border-top: 1px solid var(--line); padding-top: 20px; }
+  .stats b { display: block; font-size: clamp(48px, 6vw, 88px); font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
+  .stats span { color: var(--muted); }
+  #htrack { position: relative; height: 300vh; }
+  #hpin { position: sticky; top: 0; height: 100vh; overflow: hidden; display: flex; align-items: center; }
+  #hrow { display: flex; gap: 24px; padding: 0 8vw; will-change: transform; }
+  .panel { flex: none; width: 46vw; height: 62vh; border-radius: 28px; background: var(--panel); border: 1px solid var(--line); padding: 40px; display: flex; flex-direction: column; justify-content: space-between; }
+  .panel h2 { font-size: clamp(30px, 3.4vw, 52px); line-height: 1.05; margin: 0; } .panel p { color: var(--muted); font-size: 18px; max-width: 36ch; line-height: 1.5; margin: 0; }
+  .panel i { font: 600 15px var(--mono); color: var(--tile); font-style: normal; }
+  .end { min-height: 60vh; display: grid; place-items: center; color: var(--muted); }
+</style>
+</head>
+<body>
+<div id="bar" aria-hidden="true"></div>
+<section class="hero"><div class="reveal" id="reveal"><h1>Une image qui s'ouvre.</h1></div></section>
+<section class="stats">
+  <div><b data-to="128">0</b><span>prototypes rêvés</span></div>
+  <div><b data-to="42" data-suffix=" ms">0</b><span>par image, au plus</span></div>
+  <div><b data-to="98" data-suffix=" %">0</b><span>de scroll vraiment utile</span></div>
+</section>
+<section id="htrack" aria-label="Défilement horizontal">
+  <div id="hpin"><div id="hrow">
+    <article class="panel"><i>01</i><div><h2>Épingler la section.</h2><p>Une piste haute et un enfant collant : la page avance, la section reste.</p></div></article>
+    <article class="panel"><i>02</i><div><h2>Traduire en largeur.</h2><p>La progression verticale devient un déplacement horizontal de la rangée.</p></div></article>
+    <article class="panel"><i>03</i><div><h2>Relâcher à la fin.</h2><p>Quand la rangée est au bout, la piste se termine et le scroll reprend.</p></div></article>
+  </div></div>
+</section>
+<div class="end"><p>Fin du récit</p></div>
+<script src="../shared/bank.js"></script>
+<script>
+  var cfg = Bank.panel({
+    title: "Récit au scroll", values: { palette: "forest" },
+    sliders: [{ key: "inset", label: "Ouverture départ (%)", min: 0, max: 40, value: 22 }, { key: "round", label: "Arrondi", min: 0, max: 80, value: 32 }],
+    toggles: [{ key: "bar", label: "Barre de progression", value: true }],
+  });
+  const $ = (s) => document.querySelector(s), bar = $("#bar"), rev = $("#reveal"), track = $("#htrack"), row = $("#hrow");
+  const nums = [...document.querySelectorAll("[data-to]")];
+  const embed = document.documentElement.classList.contains("embed");
+  let sm = 0;
+  (function frame(now) {
+    requestAnimationFrame(frame);
+    const red = Bank.reduced(), max = document.documentElement.scrollHeight - innerHeight;
+    if (embed) { const ph = (now / 14000) % 1; scrollTo(0, max * (ph < .5 ? ph * 2 : 2 - ph * 2)); } // thumbnail: auto scroll down and back
+    sm += (scrollY - sm) * (red ? 1 : .15);
+    bar.style.display = cfg.bar ? "" : "none"; bar.style.transform = `scaleX(${sm / Math.max(1, max)})`;
+    // clip-path reveal: the hero opens from an inset rounded window
+    const pr = red ? 1 : Bank.easeOut(Bank.clamp01(sm / (innerHeight * .6))), ins = cfg.inset * (1 - pr);
+    rev.style.clipPath = `inset(${ins}% ${ins}% ${ins}% ${ins}% round ${cfg.round}px)`; rev.style.borderRadius = cfg.round + "px";
+    // counters: count up once they enter the view
+    nums.forEach((n) => { const b = n.getBoundingClientRect(), t = red ? 1 : Bank.easeOut(Bank.clamp01((innerHeight - b.top) / (innerHeight * .5)));
+      n.textContent = Math.round(+n.dataset.to * t) + (n.dataset.suffix || ""); });
+    // horizontal pin
+    const r = track.getBoundingClientRect(), hp = Bank.clamp01(-r.top / Math.max(1, r.height - innerHeight));
+    row.style.transform = `translateX(${-hp * Math.max(0, row.scrollWidth - innerWidth)}px)`;
+  })(0);
+</script>
+</body>
+</html>

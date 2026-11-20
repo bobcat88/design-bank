@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="fr" data-palette="forest">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pile isométrique au scroll</title>
+<link rel="stylesheet" href="../shared/bank.css">
+<style>
+  .intro, .outro { min-height: 70vh; display: grid; place-items: center; text-align: center; padding: 32px; color: var(--muted); }
+  .intro p { max-width: 40ch; font-size: 18px; line-height: 1.5; margin: 0; }
+  #track { position: relative; height: 420vh; }
+  #pin { position: sticky; top: 0; height: 100vh; display: grid; grid-template-columns: minmax(300px, 40%) 1fr; align-items: center; gap: 24px; padding: 0 5vw; overflow: hidden; }
+  .copy-col { position: relative; height: 340px; }
+  .copy-col > * { position: absolute; left: 0; top: 0; right: 0; will-change: transform, opacity; }
+  h2 { font-size: clamp(34px, 3.6vw, 56px); line-height: 1.06; }
+  #legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+  #legend li { display: flex; align-items: center; gap: 14px; font-size: 20px; padding: 10px 0; border-bottom: 1px solid var(--line); opacity: 0; }
+  #legend i { width: 14px; height: 14px; border-radius: 4px; flex: none; }
+  #scene { overflow: visible; width: 100%; height: min(86vh, 760px); }
+  #scene g { will-change: transform, opacity; }
+  .pad text { font: 600 15px var(--mono); fill: var(--active-ink); text-anchor: middle; dominant-baseline: central; }
+  html.embed .intro, html.embed .outro { display: none; }
+  @media (max-width: 800px) { #pin { grid-template-columns: 1fr; padding-top: 24px; align-content: start; } .copy-col { height: 150px; } #legend { gap: 4px; } #legend li { font-size: 14px; padding: 4px 0; } }
+</style>
+</head>
+<body>
+<div class="intro"><p>Fais défiler. La pile se construit, puis reste épinglée le temps de la lire.</p></div>
+<section id="track" aria-label="Pile de données">
+  <div id="pin">
+    <div class="copy-col">
+      <h2 id="head">Cinq couches, une seule vue.</h2>
+      <ul id="legend"></ul>
+    </div>
+    <svg id="scene" viewBox="0 0 800 640" role="img" aria-label="Pile isométrique de cinq couches : données brutes, ingestion, entrepôt, transformation, restitution"></svg>
+  </div>
+</section>
+<div class="outro"><p>Section suivante</p></div>
+<script src="../shared/bank.js"></script>
+<script>
+  const NS = 'http://www.w3.org/2000/svg';
+  const scene = document.getElementById('scene');
+  const el = (tag, attrs, parent) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); (parent || scene).appendChild(n); return n; };
+  const K = 0.5774, CX = 400;
+  const LAYERS = [  // bottom to top
+    { name: 'Données brutes', col: 'var(--l1)' },
+    { name: 'Ingestion', col: 'var(--l2)' },
+    { name: 'Entrepôt', col: 'var(--l3)' },
+    { name: 'Transformation', col: 'var(--tile)' },
+  ];
+  const LEGEND = ['Restitution', 'Transformation', 'Entrepôt', 'Ingestion', 'Données brutes'];
+  const LEG_COL = ['var(--active)', 'var(--tile)', 'var(--l3)', 'var(--l2)', 'var(--l1)'];
+  const legend = document.getElementById('legend');
+  LEGEND.forEach((t, i) => { const li = document.createElement('li'); li.innerHTML = `<i style="background:${LEG_COL[i]}"></i><span></span>`; li.lastChild.textContent = t; legend.appendChild(li); });
+
+  // iso slab: rounded rhombus top + two side faces, drawn at origin (0,0) of its group.
+  function slab(g, w, thick, col) {
+    const h = w * K;
+    const side = `color-mix(in srgb, ${col} 72%, black)`, side2 = `color-mix(in srgb, ${col} 58%, black)`;
+    el('path', { d: `M${-w} 0 L0 ${h} L0 ${h + thick} L${-w} ${thick} Z`, style: `fill:${side}` }, g);
+    el('path', { d: `M${w} 0 L0 ${h} L0 ${h + thick} L${w} ${thick} Z`, style: `fill:${side2}` }, g);
+    return el('path', { d: Bank.roundPath([[0, -h], [w, 0], [0, h], [-w, 0]], 14), style: `fill:${col}` }, g);
+  }
+  function cube(g, x, y, s, hgt, col) {
+    const w = s, h = s * K;
+    const c = el('g', { transform: `translate(${x} ${y})` }, g);
+    el('path', { d: `M${-w} 0 L0 ${h} L0 ${h + hgt} L${-w} ${hgt} Z`, style: `fill:color-mix(in srgb, ${col} 70%, black)` }, c);
+    el('path', { d: `M${w} 0 L0 ${h} L0 ${h + hgt} L${w} ${hgt} Z`, style: `fill:color-mix(in srgb, ${col} 55%, black)` }, c);
+    el('path', { d: `M0 ${-h} L${w} 0 L0 ${h} L${-w} 0 Z`, style: `fill:${col}` }, c);
+  }
+  const iso = (u, v, w) => [CX + (u - v) * w * 0.5, (u + v) * w * K * 0.5];
+
+  const cfg = Bank.panel({
+    title: 'Pile isométrique',
+    values: { mode: 'scroll' },
+    selects: [{ key: 'mode', label: 'Animation', value: 'scroll', options: [['scroll', 'Au scroll'], ['loop', 'Boucle'], ['once', 'Une fois']] }],
+    sliders: [{ key: 'gap', label: 'Écart', min: 40, max: 150, value: 100 }, { key: 'thick', label: 'Épaisseur', min: 8, max: 34, value: 20 }],
+    onChange: (c, k) => { if (k === 'mode' && window.cfg_ready) setTrack(); build(); },
+  });
+  const W = 250;
+  let lastP = 0, layerG = [], cubesG, topG, padG, topY = [], baseY = [];
+  function build() {
+    if (!window.cfg_ready) return;
+    scene.innerHTML = '';
+    const y0 = 470;
+    layerG = LAYERS.slice(0, 3).map((L, i) => {
+      const g = el('g', {}); const y = y0 - i * cfg.gap; baseY[i] = y; g.dataset.y = y;
+      const inner = el('g', { transform: `translate(${CX} ${y})` }, g); slab(inner, W, cfg.thick, L.col); return g;
+    });
+    cubesG = el('g', {});
+    [[-140, 30, 20], [-60, 85, 24], [30, 105, 20], [110, 70, 22], [170, 20, 16]].forEach(([x, y, s], i) => {
+      cube(cubesG, CX + x, y0 + y - 16, s, s * .9, ['var(--l2)', 'var(--l3)', 'var(--tile)', 'var(--active)', 'var(--l2)'][i]);
+    });
+    scene.insertBefore(cubesG, layerG[1]); // cubes sit on layer 0, under the upper layers
+    topG = el('g', {}); topY = y0 - 3 * cfg.gap; slab(el('g', { transform: `translate(${CX} ${topY})` }, topG), W, cfg.thick, LAYERS[3].col);
+    padG = [[-.5, -.5], [.5, -.5], [0, 0], [-.5, .5], [.5, .5]].map(([u, v], i) => {
+      const [x, y] = iso(u, v, W * 2 * .7);
+      const g = el('g', { class: 'pad' }); g.dataset.x = x; g.dataset.y = topY + y;
+      const inner = el('g', {}, g);
+      el('path', { d: Bank.roundPath([[0, -20], [34, 0], [0, 20], [-34, 0]], 8), style: 'fill:var(--active)' }, inner);
+      const t = el('text', { y: 1 }, inner); t.textContent = i + 1; return g;
+    });
+    render(lastP);
+  }
+  window.cfg_ready = true;
+
+  const head = document.getElementById('head'), lis = [...legend.children];
+  const lerp = (a, b, t) => a + (b - a) * t;
+  function render(p) {
+    const e = Bank.easeOut;
+    head.style.opacity = 1 - Bank.seg(p, .04, .2); head.style.transform = `translateY(${-30 * Bank.seg(p, .04, .2)}px)`;
+    layerG.forEach((g, i) => {
+      const t = e(Bank.seg(p, i * .07, .22 + i * .07));
+      g.setAttribute('transform', `translate(0 ${lerp(160, 0, t)})`); g.style.opacity = t;
+    });
+    const tc = Bank.seg(p, .3, .45);
+    cubesG.style.opacity = e(tc); cubesG.setAttribute('transform', `translate(0 ${lerp(-40, 0, e(tc))})`);
+    lis.forEach((li, i) => { const t = Bank.seg(p, .45 + i * .025, .55 + i * .025); li.style.opacity = t; li.style.transform = `translateY(${lerp(14, 0, t)}px)`; });
+    legend.parentNode.style.setProperty('--x', 0);
+    const tt = e(Bank.seg(p, .6, .8));
+    topG.setAttribute('transform', `translate(0 ${lerp(-150, 0, tt)})`);
+    topG.style.opacity = lerp(.25, 1, tt);
+    padG.forEach((g, i) => {
+      const t = e(Bank.seg(p, .8 + i * .025, .9 + i * .025));
+      g.setAttribute('transform', `translate(${g.dataset.x} ${+g.dataset.y + lerp(-70, 0, t)})`); g.style.opacity = t;
+    });
+  }
+
+  // scroll: progress through the sticky track. loop / once: timed, no pin needed.
+  const track = document.getElementById("track");
+  const setTrack = () => { track.style.height = cfg.mode === "scroll" && !Bank.reduced() ? "420vh" : "100vh"; };
+  setTrack(); build();
+  Bank.drive({
+    el: track, mode: () => cfg.mode, dur: () => 4500, hold: 1800,
+    scroll: () => { const r = track.getBoundingClientRect(); return Bank.clamp01(-r.top / Math.max(1, r.height - innerHeight)); },
+    setP: (p) => { lastP = p; render(p); },
+  });
+  window.__stack = { setP: (p) => { cfg.mode = "scroll"; render(p); } }; // for screenshot tests
+</script>
+</body>
+</html>

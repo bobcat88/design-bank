@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="fr" data-palette="paper">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Diagramme de nœuds</title>
+<link rel="stylesheet" href="../shared/bank.css">
+<style>
+  main { max-width: 1240px; margin: 0 auto; padding: 56px 32px 140px; }
+  header { max-width: 720px; margin-bottom: 40px; }
+  h1 { font-size: clamp(36px, 4.4vw, 64px); line-height: 1.05; margin-top: 14px; }
+  header p { color: var(--muted); font-size: 18px; line-height: 1.5; margin: 18px 0 0; }
+  .graph { position: relative; margin: 0 0 56px; border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); aspect-ratio: 16 / 7; }
+  .graph svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .edge { fill: none; stroke: var(--text); stroke-opacity: .55; stroke-width: 1.5; }
+  .edge.dot { stroke-dasharray: 2 6; stroke-linecap: round; }
+  .joint { fill: var(--bg); stroke: var(--text); stroke-opacity: .7; stroke-width: 1.5; }
+  .sig { fill: var(--tile); }
+  .node { fill: var(--bg); stroke: var(--line); stroke-width: 1.5; }
+  .node.pill { fill: var(--tile); stroke: none; }
+  .nt { font: 500 15px var(--font); fill: var(--text); text-anchor: middle; dominant-baseline: central; }
+  .nt.on { fill: var(--tile-ink); }
+  .cap { position: absolute; left: 16px; top: 12px; font: 600 11px var(--font); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">Banque · Nœuds et connecteurs</div>
+    <h1>Des boîtes, des pastilles, des fils qui tournent.</h1>
+    <p>Chaque diagramme est une petite spec (nœuds + liens). Coins arrondis, jonctions, segments pointillés, un signal qui circule. Les fils se tracent à l'entrée dans l'écran.</p>
+  </header>
+  <div id="graphs"></div>
+</main>
+<script src="../shared/bank.js"></script>
+<script>
+  // Spec: nodes {id,x,y,w,h,label,pill?} in a 1000x437 box; edges {pts:[[x,y]...], dot?}. Edge ends sit on the left/right/top/bottom middle of a node, which every shape touches.
+  const GRAPHS = [
+    { cap: "Flux simple", nodes: [
+        { x: 90, y: 218, w: 150, h: 54, label: "Capture" }, { x: 400, y: 218, w: 170, h: 54, label: "Agent", pill: 1 },
+        { x: 740, y: 110, w: 170, h: 54, label: "Notes" }, { x: 740, y: 328, w: 170, h: 54, label: "Rapports" }],
+      edges: [{ pts: [[165, 218], [315, 218]] }, { pts: [[400, 191], [400, 110], [655, 110]] }, { pts: [[400, 245], [400, 328], [655, 328]], dot: 1 }] },
+    { cap: "Entonnoir", nodes: [
+        { x: 110, y: 90, w: 150, h: 50, label: "Mail" }, { x: 110, y: 218, w: 150, h: 50, label: "Agenda" }, { x: 110, y: 346, w: 150, h: 50, label: "Tickets" },
+        { x: 520, y: 218, w: 190, h: 56, label: "Qualification", pill: 1 }, { x: 880, y: 218, w: 150, h: 56, label: "Vue unique" }],
+      edges: [{ pts: [[185, 90], [520, 90], [520, 190]] }, { pts: [[185, 218], [425, 218]] }, { pts: [[185, 346], [520, 346], [520, 246]], dot: 1 }, { pts: [[615, 218], [805, 218]] }] },
+    { cap: "Boucle", nodes: [
+        { x: 200, y: 110, w: 160, h: 54, label: "Proposer", pill: 1 }, { x: 800, y: 110, w: 160, h: 54, label: "Valider" },
+        { x: 800, y: 328, w: 160, h: 54, label: "Appliquer" }, { x: 200, y: 328, w: 160, h: 54, label: "Apprendre" }],
+      edges: [{ pts: [[280, 110], [720, 110]] }, { pts: [[800, 137], [800, 301]] }, { pts: [[720, 328], [280, 328]] }, { pts: [[200, 301], [200, 137]], dot: 1 }] },
+  ];
+  const NS = "http://www.w3.org/2000/svg", VW = 1000, VH = 437;
+  const mk = (t, a, p) => { const n = document.createElementNS(NS, t); for (const k in a) n.setAttribute(k, a[k]); p.appendChild(n); return n; };
+  let cfg, boxes = [];
+  const shapePath = (n) => {
+    const x = n.x, y = n.y, hw = n.w / 2, hh = n.h / 2, r = cfg.nodeRound / 100 * Math.min(n.w, n.h) / 2;
+    const pts = cfg.shape === "diamond" ? [[x, y - hh], [x + hw, y], [x, y + hh], [x - hw, y]]
+      : cfg.shape === "hex" ? [[x - hw, y], [x - hw / 2, y - hh], [x + hw / 2, y - hh], [x + hw, y], [x + hw / 2, y + hh], [x - hw / 2, y + hh]]
+      : [[x - hw, y - hh], [x + hw, y - hh], [x + hw, y + hh], [x - hw, y + hh]];
+    return Bank.roundPath(pts, r);
+  };
+  function draw() {
+    const host = document.getElementById("graphs"); host.innerHTML = ""; boxes = [];
+    GRAPHS.forEach((g) => {
+      const box = document.createElement("div"); box.className = "graph"; box.innerHTML = "<span class=\"cap\"></span>"; box.firstChild.textContent = g.cap;
+      const svg = mk("svg", { viewBox: `0 0 ${VW} ${VH}`, "aria-hidden": "true" }, box); host.appendChild(box);
+      const edges = g.edges.map((e) => {
+        const p = mk("path", { d: Bank.roundPath(e.pts, cfg.lineRound, false), class: "edge" + (e.dot ? " dot" : "") }, svg);
+        const len = p.getTotalLength();
+        if (!e.dot) { p.style.strokeDasharray = len; p.style.strokeDashoffset = 0; }
+        return { p, len, e, draw: !e.dot };
+      });
+      g.nodes.forEach((n) => {
+        if (cfg.shape === "ellipse") mk("ellipse", { cx: n.x, cy: n.y, rx: n.w / 2, ry: n.h / 2, class: "node" + (n.pill ? " pill" : "") }, svg);
+        else mk("path", { d: shapePath(n), class: "node" + (n.pill ? " pill" : "") }, svg);
+        const t = mk("text", { x: n.x, y: n.y, class: "nt" + (n.pill ? " on" : "") }, svg); t.textContent = n.label;
+      });
+      edges.forEach((E) => {   // joints and signals drawn last so nodes never hide them
+        [E.e.pts[0], E.e.pts[E.e.pts.length - 1]].forEach(([x, y]) => mk("circle", { cx: x, cy: y, r: 4.5, class: "joint" }, svg));
+        if (cfg.signal) E.s = mk("circle", { r: 4, class: "sig" }, svg);
+        E.ph = Math.random();
+      });
+      boxes.push({ box, edges, vis: false, t0: performance.now() });
+      new IntersectionObserver((en) => { const b = boxes.find((x) => x.box === box); if (b) { b.vis = en[0].isIntersecting; if (b.vis && !b.seen) { b.seen = true; b.t0 = performance.now(); } } }, { threshold: .4 }).observe(box);
+    });
+  }
+  cfg = Bank.panel({
+    title: "Nœuds et connecteurs", values: { palette: "paper", mode: "once", shape: "rect" },
+    selects: [
+      { key: "mode", label: "Tracé des fils", value: "once", options: [["once", "Une fois"], ["loop", "Boucle"], ["scroll", "Au scroll"]] },
+      { key: "shape", label: "Forme", value: "rect", options: [["rect", "Rectangle"], ["diamond", "Losange"], ["hex", "Hexagone"], ["ellipse", "Ellipse"]] },
+    ],
+    sliders: [
+      { key: "nodeRound", label: "Rayon nœuds (%)", min: 0, max: 100, value: 30 },
+      { key: "lineRound", label: "Rayon lignes", min: 0, max: 160, value: 16 },
+    ],
+    toggles: [{ key: "signal", label: "Signal", value: true }],
+    onChange: (c) => { cfg = c; draw(); },
+  });
+  (function loop(now) {
+    boxes.forEach((b) => {
+      const r = b.box.getBoundingClientRect(), reduced = Bank.reduced();
+      let p = 1;
+      if (!reduced) {
+        if (cfg.mode === "scroll") p = Bank.clamp01((innerHeight * .9 - r.top) / (innerHeight * .5));
+        else if (!b.seen) p = 0;
+        else { const t = (now - b.t0) / 1400; p = cfg.mode === "loop" ? Math.min(1, (t % 3.2)) : Math.min(1, t); if (cfg.mode === "loop" && t % 3.2 > 2.6) p = 1 - (t % 3.2 - 2.6) / .6; }
+      }
+      b.edges.forEach((E) => {
+        if (E.draw) E.p.style.strokeDashoffset = E.len * (1 - Bank.easeOut(p));
+        if (E.s && !reduced) { const pt = E.p.getPointAtLength(((now / 3200 + E.ph) % 1) * E.len); E.s.setAttribute("cx", pt.x); E.s.setAttribute("cy", pt.y); }
+      });
+    });
+    requestAnimationFrame(loop);
+  })(performance.now());
+</script>
+</body>
+</html>

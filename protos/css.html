@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="fr" data-palette="ink">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CSS moderne</title>
+<link rel="stylesheet" href="../shared/bank.css">
+<link rel="stylesheet" href="../shared/cards.css">
+</head>
+<body>
+<main>
+  <h1>Ce que le CSS sait animer seul.</h1>
+  <p class="lead">Quarante techniques courantes ou récentes (2023–2026), chacune en démo vivante. Le CSS affiché est exactement celui qui tourne. Une mention orange signale ce que ton navigateur ne gère pas encore.</p>
+
+  <div class="bar2" role="toolbar" aria-label="Trier et filtrer">
+    <label>Ordre <select id="sort"><option value="theme">Par thème</option><option value="wow">Plus spectaculaire d'abord</option><option value="use">Plus utile d'abord</option></select></label>
+    <div class="chips" id="plat"><button type="button" aria-pressed="true" data-p="all">Tout</button><button type="button" aria-pressed="false" data-p="web">Site web</button><button type="button" aria-pressed="false" data-p="desk">App bureau</button><button type="button" aria-pressed="false" data-p="mob">Mobile</button></div>
+  </div>
+  <div class="grid" id="flat" hidden></div>
+
+  <h2>Liées au scroll</h2>
+  <div class="grid">
+    <article id="c1" data-sup="animation-timeline: scroll()"><h3>Barre de progression</h3><p>La barre suit le scroll du bloc sans une ligne de JS : la timeline <code>scroll()</code> remplace la durée.</p>
+      <div class="demo"><div class="sc" id="d1"><div class="bar"></div><div class="fill" data-n="10"></div></div></div>
+      <style>
+#d1 .bar { position: sticky; top: -14px; height: 5px; margin: -14px -14px 10px; background: var(--tile); transform-origin: 0 50%; animation: d1 linear both; animation-timeline: scroll(); }
+@keyframes d1 { from { transform: scaleX(0); } }
+      </style></article>
+
+    <article id="c2" data-sup="animation-timeline: view()"><h3>Apparition à l'entrée</h3><p>Chaque bloc a sa propre timeline <code>view()</code> : il se révèle pendant qu'il entre dans la zone visible.</p>
+      <div class="demo"><div class="sc fill" id="d2" data-n="12"></div></div>
+      <style>
+#d2 i { animation: d2 linear both; animation-timeline: view(); animation-range: entry 0% cover 35%; }
+@keyframes d2 { from { opacity: 0; transform: translateY(30px) scale(.92); } }
+      </style></article>
+
+    <article id="c3" data-sup="animation-timeline: scroll()"><h3>En-tête qui se compacte</h3><p><code>animation-range: 0 120px</code> : l'en-tête rétrécit sur les 120 premiers pixels, puis ne bouge plus.</p>
+      <div class="demo"><div class="sc" id="d3"><header>Studio</header><div class="fill" data-n="10"></div></div></div>
+      <style>
+#d3 { padding-top: 0; }
+#d3 header { position: sticky; top: 0; z-index: 1; margin: 0 -14px 10px; padding: 28px 18px; font-size: 26px; font-weight: 600; background: var(--bg); animation: d3 linear both; animation-timeline: scroll(); animation-range: 0 120px; }
+@keyframes d3 { to { padding: 10px 18px; font-size: 15px; background: var(--tile); color: var(--tile-ink); } }
+      </style></article>
+
+    <article id="c4" data-sup="animation-timeline: view()"><h3>Parallaxe</h3><p>Le calque intérieur glisse plus lentement que son cadre, piloté par la position du cadre dans le scroll.</p>
+      <div class="demo"><div class="sc" id="d4"><div class="ph"><div class="layer"></div></div><div class="ph"><div class="layer"></div></div><div class="ph"><div class="layer"></div></div></div></div>
+      <style>
+#d4 .ph { position: relative; height: 150px; margin-bottom: 14px; border-radius: 14px; overflow: hidden; }
+#d4 .layer { position: absolute; inset: -40% 0; background: radial-gradient(circle at 30% 40%, var(--l2), transparent 40%), radial-gradient(circle at 70% 60%, var(--tile), transparent 45%), var(--l3); animation: d4 linear both; animation-timeline: view(); }
+@keyframes d4 { from { transform: translateY(-25%); } to { transform: translateY(25%); } }
+      </style></article>
+
+    <article id="c5" data-sup="animation-timeline: view(inline)"><h3>Carrousel qui met en avant</h3><p><code>scroll-snap</code> pour l'arrêt, <code>view(inline)</code> pour agrandir la carte centrale.</p>
+      <div class="demo"><div id="d5"><b></b><b></b><b></b><b></b><b></b><b></b></div></div>
+      <style>
+#d5 { display: flex; gap: 14px; width: 100%; overflow-x: auto; padding: 0 30%; scroll-snap-type: x mandatory; scrollbar-width: none; }
+#d5 b { flex: 0 0 40%; height: 150px; border-radius: 18px; background: var(--tile); scroll-snap-align: center; animation: d5 linear both; animation-timeline: view(inline); }
+@keyframes d5 { 0%, 100% { scale: .78; opacity: .45; } 50% { scale: 1; opacity: 1; } }
+      </style></article>
+
+    <article id="c6" data-sup="selector(::scroll-marker)"><h3>Points de carrousel natifs</h3><p><code>::scroll-marker</code> génère les points de navigation, <code>:target-current</code> allume le point actif. Zéro JS.</p>
+      <div class="demo"><div id="d6"><div>1</div><div>2</div><div>3</div><div>4</div></div></div>
+      <style>
+#d6 { display: flex; width: 86%; overflow-x: auto; scroll-snap-type: x mandatory; scroll-marker-group: after; scrollbar-width: none; scroll-behavior: smooth; }
+#d6 > div { flex: 0 0 100%; height: 130px; border-radius: 16px; background: var(--tile); color: var(--tile-ink); display: grid; place-items: center; font-size: 40px; scroll-snap-align: center; }
+#d6 > div::scroll-marker { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+#d6 > div::scroll-marker:target-current { background: var(--tile); width: 26px; border-radius: 5px; }
+#d6::scroll-marker-group { display: flex; gap: 8px; justify-content: center; margin-top: 14px; }
+      </style></article>
+
+    <article id="c7" data-sup="container-type: scroll-state"><h3>En-tête collé détecté</h3><p><code>@container scroll-state(stuck: top)</code> : le style change seulement quand l'élément sticky est réellement collé.</p>
+      <div class="demo"><div class="sc" id="d7"><div class="fill" data-n="1"></div><header><div>Section collante</div></header><div class="fill" data-n="10"></div></div></div>
+      <style>
+#d7 header { position: sticky; top: -14px; z-index: 1; container-type: scroll-state; margin: 0 -14px 10px; }
+#d7 header > div { padding: 12px 18px; background: var(--bg); transition: background .3s, color .3s, border-radius .3s; }
+@container scroll-state(stuck: top) { #d7 header > div { background: var(--tile); color: var(--tile-ink); border-radius: 0 0 16px 16px; } }
+      </style></article>
+
+    <article id="c8" data-sup="animation-timeline: view()"><h3>Texte qui se remplit</h3><p>Fond dégradé découpé au texte (<code>background-clip: text</code>), sa largeur suit le scroll ; sur un <code>span</code> en ligne, il remplit ligne après ligne.</p>
+      <div class="demo"><div class="sc" id="d8"><div style="height:120px"></div><p><span>Le texte se colore à mesure qu'on lit : la lecture devient un fil, et le scroll un geste qui a un sens.</span></p><div style="height:160px"></div></div></div>
+      <style>
+#d8 p { font-size: 26px; line-height: 1.25; font-weight: 600; }
+#d8 span { color: transparent; -webkit-background-clip: text; background-clip: text; background-image: linear-gradient(var(--tile), var(--tile)), linear-gradient(var(--line), var(--line)); background-repeat: no-repeat; background-size: 100% 100%, 100% 100%; animation: d8 linear both; animation-timeline: view(); animation-range: cover 15% cover 55%; }
+@keyframes d8 { from { background-size: 0% 100%, 100% 100%; } }
+      </style></article>
+  </div>
+
+  <h2>Transitions d'état</h2>
+  <div class="grid">
+    <article id="c9" data-sup="view-transition-name: a"><h3>View Transition : réordonner</h3><p><code>document.startViewTransition()</code> photographie avant et après, puis anime chaque élément nommé vers sa nouvelle place. La variante entre pages : <code>@view-transition { navigation: auto }</code>.</p>
+      <div class="demo"><div id="d9"><b style="view-transition-name:t1">A</b><b style="view-transition-name:t2">B</b><b style="view-transition-name:t3">C</b><b style="view-transition-name:t4">D</b><b style="view-transition-name:t5">E</b><b style="view-transition-name:t6">F</b></div></div>
+      <div class="tools"><button type="button" data-act="shuffle">Mélanger</button></div>
+      <style>
+#d9 { display: grid; grid-template-columns: repeat(3, 70px); gap: 10px; }
+#d9 b { height: 70px; border-radius: 14px; display: grid; place-items: center; background: var(--tile); color: var(--tile-ink); font-size: 22px; }
+#d9 b:nth-child(odd) { background: var(--l2); }
+::view-transition-group(*) { animation-duration: .5s; animation-timing-function: cubic-bezier(.2, .8, .2, 1); }
+      </style></article>
+
+    <article id="c10" data-sup="view-transition-name: a"><h3>Changement de thème circulaire</h3><p>Même API sur toute la page : la nouvelle capture s'ouvre en cercle depuis le point cliqué.</p>
+      <div class="demo"><button type="button" data-act="theme">Changer de thème</button></div>
+      <style>
+html.vt-theme::view-transition-old(root) { animation: none; }
+html.vt-theme::view-transition-new(root) { animation: d10 .7s cubic-bezier(.2, .8, .2, 1); }
+@keyframes d10 { from { clip-path: circle(0 at var(--cx) var(--cy)); } to { clip-path: circle(150vmax at var(--cx) var(--cy)); } }
+      </style></article>
+
+    <article id="c11" data-sup="selector(:popover-open)"><h3>Popover avec entrée et sortie</h3><p><code>@starting-style</code> donne l'état de départ ; <code>transition-behavior: allow-discrete</code> laisse animer <code>display</code> jusqu'à la fin de la sortie.</p>
+      <div class="demo"><button type="button" popovertarget="p11" id="b11">Ouvrir le menu</button><div popover id="p11">Profil<br>Réglages<br>Déconnexion</div></div>
+      <style>
+#b11 { anchor-name: --b11; }
+#p11 { position-anchor: --b11; position-area: bottom; inset: auto; margin: 8px 0 0; padding: 14px 18px; line-height: 1.9; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: inherit;
+  opacity: 1; scale: 1; transition: opacity .25s, scale .25s, display .25s allow-discrete, overlay .25s allow-discrete; }
+#p11:not(:popover-open) { opacity: 0; scale: .92; }
+@starting-style { #p11:popover-open { opacity: 0; scale: .92; } }
+      </style></article>
+
+    <article id="c12" data-sup="transition-behavior: allow-discrete"><h3>Dialogue modal animé</h3><p>Même recette sur <code>&lt;dialog&gt;</code>, avec le fond <code>::backdrop</code> qui se fond aussi.</p>
+      <div class="demo"><button type="button" data-act="dialog">Ouvrir</button><dialog id="dlg12"><p>Un vrai dialogue, avec focus et touche Échap.</p><button type="button" data-act="close">Fermer</button></dialog></div>
+      <style>
+#dlg12 { border: 1px solid var(--line); border-radius: 20px; padding: 24px; background: var(--panel); color: inherit;
+  opacity: 1; translate: 0; transition: opacity .3s, translate .3s, display .3s allow-discrete, overlay .3s allow-discrete; }
+#dlg12:not([open]) { opacity: 0; translate: 0 20px; }
+@starting-style { #dlg12[open] { opacity: 0; translate: 0 20px; } }
+#dlg12::backdrop { background: rgb(0 0 0 / .5); transition: background .3s, display .3s allow-discrete, overlay .3s allow-discrete; }
+@starting-style { #dlg12[open]::backdrop { background: rgb(0 0 0 / 0); } }
+      </style></article>
+
+    <article id="c13" data-sup="interpolate-size: allow-keywords"><h3>Animer vers height: auto</h3><p><code>interpolate-size: allow-keywords</code> rend enfin <code>height: auto</code> animable.</p>
+      <div class="demo"><div id="d13"><label><input type="checkbox"> Afficher le détail</label><div class="box"><p>Contenu de hauteur libre, sans mesure en JS ni max-height arbitraire.</p></div></div></div>
+      <style>
+#d13 { interpolate-size: allow-keywords; width: 80%; }
+#d13 .box { height: 0; overflow: hidden; transition: height .4s cubic-bezier(.2, .8, .2, 1); }
+#d13:has(:checked) .box { height: auto; }
+#d13 .box p { margin: 12px 0 0; padding: 14px; border-radius: 12px; background: var(--panel); }
+      </style></article>
+
+    <article id="c14" data-sup="selector(::details-content)"><h3>Accordéon &lt;details&gt; animé</h3><p><code>::details-content</code> cible le contenu natif ; <code>name</code> commun = un seul ouvert à la fois.</p>
+      <div class="demo"><div id="d14"><details name="a14" open><summary>Livraison</summary><p>Sous 48 h, suivi inclus.</p></details><details name="a14"><summary>Retours</summary><p>Trente jours, sans justification.</p></details><details name="a14"><summary>Garantie</summary><p>Deux ans, pièces et main-d'œuvre.</p></details></div></div>
+      <style>
+#d14 { interpolate-size: allow-keywords; width: 80%; }
+#d14 details { border-bottom: 1px solid var(--line); padding: 8px 0; }
+#d14 summary { cursor: pointer; font-weight: 600; }
+#d14 details::details-content { block-size: 0; overflow: hidden; transition: block-size .35s, content-visibility .35s allow-discrete; }
+#d14 details[open]::details-content { block-size: auto; }
+#d14 p { margin: 6px 0 2px; color: var(--muted); }
+      </style></article>
+
+    <article id="c15" data-sup="opacity: 1"><h3>Interrupteur à ressort</h3><p><code>:has(:checked)</code> sur le parent, et un ressort écrit en <code>linear()</code> pour le dépassement.</p>
+      <div class="demo"><label id="d15"><input type="checkbox" aria-label="Mode avion"><span></span></label></div>
+      <style>
+#d15 input { position: absolute; opacity: 0; }
+#d15 span { display: block; width: 76px; height: 42px; border-radius: 999px; background: var(--line); position: relative; cursor: pointer; transition: background .3s; }
+#d15 span::after { content: ""; position: absolute; left: 5px; top: 5px; width: 32px; height: 32px; border-radius: 50%; background: #fff; transition: translate .6s linear(0, .25 7%, .7 15%, 1.06 25%, 1.12 32%, 1.04 45%, .98 58%, 1.01 75%, 1); }
+#d15:has(:checked) span { background: var(--tile); }
+#d15:has(:checked) span::after { translate: 34px 0; }
+#d15:has(:focus-visible) span { outline: 2px solid var(--tile); outline-offset: 3px; }
+      </style></article>
+
+    <article id="c16" data-sup="opacity: 1"><h3>Ressort contre ease</h3><p>Survole la zone. En haut <code>ease</code>, en bas un ressort <code>linear()</code> : une courbe point par point, sans JS.</p>
+      <div class="demo" id="d16"><b></b><b class="spring"></b></div>
+      <style>
+#d16 { align-content: center; gap: 22px; justify-items: start; padding: 0 30px; }
+#d16 b { width: 40px; height: 40px; border-radius: 50%; background: var(--l2); transition: translate .9s ease; }
+#d16 .spring { background: var(--tile); transition-timing-function: linear(0, .25 7%, .7 15%, 1.06 25%, 1.12 32%, 1.04 45%, .98 58%, 1.01 75%, 1); }
+#d16:hover b { translate: 260px 0; }
+      </style></article>
+  </div>
+
+  <h2>Positionnement et structure</h2>
+  <div class="grid">
+    <article id="c17" data-sup="anchor-name: --a"><h3>Infobulle ancrée</h3><p><code>anchor-name</code> + <code>position-area</code> : l'infobulle se place sur le bouton sans calcul de coordonnées.</p>
+      <div class="demo" id="d17"><button type="button">Survole-moi</button><span class="tip" role="tooltip">Placée par le CSS</span></div>
+      <style>
+#d17 button { anchor-name: --b17; }
+#d17 .tip { position: absolute; position-anchor: --b17; position-area: top; margin-bottom: 10px; padding: 8px 12px; border-radius: 10px; background: var(--tile); color: var(--tile-ink); font-size: 14px; white-space: nowrap; opacity: 0; translate: 0 6px; transition: opacity .2s, translate .2s; pointer-events: none; }
+#d17 button:hover + .tip, #d17 button:focus-visible + .tip { opacity: 1; translate: 0; }
+      </style></article>
+
+    <article id="c18" data-sup="anchor-name: --a"><h3>Onglets à indicateur glissant</h3><p>L'onglet coché devient l'ancre ; l'indicateur suit ses bords avec <code>anchor()</code> et une transition.</p>
+      <div class="demo"><div id="d18"><label><input type="radio" name="t18" checked>Jour</label><label><input type="radio" name="t18">Semaine</label><label><input type="radio" name="t18">Mois</label><span class="ind"></span></div></div>
+      <style>
+#d18 { position: relative; display: inline-flex; gap: 4px; padding: 5px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line); }
+#d18 label { position: relative; z-index: 1; padding: 9px 18px; border-radius: 999px; cursor: pointer; transition: color .3s; }
+#d18 input { position: absolute; opacity: 0; }
+#d18 label:has(:checked) { anchor-name: --t18; color: var(--tile-ink); }
+#d18 label:has(:focus-visible) { outline: 2px solid var(--tile); }
+#d18 .ind { position: absolute; position-anchor: --t18; top: anchor(top); bottom: anchor(bottom); left: anchor(left); right: anchor(right); border-radius: 999px; background: var(--tile); transition: left .35s cubic-bezier(.2, .8, .2, 1), right .35s cubic-bezier(.2, .8, .2, 1); }
+      </style></article>
+
+    <article id="c19" data-sup="selector(:has(a))"><h3>Atténuer les voisins</h3><p><code>:has(.t:hover)</code> sur le parent : survoler une carte estompe les autres.</p>
+      <div class="demo"><div id="d19"><b class="t"></b><b class="t"></b><b class="t"></b><b class="t"></b></div></div>
+      <style>
+#d19 { display: flex; gap: 12px; }
+#d19 .t { width: 70px; height: 110px; border-radius: 14px; background: var(--tile); transition: opacity .3s, scale .3s; }
+#d19:has(.t:hover) .t:not(:hover) { opacity: .35; scale: .94; }
+#d19 .t:hover { scale: 1.06; }
+      </style></article>
+
+    <article id="c20" data-sup="container-type: inline-size"><h3>Requête de conteneur</h3><p>Tire le coin du cadre : la carte change de mise en page selon la largeur de son conteneur, pas de l'écran.</p>
+      <div class="demo"><div id="d20"><div class="k"><b></b><div><strong>Titre de carte</strong><p>Le composant décide seul.</p></div></div></div></div>
+      <style>
+#d20 { container-type: inline-size; resize: horizontal; overflow: hidden; width: 55%; min-width: 150px; max-width: 95%; padding: 12px; border: 1px dashed var(--line); border-radius: 12px; }
+#d20 .k { display: grid; gap: 10px; }
+#d20 .k b { height: 60px; border-radius: 10px; background: var(--tile); }
+#d20 .k p { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+@container (width > 260px) { #d20 .k { grid-template-columns: 90px 1fr; align-items: center; } #d20 .k b { height: 90px; } }
+      </style></article>
+
+    <article id="c21" data-sup="width: calc(sibling-index() * 1px)"><h3>Cascade avec sibling-index()</h3><p>Chaque élément connaît son rang : <code>animation-delay: calc(sibling-index() * 60ms)</code>, plus besoin de <code>--i</code> écrit à la main.</p>
+      <div class="demo"><div id="d21"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+      <style>
+#d21 { display: flex; gap: 8px; align-items: end; height: 120px; }
+#d21 i { width: 22px; height: 100%; border-radius: 8px; background: var(--tile); transform-origin: bottom; animation: d21 .7s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(sibling-index() * 60ms); }
+@keyframes d21 { from { scale: 1 0; opacity: 0; } }
+      </style></article>
+
+    <article id="c22" data-sup="field-sizing: content"><h3>Champ qui s'ajuste</h3><p><code>field-sizing: content</code> : le champ grandit avec ce qu'on tape.</p>
+      <div class="demo"><input id="d22" value="Tape ici" aria-label="Champ extensible"></div>
+      <style>
+#d22 { field-sizing: content; min-width: 8ch; max-width: 90%; padding: 12px 18px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); color: inherit; font-size: 18px; transition: border-color .2s; }
+#d22:focus { outline: none; border-color: var(--tile); }
+      </style></article>
+
+    <article id="c23" data-sup="text-wrap: balance"><h3>Titres équilibrés</h3><p>À gauche le retour à la ligne habituel, à droite <code>text-wrap: balance</code> : des lignes de longueur égale, sans orphelin.</p>
+      <div class="demo" id="d23"><p>Un titre assez long pour passer sur deux lignes</p><p class="bal">Un titre assez long pour passer sur deux lignes</p></div>
+      <style>
+#d23 { grid-template-columns: 1fr 1fr; gap: 18px; padding: 0 18px; }
+#d23 p { font-size: 20px; font-weight: 600; line-height: 1.2; padding: 10px; border: 1px dashed var(--line); border-radius: 10px; margin: 0; }
+#d23 .bal { text-wrap: balance; }
+      </style></article>
+
+    <article id="c24" data-sup="corner-shape: squircle"><h3>Formes de coin</h3><p><code>corner-shape</code> change la forme de l'arrondi : rond, squircle, creusé, biseauté. Elle s'anime au survol.</p>
+      <div class="demo" id="d24"><b style="corner-shape:round">round</b><b style="corner-shape:squircle">squircle</b><b style="corner-shape:scoop">scoop</b><b style="corner-shape:bevel">bevel</b></div>
+      <style>
+#d24 { grid-template-columns: repeat(4, 74px); gap: 12px; }
+#d24 b { height: 74px; display: grid; place-items: end center; padding-bottom: 6px; font: 500 11px var(--mono); border-radius: 26px; background: var(--tile); color: var(--tile-ink); transition: border-radius .4s; }
+#d24 b:hover { border-radius: 37px; }
+      </style></article>
+  </div>
+
+  <h2>Mouvement</h2>
+  <div class="grid">
+    <article id="c25" data-sup="inherits: false" data-prop="1"><h3>Bordure dégradée qui tourne</h3><p><code>@property</code> type l'angle d'un dégradé conique : le navigateur peut alors l'interpoler.</p>
+      <div class="demo"><div id="d25">Carte en vedette</div></div>
+      <style>
+@property --a25 { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+#d25 { padding: 40px 48px; border-radius: 20px; border: 2px solid transparent; background: linear-gradient(var(--panel), var(--panel)) padding-box, conic-gradient(from var(--a25), var(--tile), transparent 30%, transparent 60%, var(--tile)) border-box; animation: d25 3s linear infinite; }
+@keyframes d25 { to { --a25: 360deg; } }
+      </style></article>
+
+    <article id="c26" data-prop="1"><h3>Compteur en CSS pur</h3><p>Un entier typé avec <code>@property</code>, animé, puis affiché par <code>counter()</code>.</p>
+      <div class="demo"><div id="d26"></div></div>
+      <style>
+@property --n26 { syntax: "<integer>"; inherits: false; initial-value: 0; }
+#d26 { --n26: 2026; counter-reset: n var(--n26); font-size: 72px; font-weight: 700; font-variant-numeric: tabular-nums; animation: d26 2s cubic-bezier(.2, .8, .2, 1) both; }
+#d26::after { content: counter(n); }
+@keyframes d26 { from { --n26: 0; } }
+      </style></article>
+
+    <article id="c27" data-prop="1"><h3>Fond en dégradé maillé</h3><p>Trois dégradés radiaux dont les positions, typées en <code>@property</code>, dérivent lentement.</p>
+      <div class="demo" id="d27"></div>
+      <style>
+@property --x27 { syntax: "<percentage>"; inherits: false; initial-value: 20%; }
+@property --y27 { syntax: "<percentage>"; inherits: false; initial-value: 20%; }
+#d27 { background: radial-gradient(at var(--x27) 30%, var(--l2), transparent 55%), radial-gradient(at 75% var(--y27), var(--tile), transparent 50%), radial-gradient(at calc(100% - var(--x27)) 90%, var(--l1), transparent 55%), var(--bg); animation: d27 7s ease-in-out infinite alternate; }
+@keyframes d27 { to { --x27: 80%; --y27: 85%; } }
+      </style></article>
+
+    <article id="c28" data-sup="offset-path: path('M0 0')"><h3>Mouvement le long d'un tracé</h3><p><code>offset-path</code> + <code>offset-distance</code> : l'élément suit une courbe et s'oriente dessus.</p>
+      <div class="demo" id="d28"><svg viewBox="0 0 300 160" aria-hidden="true"><path d="M20,120 C80,0 150,170 280,40"/></svg><b></b></div>
+      <style>
+#d28 svg { position: absolute; width: 300px; height: 160px; } #d28 path { fill: none; stroke: var(--line); stroke-width: 2; stroke-dasharray: 6 6; }
+#d28 b { position: absolute; left: calc(50% - 150px); top: calc(50% - 80px); width: 26px; height: 16px; border-radius: 4px 12px 12px 4px; background: var(--tile); offset-path: path("M20,120 C80,0 150,170 280,40"); animation: d28 2.6s ease-in-out infinite alternate; }
+@keyframes d28 { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+      </style></article>
+
+    <article id="c29" data-sup="translate: 1px"><h3>Transformations séparées</h3><p><code>translate</code>, <code>rotate</code>, <code>scale</code> sont des propriétés à part : une rotation infinie et un survol se cumulent sans s'écraser.</p>
+      <div class="demo"><b id="d29"></b></div>
+      <style>
+#d29 { width: 80px; height: 80px; border-radius: 22px; background: var(--tile); animation: d29 6s linear infinite; transition: translate .4s cubic-bezier(.2, .8, .2, 1), scale .4s cubic-bezier(.2, .8, .2, 1); }
+#d29:hover { translate: 0 -16px; scale: 1.15; }
+@keyframes d29 { to { rotate: 1turn; } }
+      </style></article>
+
+    <article id="c30"><h3>Morphing clip-path</h3><p>Deux <code>polygon()</code> au même nombre de points s'interpolent : étoile vers décagone.</p>
+      <div class="demo"><b id="d30"></b></div>
+      <style>
+#d30 { width: 130px; height: 130px; background: var(--tile); clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); animation: d30 2.4s cubic-bezier(.6, 0, .4, 1) infinite alternate; }
+@keyframes d30 { to { clip-path: polygon(50% 0, 79% 10%, 98% 35%, 98% 65%, 79% 91%, 50% 100%, 21% 91%, 2% 65%, 2% 35%, 21% 10%); rotate: 36deg; } }
+      </style></article>
+
+    <article id="c31" data-sup="d: path('M0 0')"><h3>Morphing de tracé SVG</h3><p>La propriété <code>d</code> se règle et s'anime en CSS, tant que les deux tracés ont les mêmes commandes.</p>
+      <div class="demo"><svg id="d31" viewBox="0 0 100 100" aria-hidden="true"><path/></svg></div>
+      <style>
+#d31 { width: 150px; } #d31 path { fill: var(--tile); d: path("M50 8 C78 8 92 30 92 50 C92 76 72 92 50 92 C24 92 8 74 8 50 C8 24 26 8 50 8Z"); animation: d31 3s ease-in-out infinite alternate; }
+@keyframes d31 { to { d: path("M50 18 C88 2 96 40 84 58 C70 90 64 98 44 86 C14 74 2 58 14 34 C24 14 34 22 50 18Z"); } }
+      </style></article>
+
+    <article id="c32"><h3>Bande défilante en CSS</h3><p>Contenu doublé et translation de -50 % en boucle ; <code>mask-image</code> estompe les bords, le survol met en pause.</p>
+      <div class="demo"><div id="d32"><div class="trk"><b>Design</b><b>Motion</b><b>Système</b><b>Grille</b><b>Typo</b><b aria-hidden="true">Design</b><b aria-hidden="true">Motion</b><b aria-hidden="true">Système</b><b aria-hidden="true">Grille</b><b aria-hidden="true">Typo</b></div></div></div>
+      <style>
+#d32 { width: 100%; overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent); }
+#d32 .trk { display: flex; gap: 12px; width: max-content; animation: d32 12s linear infinite; }
+#d32:hover .trk { animation-play-state: paused; }
+#d32 b { padding: 14px 24px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line); font-size: 18px; }
+@keyframes d32 { to { translate: calc(-50% - 6px) 0; } }
+      </style></article>
+
+    <article id="c33"><h3>Carte qui se retourne</h3><p><code>transform-style: preserve-3d</code> et <code>backface-visibility: hidden</code> : deux faces, une rotation.</p>
+      <div class="demo"><div id="d33"><div class="in"><div class="f">Recto</div><div class="f b">Verso</div></div></div></div>
+      <style>
+#d33 { width: 200px; height: 130px; perspective: 800px; }
+#d33 .in { position: relative; height: 100%; transform-style: preserve-3d; transition: transform .7s cubic-bezier(.2, .8, .2, 1); }
+#d33:hover .in { transform: rotateY(180deg); }
+#d33 .f { position: absolute; inset: 0; border-radius: 18px; display: grid; place-items: center; font-size: 22px; background: var(--panel); border: 1px solid var(--line); backface-visibility: hidden; }
+#d33 .b { background: var(--tile); color: var(--tile-ink); transform: rotateY(180deg); }
+      </style></article>
+
+    <article id="c34" data-sup="backdrop-filter: blur(1px)"><h3>Verre dépoli</h3><p><code>backdrop-filter</code> floute ce qui passe derrière la carte ; une bordure claire et une teinte légère font le reste.</p>
+      <div class="demo" id="d34"><i></i><i></i><div class="g">Verre</div></div>
+      <style>
+#d34 i { position: absolute; width: 120px; height: 120px; border-radius: 50%; background: var(--tile); animation: d34 5s ease-in-out infinite alternate; }
+#d34 i + i { background: var(--l2); animation-direction: alternate-reverse; }
+#d34 .g { position: relative; padding: 34px 54px; border-radius: 22px; font-size: 22px; background: color-mix(in srgb, var(--panel) 35%, transparent); border: 1px solid rgb(255 255 255 / .18); backdrop-filter: blur(18px) saturate(1.4); }
+@keyframes d34 { from { translate: -110px -40px; } to { translate: 110px 40px; } }
+      </style></article>
+  </div>
+
+  <h2>Texte, boutons et chargement</h2>
+  <div class="grid">
+    <article id="c35"><h3>Machine à écrire</h3><p><code>steps(22)</code> sur la largeur en <code>ch</code> d'un texte mono de 22 caractères, et un curseur qui clignote.</p>
+      <div class="demo"><p id="d35">Le texte s'écrit seul.</p></div>
+      <style>
+#d35 { font: 22px var(--mono); width: 22ch; white-space: nowrap; overflow: hidden; border-right: 2px solid var(--tile); animation: d35a 2.4s steps(22) both, d35b .8s step-end infinite; }
+@keyframes d35a { from { width: 0; } }
+@keyframes d35b { 50% { border-color: transparent; } }
+      </style></article>
+
+    <article id="c36"><h3>Texte scintillant</h3><p>Le reflet des états « l'IA réfléchit » : dégradé découpé au texte qui glisse en boucle.</p>
+      <div class="demo"><p id="d36">Réflexion en cours…</p></div>
+      <style>
+#d36 { font-size: 26px; font-weight: 600; color: transparent; background: linear-gradient(90deg, var(--muted) 35%, #fff 50%, var(--muted) 65%) 0 0 / 300% 100%; -webkit-background-clip: text; background-clip: text; animation: d36 2s linear infinite; }
+@keyframes d36 { from { background-position: 100% 0; } to { background-position: 0 0; } }
+      </style></article>
+
+    <article id="c37"><h3>Soulignement qui glisse</h3><p>Un fond d'un trait de 2 px dont la taille passe de 0 à 100 % ; il entre par la gauche et sort par la droite.</p>
+      <div class="demo"><nav id="d37"><a href="#c37">Projets</a><a href="#c37">Studio</a><a href="#c37">Contact</a></nav></div>
+      <style>
+#d37 { display: flex; gap: 26px; font-size: 22px; }
+#d37 a { color: inherit; text-decoration: none; background: linear-gradient(currentColor, currentColor) no-repeat 100% 100% / 0 2px; transition: background-size .35s cubic-bezier(.2, .8, .2, 1); }
+#d37 a:hover, #d37 a:focus-visible { background-size: 100% 2px; background-position-x: 0; }
+      </style></article>
+
+    <article id="c38"><h3>Bouton qui se remplit</h3><p>Le fond monte depuis le bas avec <code>background-size</code> ; la flèche avance d'un cran.</p>
+      <div class="demo"><a id="d38" href="#c38">Démarrer un projet <span aria-hidden="true">→</span></a></div>
+      <style>
+#d38 { display: inline-flex; gap: 10px; padding: 14px 26px; border-radius: 999px; border: 1px solid var(--tile); color: inherit; text-decoration: none; font-size: 17px; background: linear-gradient(var(--tile), var(--tile)) no-repeat 0 100% / 100% 0; transition: background-size .35s cubic-bezier(.2, .8, .2, 1), color .35s; }
+#d38:hover, #d38:focus-visible { background-size: 100% 100%; color: var(--tile-ink); }
+#d38 span { transition: translate .35s cubic-bezier(.2, .8, .2, 1); } #d38:hover span { translate: 5px 0; }
+      </style></article>
+
+    <article id="c39"><h3>Squelette de chargement</h3><p>Formes grises et reflet qui balaie (<code>background-position</code>), le temps que le contenu arrive.</p>
+      <div class="demo"><div id="d39"><b class="av"></b><div><b></b><b class="s"></b></div></div></div>
+      <style>
+#d39 { display: flex; gap: 14px; align-items: center; width: 75%; }
+#d39 > div { flex: 1; display: grid; gap: 10px; }
+#d39 b { display: block; height: 14px; border-radius: 7px; background: linear-gradient(90deg, var(--panel) 30%, var(--line) 50%, var(--panel) 70%) 0 0 / 300% 100%; animation: d39 1.4s linear infinite; }
+#d39 .av { width: 56px; height: 56px; border-radius: 50%; } #d39 .s { width: 60%; }
+@keyframes d39 { from { background-position: 100% 0; } to { background-position: 0 0; } }
+      </style></article>
+
+    <article id="c40"><h3>Anneau de chargement</h3><p>Un dégradé conique troué par un <code>mask</code> radial : un anneau à queue dégradée, une seule balise.</p>
+      <div class="demo"><b id="d40" role="status" aria-label="Chargement"></b></div>
+      <style>
+#d40 { width: 64px; aspect-ratio: 1; border-radius: 50%; background: conic-gradient(transparent 15%, var(--tile)); mask: radial-gradient(farthest-side, transparent calc(100% - 8px), #000 calc(100% - 7px)); animation: d40 .9s linear infinite; }
+@keyframes d40 { to { rotate: 1turn; } }
+      </style></article>
+  </div>
+</main>
+<script src="../shared/bank.js"></script>
+<script src="../shared/cards.js"></script>
+<script>
+  const PLAY = ["c21", "c25", "c26", "c27", "c28", "c29", "c30", "c31", "c32", "c34", "c35", "c36", "c39", "c40"];
+  const META = { c1: [2, "wdm"], c2: [3, "wm"], c3: [2, "wm"], c4: [4, "w"], c5: [4, "wm"], c6: [2, "wm"], c7: [2, "wdm"], c8: [4, "wm"], c9: [4, "wdm"], c10: [5, "wdm"],
+    c11: [2, "wdm"], c12: [2, "wdm"], c13: [1, "wdm"], c14: [1, "wdm"], c15: [2, "wdm"], c16: [3, "wd"], c17: [1, "wd"], c18: [2, "wdm"], c19: [3, "wd"], c20: [1, "wdm"],
+    c21: [3, "wdm"], c22: [1, "wdm"], c23: [1, "wm"], c24: [2, "wdm"], c25: [4, "wd"], c26: [3, "wm"], c27: [4, "w"], c28: [3, "w"], c29: [2, "wd"], c30: [3, "w"],
+    c31: [4, "w"], c32: [3, "wm"], c33: [3, "wd"], c34: [4, "wdm"], c35: [3, "w"], c36: [3, "wdm"], c37: [2, "wd"], c38: [2, "wd"], c39: [1, "wdm"], c40: [1, "wdm"] };
+  Bank.cards(META, PLAY);
+  const vt = (fn) => document.startViewTransition ? document.startViewTransition(fn) : (fn(), null);
+  document.addEventListener("click", (e) => {
+    const t = e.target.closest("[data-act]"); if (!t) return;
+    const act = t.dataset.act, r = document.documentElement;
+    if (act === "shuffle") { const g = document.getElementById("d9"); vt(() => [...g.children].sort(() => Math.random() - .5).forEach((c) => g.appendChild(c))); }
+    if (act === "theme") { r.style.setProperty("--cx", e.clientX + "px"); r.style.setProperty("--cy", e.clientY + "px"); r.classList.add("vt-theme");
+      const v = vt(() => { r.dataset.palette = r.dataset.palette === "ink" ? "paper" : "ink"; });
+      if (v) v.finished.finally(() => r.classList.remove("vt-theme")); else r.classList.remove("vt-theme"); }
+    if (act === "dialog") document.getElementById("dlg12").showModal();
+    if (act === "close") t.closest("dialog").close();
+  });
+</script>
+</body>
+</html>

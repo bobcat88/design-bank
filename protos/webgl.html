@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="fr" data-palette="ink">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shaders en situation</title>
+<link rel="stylesheet" href="../shared/bank.css">
+<style>
+  main { max-width: 1320px; margin: 0 auto; padding: 72px 40px 120px; }
+  h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(44px, 6vw, 88px); line-height: 1; letter-spacing: -.02em; margin: 0; max-width: 14ch; }
+  .lead { color: var(--muted); font-size: 18px; line-height: 1.5; max-width: 60ch; margin: 20px 0 64px; }
+  section.case { margin-bottom: 96px; }
+  .head { display: flex; justify-content: space-between; align-items: end; gap: 24px; flex-wrap: wrap; margin-bottom: 18px; }
+  .head h2 { font-family: var(--serif); font-weight: 400; font-size: 34px; margin: 0 0 4px; }
+  .head p { margin: 0; color: var(--muted); max-width: 62ch; line-height: 1.45; }
+  .sw { display: flex; gap: 8px; } .sw button { width: 28px; height: 28px; border-radius: 50%; border: 2px solid transparent; padding: 0; cursor: pointer; background: linear-gradient(135deg, var(--a) 50%, var(--b) 50%); }
+  .sw button[aria-pressed="true"] { border-color: var(--text); }
+  /* the site mock */
+  .site { position: relative; aspect-ratio: 16 / 9; border-radius: 22px; overflow: hidden; border: 1px solid var(--line); background: #050607; color: #f4f5f2; font-family: Inter, system-ui, sans-serif; container-type: inline-size; }
+  .site canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .site .ui { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 2.4cqw 3.2cqw; }
+  .site nav { display: flex; align-items: center; gap: 2.4cqw; font-size: max(12px, 1.05cqw); }
+  .site nav b { font-size: max(14px, 1.4cqw); letter-spacing: -.01em; margin-right: auto; display: flex; align-items: center; gap: .6cqw; }
+  .site nav b i { width: 1.3cqw; height: 1.3cqw; min-width: 14px; min-height: 14px; border-radius: 30%; background: var(--sh-a); }
+  .site nav a { opacity: .75; } .site .btn { padding: .8cqw 1.5cqw; border-radius: 999px; font-weight: 600; font-size: max(12px, 1.05cqw); border: 0; background: #f4f5f2; color: #0b0c0d; white-space: nowrap; }
+  .site .ghost { background: rgb(255 255 255 / .08); color: #f4f5f2; border: 1px solid rgb(255 255 255 / .2); backdrop-filter: blur(10px); }
+  .site h3 { font-family: var(--serif); font-weight: 400; letter-spacing: -.025em; line-height: .98; margin: 0; }
+  .site .pill { align-self: start; padding: .45cqw 1cqw; border-radius: 999px; font-size: max(11px, .9cqw); background: rgb(255 255 255 / .08); border: 1px solid rgb(255 255 255 / .16); backdrop-filter: blur(10px); }
+  .site p.sub { font-size: max(13px, 1.35cqw); line-height: 1.45; opacity: .78; max-width: 44ch; margin: 0; }
+  .site .player { left: 50%; right: auto; width: min(420px, 60%); translate: -50% 6px; } .site:hover .player, .site:focus-within .player { translate: -50% 0; }
+  details.code { margin-top: 12px; } details.code summary { cursor: pointer; color: var(--muted); font-size: 14px; }
+  details.code pre { font: 12px/1.5 var(--mono); background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; overflow: auto; }
+
+  /* 1 · aurora: centred SaaS hero */
+  #s1 .hero { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 1.6cqw; }
+  #s1 .pill { align-self: center; } #s1 h3 { font-size: 6.4cqw; max-width: 13ch; } #s1 p.sub { text-align: center; }
+  #s1 .ctas { display: flex; gap: 1cqw; } #s1 .logos { display: flex; gap: 3.5cqw; opacity: .45; font-weight: 700; font-size: max(12px, 1.2cqw); letter-spacing: .04em; margin-bottom: 4cqw; justify-content: center; }
+  #s1 canvas { mask-image: linear-gradient(#000 55%, transparent); -webkit-mask-image: linear-gradient(#000 55%, transparent); }
+
+  /* 2 · chrome: launch / waitlist, left-aligned with glass form */
+  #s2 .ui::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgb(5 6 7 / .88) 30%, rgb(5 6 7 / .15) 75%); pointer-events: none; }
+  #s2 .ui > * { position: relative; }
+  #s2 .hero { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 1.6cqw; max-width: 48%; }
+  #s2 h3 { font-size: 7.2cqw; } #s2 h3 em { font-style: italic; color: var(--sh-a); }
+  #s2 form { display: flex; gap: .6cqw; padding: .5cqw; border-radius: 999px; background: rgb(255 255 255 / .07); border: 1px solid rgb(255 255 255 / .18); backdrop-filter: blur(16px); max-width: 30cqw; min-width: 260px; }
+  #s2 input { flex: 1; min-width: 0; background: transparent; border: 0; color: inherit; padding: 0 1cqw; font: inherit; font-size: max(12px, 1.05cqw); outline: none; }
+  #s2 .meta { display: flex; gap: 2.4cqw; font-size: max(11px, .95cqw); opacity: .6; }
+
+  /* 3 · contours: data/about split, shader on the right half */
+  #s3 .site { background: #0a0b0c; }
+  #s3 canvas { left: 45%; width: 55%; mask-image: linear-gradient(90deg, transparent, #000 25%); -webkit-mask-image: linear-gradient(90deg, transparent, #000 25%); }
+  #s3 .hero { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 1.8cqw; max-width: 46%; }
+  #s3 h3 { font-size: 5cqw; } #s3 .stats { display: grid; grid-template-columns: repeat(3, auto); gap: 3cqw; justify-content: start; border-top: 1px solid rgb(255 255 255 / .14); padding-top: 1.8cqw; }
+  #s3 .stats strong { display: block; font-family: var(--serif); font-weight: 400; font-size: 3.4cqw; line-height: 1; } #s3 .stats span { font-size: max(11px, .95cqw); opacity: .6; }
+  #s3 .tag { position: absolute; right: 4cqw; bottom: 4cqw; font: 500 max(10px, .85cqw) var(--mono); opacity: .55; text-align: right; }
+
+  /* shared layouts for the newer cases: .c centred hero, .l left column, .light paper site */
+  .c .hero { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 1.5cqw; } .c .pill { align-self: center; } .c p.sub { text-align: center; }
+  .l .hero { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 1.5cqw; max-width: 46%; }
+  .case h3 { font-size: 6cqw; max-width: 14ch; } .row { display: flex; gap: 1cqw; }
+  .light .site { background: #f4f2ec; color: #16171a; } .light .site .btn { background: #16171a; color: #f4f2ec; } .light .site .ghost, .light .site .pill { background: rgb(0 0 0 / .05); color: #16171a; border-color: rgb(0 0 0 / .12); }
+  #s6 canvas, #s7 canvas { left: 40%; width: 60%; } #s6 .hero h3 { font-size: 5cqw; }
+  #s5 canvas { top: -16%; } #s5 .hero { justify-content: end; padding-bottom: 5cqw; } #s5 h3 { font-size: 4.6cqw; }
+  #s8 .ui { background: radial-gradient(circle at 25% 50%, rgb(5 6 7 / .85), transparent 60%); } #s8 pre { font: 500 max(11px, 1cqw)/1.6 var(--mono); margin: 0; padding: 1.2cqw 1.4cqw; border-radius: 1cqw; background: rgb(0 0 0 / .55); border: 1px solid rgb(255 255 255 / .14); }
+  #s9 h3 { font-size: 9cqw; max-width: none; } #s9 .hint { font: 500 max(11px, .9cqw) var(--mono); opacity: .55; }
+  #s10 .card { width: 34cqw; aspect-ratio: 1.586; border-radius: 1.6cqw; padding: 2cqw; display: flex; flex-direction: column; justify-content: space-between; text-align: left; background: rgb(255 255 255 / .1); border: 1px solid rgb(255 255 255 / .3); backdrop-filter: blur(4px); box-shadow: 0 2cqw 5cqw rgb(0 0 0 / .4); font: 500 max(11px, 1.1cqw) var(--mono); }
+  #s10 .card b { font: 400 2.4cqw var(--serif); }
+
+  .no-gl canvas { display: none; } .no-gl { background: linear-gradient(135deg, var(--sh-a), #050607 70%) !important; }
+  @media (max-width: 760px) { main { padding: 48px 16px 80px; } .site { aspect-ratio: 3 / 4; } #s2 .hero, #s3 .hero { max-width: none; } #s3 canvas { left: 0; width: 100%; opacity: .45; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Seize shaders, mis en situation.</h1>
+  <p class="lead">Chaque fond est montré là où il servirait vraiment : héros SaaS, lancement, chiffres, fintech, assistant, réseau, événement, outil dev, studio, carte membre. Motifs inspirés de sites WebGL actuels, recodés ici. En pause par défaut ; appuyez sur lecture dans la barre en bas de chaque maquette. Les pastilles changent les deux couleurs du shader.</p>
+
+  <section class="case" id="s1" data-shader="aurora">
+    <div class="head"><div><h2>Aurore · héros de SaaS</h2><p>Lumière douce derrière un titre centré. Le bas du fond s'efface pour que la rangée de logos reste lisible. Le choix le plus sûr des trois.</p></div><div class="sw" aria-label="Couleurs"></div></div>
+    <div class="site"><canvas></canvas><div class="ui">
+      <nav><b><i></i>Halden</b><a>Produit</a><a>Tarifs</a><a>Docs</a><button class="btn ghost" type="button">Connexion</button></nav>
+      <div class="hero"><span class="pill">Nouveau · réponses avec sources</span><h3>Vos documents répondent enfin.</h3><p class="sub">Posez une question, obtenez la phrase exacte et la page d'où elle vient.</p><div class="ctas"><button class="btn" type="button">Essayer gratuitement</button><button class="btn ghost" type="button">Voir la démo</button></div></div>
+      <div class="logos"><span>NORDA</span><span>VELT</span><span>OKAPI</span><span>LUMEN</span><span>FIELD&amp;CO</span></div>
+    </div></div>
+  </section>
+
+  <section class="case" id="s2" data-shader="chrome">
+    <div class="head"><div><h2>Chrome liquide · page de lancement</h2><p>Matière métallique à droite, texte sur un voile sombre à gauche. Pour une annonce, une liste d'attente, un produit physique.</p></div><div class="sw" aria-label="Couleurs"></div></div>
+    <div class="site"><canvas></canvas><div class="ui">
+      <nav><b><i></i>Forge</b><a>Série 02</a><a>Journal</a><button class="btn ghost" type="button">Précommander</button></nav>
+      <div class="hero"><span class="pill">Disponible le 4 mars</span><h3>Fondu, puis <em>poli</em>.</h3><p class="sub">La deuxième série arrive en quantité limitée. Laissez votre adresse pour passer en premier.</p>
+        <form onsubmit="return false"><input type="email" placeholder="vous@exemple.fr" aria-label="Adresse e-mail"><button class="btn" type="submit">Me prévenir</button></form>
+        <div class="meta"><span>1 200 inscrits</span><span>Pas de spam</span></div></div>
+    </div></div>
+  </section>
+
+  <section class="case" id="s3" data-shader="contours">
+    <div class="head"><div><h2>Courbes de niveau · section de chiffres</h2><p>Relief topographique sur la moitié droite, fondu vers le texte. Sobre : marche pour un rapport, une page « à propos », un produit de données.</p></div><div class="sw" aria-label="Couleurs"></div></div>
+    <div class="site"><canvas></canvas><div class="ui">
+      <nav><b><i></i>Meridian</b><a>Études</a><a>Méthode</a><a>Équipe</a><button class="btn ghost" type="button">Contact</button></nav>
+      <div class="hero"><span class="pill">Rapport annuel 2026</span><h3>Le terrain, mesuré chaque jour.</h3><p class="sub">Nos capteurs couvrent trois bassins versants. Voici ce qu'ils ont relevé cette année.</p>
+        <div class="stats"><div><strong>412</strong><span>stations</span></div><div><strong>9,6 M</strong><span>relevés</span></div><div><strong>±2 cm</strong><span>précision</span></div></div></div>
+      <div class="tag">45°50′N · 6°52′E<br>relief simulé</div>
+    </div></div>
+  </section>
+
+  <section class="case c" id="s4" data-shader="mesh">
+    <div class="head"><div><h2>Dégradé maillé · héros fintech</h2><p>Trois pôles de couleur qui dérivent et se mélangent, avec un grain fin. Le fond « vivant mais calme » des sites de paiement et d'infrastructure.</p></div><div class="sw" aria-label="Couleurs"></div></div>
+    <div class="site"><canvas></canvas><div class="ui">
+      <nav><b><i></i>Tessel</b><a>Paiements</a><a>Facturation</a><a>Développeurs</a><button class="btn ghost" type="button">Connexion</button></nav>
+      <div class="hero"><span class="pill">API v4 disponible</span><h3>Encaissez partout, réconciliez en un clic.</h3><div class="row"><button class="btn" type="button">Ouvrir un compte</button><button class="btn ghost" type="button">Lire la doc</button></div></div>
+    </div></div>
+  </section>
+
+  <section class="case c" id="s5" data-shader="orb">
+    <div class="head"><div><h2>Orbe · assistant vocal</h2><p>Une sphère liquide au centre, bord qui ondule. Représente « l'IA écoute » sans visage. Le texte reste dessous, hors de la matière.</p></div><div class="sw" aria-label="Couleurs"></div></div>
+    <div class="site"><canvas></canvas><div class="ui">
+      <nav><b><i></i>Sola</b><a>Comment ça marche</a><a>Confidentialité</a><button class="btn ghost" type="button">Télécharger</button></nav>
+      <div class="hero"><h3>Parlez, il prend les notes.</h3><p class="sub">Réunions résumées, tâches extraites, rien ne quitte votre téléphone.</p></div>
+    </div></div>
+  </section>
+
+  <section class="case c" id="s11" data-shader="rays">
+    <div class="head"><div><h2>Rayons · annonce de lancement</h2><p>Faisceaux qui tombent du haut et éclairent le titre. Effet « révélation » pour un keynote ou une sortie majeure.</p></div><div class="sw" aria-label="Couleurs"></div></div>
+    <div class="site"><canvas></canvas><div class="ui">
+      <nav><b><i></i>Vanta</b><a>Modèle</a><a>Recherche</a><button class="btn ghost" type="button">Accès anticipé</button></nav>
+      <div class="hero"><span class="pill">Diffusion en direct · 18 h</span><h3>Une nouvelle génération.</h3><p class="sub">Plus rapide, moins cher, et il cite ses sources.</p></div>
+    </div></div>
+  </section>
+
+  <section class="case l" id="s6" data-shader="globe">
+    <div class="head"><div><h2>Globe pointillé · réseau mondial</h2><p>Sphère en points qui tourne, continents en bruit. Pour une infrastructure, un CDN, une présence internationale.</p></div><div class="sw" aria-label="Couleurs"></div></div>
+    <div class="site"><canvas></canvas><div class="ui">
+      <nav><b><i></i>Relay</b><a>Réseau</a><a>Tarifs</a><a>Statut</a><button class="btn ghost" type="button">Console</button></nav>
+      <div class="hero"><span class="pill">312 villes</span><h3>À moins de 20 ms de chaque utilisateur.</h3><p class="sub">Déployez une fois, servez partout, sans configurer une seule région.</p><div class="row"><button class="btn" type="button">Déployer</button></div></div>
+    </div></div>
+  </section>
+
+  <section class="case l" id="s7" data-shader="dotwave">
+    <div class="head"><div><h2>Plaine de points · événement</h2><p>Grille de points en perspective, soulevée par une vague. Donne de la profondeur à une page de conférence ou de produit data.</p></div><div class="sw" aria-label="Couleurs"></div></div>
+    <div class="site"><canvas></canvas><div class="ui">
+      <nav><b><i></i>Signal/26</b><a>Programme</a><a>Intervenants</a><button class="btn ghost" type="button">Billets</button></nav>
+      <div class="hero"><span class="pill">Lyon · 12–13 juin</span><h3>Deux jours sur les données en temps réel.</h3><div class="row"><button class="btn" type="button">Réserver</button><button class="btn ghost" type="button">Programme</button></div></div>
+    </div></div>
+  </section>
+
+  <section class="case l" id="s8" data-shader="ascii">
+    <div class="head"><div><h2>Champ ASCII · outil développeur</h2><p>Le même bruit qu'un fond fluide, rendu en caractères. Signal immédiat « terminal » pour une CLI ou une base de données.</p></div><div class="sw" aria-label="Couleurs"></div></div>
+    <div class="site"><canvas></canvas><div class="ui">
+      <nav><b><i></i>pgrid</b><a>Docs</a><a>GitHub</a><button class="btn ghost" type="button">Cloud</button></nav>
+      <div class="hero"><h3>Postgres, partout où tourne votre code.</h3><pre>$ npx pgrid init
+✓ base prête en 0,8 s</pre></div>
+    </div></div>
+  </section>
+
+  <section class="case c" id="s12" data-shader="flow">
+    <div class="head"><div><h2>Fils de soie · produit audio</h2><p>Six lignes lumineuses portées par un champ de bruit. Lecture « son, onde, flux » : musique, podcast, streaming.</p></div><div class="sw" aria-label="Couleurs"></div></div>
+    <div class="site"><canvas></canvas><div class="ui">
+      <nav><b><i></i>Tidewave</b><a>Studio</a><a>Artistes</a><button class="btn ghost" type="button">Écouter</button></nav>
+      <div class="hero"><h3>Masterisez dans le navigateur.</h3><p class="sub">Glissez une piste, choisissez une référence, exportez.</p><div class="row"><button class="btn" type="button">Importer une piste</button></div></div>
+    </div></div>
+  </section>
+
+  <section class="case c" id="s9" data-shader="reveal">
+    <div class="head"><div><h2>Révélation au pointeur · studio créatif</h2><p>Fond monochrome ; la couleur apparaît dans une tache d'encre qui suit la souris. Survolez la maquette (fonctionne aussi en pause).</p></div><div class="sw" aria-label="Couleurs"></div></div>
+    <div class="site"><canvas></canvas><div class="ui">
+      <nav><b><i></i>Atelier Nord</b><a>Travaux</a><a>Studio</a><button class="btn ghost" type="button">Écrire</button></nav>
+      <div class="hero"><h3>Nord.</h3><span class="hint">déplacez le curseur</span></div>
+    </div></div>
+  </section>
+
+  <section class="case c" id="s10" data-shader="foil">
+    <div class="head"><div><h2>Holographique · carte membre</h2><p>Bandes irisées qui glissent avec le pointeur, fines stries, reflet. Pour une offre premium, une carte, un billet collector.</p></div><div class="sw" aria-label="Couleurs"></div></div>
+    <div class="site"><canvas></canvas><div class="ui">
+      <nav><b><i></i>Orbit Club</b><a>Avantages</a><button class="btn ghost" type="button">Rejoindre</button></nav>
+      <div class="hero"><div class="card"><span>MEMBRE FONDATEUR</span><b>N° 0042</b><span>Camille R. · 2026</span></div><p class="sub">Les 500 premiers membres gardent le tarif à vie.</p></div>
+    </div></div>
+  </section>
+
+  <section class="case c" id="s14" data-shader="particles">
+    <div class="head"><div><h2>Particules · héros IA</h2><p>Deux couches de points qui dérivent ; ils s'écartent autour du curseur. Survolez la maquette.</p></div><div class="sw" aria-label="Couleurs"></div></div>
+    <div class="site"><canvas></canvas><div class="ui">
+      <nav><b><i></i>Kernel</b><a>Modèles</a><a>Tarifs</a><button class="btn ghost" type="button">Console</button></nav>
+      <div class="hero"><h3>Des agents qui finissent le travail.</h3><div class="row"><button class="btn" type="button">Essayer</button></div></div>
+    </div></div>
+  </section>
+
+  <section class="case l" id="s15" data-shader="waves">
+    <div class="head"><div><h2>Vagues de lignes · agence</h2><p>Lignes empilées qui ondulent ; le curseur soulève une colline sous lui. Survolez la maquette.</p></div><div class="sw" aria-label="Couleurs"></div></div>
+    <div class="site"><canvas></canvas><div class="ui">
+      <nav><b><i></i>Littoral</b><a>Projets</a><a>Agence</a><button class="btn ghost" type="button">Contact</button></nav>
+      <div class="hero"><h3>Des sites qui bougent juste assez.</h3><p class="sub">Studio web à Nantes, depuis 2014.</p></div>
+    </div></div>
+  </section>
+
+  <section class="case c" id="s16" data-shader="ripple">
+    <div class="head"><div><h2>Ondes · marque bien-être</h2><p>Cercles qui partent du curseur, comme une goutte sur l'eau. Survolez la maquette.</p></div><div class="sw" aria-label="Couleurs"></div></div>
+    <div class="site"><canvas></canvas><div class="ui">
+      <nav><b><i></i>Onde</b><a>Soins</a><a>Lieux</a><button class="btn ghost" type="button">Réserver</button></nav>
+      <div class="hero"><h3>Respirez.</h3><p class="sub">Bains et soins, trois adresses à Lyon.</p></div>
+    </div></div>
+  </section>
+
+  <section class="case c light" id="s13" data-shader="lava">
+    <div class="head"><div><h2>Taches douces · mode clair</h2><p>Formes colorées floues sur fond papier, grain léger. Le seul shader clair : bien-être, éducation, produit grand public.</p></div><div class="sw" aria-label="Couleurs"></div></div>
+    <div class="site"><canvas></canvas><div class="ui">
+      <nav><b><i></i>Calmo</b><a>Méthode</a><a>Tarifs</a><button class="btn ghost" type="button">Se connecter</button></nav>
+      <div class="hero"><span class="pill">Essai 14 jours</span><h3>Dix minutes par jour, vraiment.</h3><div class="row"><button class="btn" type="button">Commencer</button></div></div>
+    </div></div>
+  </section>
+</main>
+<script src="../shared/bank.js"></script>
+<script src="../shared/shader.js"></script>
+<script>
+  const SW = { aurora: [["#f2b84b", "#b9c8ff"], ["#5fd3c3", "#2b9185"], ["#ff7a9c", "#7a5cff"]],
+    chrome: [["#5fd3c3", "#2b9185"], ["#f2b84b", "#b9c8ff"], ["#7a5cff", "#ff7a9c"]],
+    contours: [["#f2b84b", "#b9c8ff"], ["#5fd3c3", "#d7efe8"], ["#ff7a9c", "#ffd6a0"]],
+    mesh: [["#635bff", "#00d4ff"], ["#ff8a3d", "#ffd23f"], ["#2b9185", "#b9c8ff"]],
+    orb: [["#7a5cff", "#5fd3c3"], ["#ff7a9c", "#f2b84b"], ["#3d8bff", "#d7efe8"]],
+    rays: [["#f2b84b", "#ff7a9c"], ["#b9c8ff", "#7a5cff"], ["#5fd3c3", "#d7efe8"]],
+    globe: [["#5fd3c3", "#3d8bff"], ["#f2b84b", "#ff7a9c"], ["#d7efe8", "#7a5cff"]],
+    dotwave: [["#ff7a9c", "#7a5cff"], ["#5fd3c3", "#3d8bff"], ["#f2b84b", "#d7efe8"]],
+    ascii: [["#7ee787", "#2b9185"], ["#f2b84b", "#ff7a9c"], ["#b9c8ff", "#7a5cff"]],
+    flow: [["#ff7a9c", "#5fd3c3"], ["#f2b84b", "#7a5cff"], ["#b9c8ff", "#d7efe8"]],
+    reveal: [["#ff5c39", "#3d8bff"], ["#f2b84b", "#5fd3c3"], ["#ff7a9c", "#7a5cff"]],
+    foil: [["#b9c8ff", "#ff7a9c"], ["#f2b84b", "#5fd3c3"], ["#d7efe8", "#7a5cff"]],
+    particles: [["#b9c8ff", "#7a5cff"], ["#5fd3c3", "#f2b84b"], ["#ff7a9c", "#d7efe8"]],
+    waves: [["#5fd3c3", "#3d8bff"], ["#f2b84b", "#ff7a9c"], ["#d7efe8", "#7a5cff"]],
+    ripple: [["#5fd3c3", "#3d8bff"], ["#d0c8fb", "#ff9f7a"], ["#d7efe8", "#2b9185"]],
+    lava: [["#ff9f7a", "#9fb7ff"], ["#ffd23f", "#5fd3c3"], ["#d0c8fb", "#ffbcbc"]] };
+  document.querySelectorAll("section.case").forEach((s) => {
+    const name = s.dataset.shader, site = s.querySelector(".site"), sw = s.querySelector(".sw");
+    const set = ([a, b]) => { s.style.setProperty("--sh-a", a); s.style.setProperty("--sh-b", b); };
+    set(SW[name][0]);
+    const src = Bank.shader(site.querySelector("canvas"), name, s);
+    Bank.player(site, src);
+    sw.innerHTML = SW[name].map(([a, b], i) => `<button type="button" aria-label="Couleurs ${i + 1}" aria-pressed="${!i}" style="--a:${a};--b:${b}"></button>`).join("");
+    sw.onclick = (e) => { const b = e.target.closest("button"); if (!b) return; set(SW[name][[...sw.children].indexOf(b)]);
+      sw.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", x === b)); src.redraw(); };
+    const det = document.createElement("details"); det.className = "code"; det.innerHTML = "<summary>Voir le shader</summary><pre><code></code></pre>";
+    det.querySelector("code").textContent = src.code; site.after(det);
+  });
+</script>
+</body>
+</html>

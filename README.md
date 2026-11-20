@@ -1,11 +1,13 @@
-# Banque de design & Design Lab
+# Tact — Multi-Style Design Workbench & Design Bank
 
-Référentiel multi-styles, prototypes d'interaction et catalogue d'effets pour mes projets web. Fichiers HTML autonomes (ouvrables en `file://`), sans dépendance ni bundler. Inspiration seulement : pas de textes, logos ni assets copiés des sites de référence.
+Standalone, brand-agnostic visual direction workbench, interactive Design Lab, 12 KB WebGL2 shader engine, and 76-effect catalog for AI builders and product teams (`PRODUCT.md`, `DESIGN.md`). Openable directly via `file://` or deployed on Cloudflare Workers without a bundler.
 
-## Points d'entrée
+## Entry Points
 
-- **`index.html`** — Vitrine complète : 7 archétypes de style, 3 collections (76 effets), 12 prototypes réglables, recherche unifiée (`/`), posters statiques à zéro CPU au repos + aperçu interactif « Direct » à la demande.
-- **`lab.html`** — **Design Lab interactif** : choisis une intention client → propose automatiquement 6 directions (3 proches + 3 écarts volontaires sur 6 axes), permet de noter et de piocher des parties (palette, typo, géométrie, motion, WebGL), vérifie le contraste WCAG en direct (OKLCH) et exporte un **Design DNA JSON**, un **`studio.json`** compatible `design-studio/studio/build.py`, ou un **`tokens.css`**.
+- **`index.html`** — **Tact** English product homepage: live 6-style metamorphosis bench, 9-shader interactive WebGL2 Theater (`shared/shader.js`), 7 divergent archetypes, and live contract inspector (`style-dna.json`, `tokens.css`, `DESIGN.md`, `studio.json`).
+- **`fr/index.html`** — French Tact showcase page (`/fr/`).
+- **`lab.html`** — **Design Lab mixer**: pick a client intent → sample 6 directions (3 near + 3 deliberately far across 6 axes) → cherry-pick slots (palette, typography, geometry, motion, WebGL) → check live OKLCH WCAG contrast → export Design DNA JSON, `studio.json`, or `tokens.css`.
+- **`bank.html`** — **Effect & Prototype Bank**: 7 archetypes, 3 collections (76 CSS/UI/WebGL effects), 12 configurable prototypes, unified search (`/`), and static 16:10 posters with on-demand live preview toggle.
 
 ## Archétypes de style (même brief KESTREL)
 
@@ -62,19 +64,17 @@ node tools/verify.mjs
 node tools/verify.mjs --posters
 ```
 
-## Déploiement Cloudflare Workers (Wrangler / Cloudflare MCP)
+## Déploiement Cloudflare Workers (Wrangler)
 
-Configuré pour **Cloudflare Workers Static Assets** via `wrangler.jsonc` + `.assetsignore` (n'envoie que les fichiers du site : `index.html`, `lab.html`, `404.html`, `styles/`, `protos/`, `shared/`, `posters/`, `data/` — exclut `tools/`, `qa/`, `refs/`, `schema/` et la doc) :
+Configuré pour **Cloudflare Workers Static Assets** via `wrangler.jsonc` (`name: "tact"`) + `.assetsignore` (envoie uniquement les fichiers du site : `index.html`, `fr/`, `bank.html`, `lab.html`, `404.html`, `styles/`, `protos/`, `shared/`, `posters/`, `data/` — exclut `tools/`, `qa/`, `refs/`, `schema/`, `PRODUCT.md`, `DESIGN.md` et les docs) :
 
 ```bash
 # Aperçu local via Wrangler
 npm run dev
 
-# Vérification catalogue/schéma puis déploiement Cloudflare Workers
+# Vérification catalogue/schéma puis déploiement Cloudflare Workers (tact.johanproust.workers.dev)
 npm run deploy
 ```
-
-Compatible également avec le serveur **Cloudflare MCP** (Worker `design-bank`, `not_found_handling: "404-page"`).
 
 ## Pipeline 3D (si un proto passe du shader plat à une vraie scène)
 1. **Assets** : modéliser dans Blender ou capturer en Gaussian splatting, exporter en glTF/GLB. Vérifier la licence avant livraison (CC0 libre, CC BY = crédit, NC = pas d'usage commercial).

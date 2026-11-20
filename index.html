@@ -1,259 +1,284 @@
 <!doctype html>
-<html lang="fr" data-palette="ink">
+<html lang="en" data-base="">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Banque de design</title>
-<link rel="stylesheet" href="shared/bank.css">
-<style>
-  body { background: radial-gradient(40vw 40vw at 85% 20%, rgb(122 92 255 / .22), transparent 70%), radial-gradient(45vw 45vw at 10% 80%, rgb(242 184 75 / .14), transparent 70%), #0b0b0f; background-attachment: fixed; --sh-a: #f2b84b; --sh-b: #b9c8ff; }
-  .wrap { max-width: 1440px; margin: 0 auto; padding: 0 40px 120px; }
-  /* sticky glass bar */
-  .top { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 18px; padding: 14px 40px; background: color-mix(in srgb, #0b0b0f 75%, transparent); backdrop-filter: blur(18px) saturate(1.4); -webkit-backdrop-filter: blur(18px) saturate(1.4); border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent); }
-  .top b { font-weight: 600; letter-spacing: -.01em; margin-right: auto; display: flex; gap: 10px; align-items: center; white-space: nowrap; }
-  .top b i { width: 14px; height: 14px; border-radius: 4px; background: var(--tile); }
-  .top nav { display: flex; gap: 20px; font-size: 14px; color: var(--muted); }
-  .top nav a { color: inherit; text-decoration: none; white-space: nowrap; } .top nav a:hover { color: var(--text); }
-  .top .lab-cta { padding: 7px 14px; border-radius: 999px; background: var(--tile); color: var(--tile-ink); font-weight: 600; font-size: 13px; text-decoration: none; white-space: nowrap; }
-  .top .red-btn { padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--muted); font-size: 12px; white-space: nowrap; }
-  .top .red-btn[aria-pressed="true"] { background: var(--text); color: #0b0b0f; border-color: transparent; }
-  .search { position: relative; width: 280px; }
-  .search input { width: 100%; padding: 9px 14px 9px 36px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); color: inherit; font: 14px Inter, system-ui, sans-serif; outline: none; }
-  .search input:focus { border-color: var(--tile); }
-  .search svg { position: absolute; left: 12px; top: 50%; translate: 0 -50%; width: 16px; stroke: var(--muted); fill: none; stroke-width: 2; }
-  .search kbd { position: absolute; right: 10px; top: 50%; translate: 0 -50%; font: 11px var(--mono); color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; }
-  /* hero with the aurora shader, paused by default */
-  .hero { position: relative; margin: 28px 0 72px; height: min(540px, 60dvh); border-radius: 28px; overflow: hidden; border: 1px solid var(--line); background: #050607; }
-  .hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .hero .in { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: end; padding: 48px; background: linear-gradient(transparent 28%, rgb(5 6 7 / .78)); }
-  .hero h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(44px, 6.4vw, 108px); line-height: .96; letter-spacing: -.03em; margin: 0; max-width: 12ch; }
-  .hero .row { display: flex; justify-content: space-between; align-items: end; gap: 32px; flex-wrap: wrap; margin-top: 24px; }
-  .hero p { margin: 0; max-width: 48ch; color: rgb(244 245 242 / .8); font-size: 18px; line-height: 1.5; }
-  .stats { display: flex; gap: 32px; } .stats strong { display: block; font-family: var(--serif); font-weight: 400; font-size: 40px; line-height: 1; } .stats span { color: var(--muted); font-size: 13px; }
-  .hero .player { left: auto; right: 24px; top: 24px; bottom: auto; width: 300px; }
-  /* section heads */
-  h2 { font-family: var(--serif); font-weight: 400; font-size: 42px; letter-spacing: -.02em; margin: 0; }
-  .sh { display: flex; justify-content: space-between; align-items: end; gap: 24px; flex-wrap: wrap; margin: 0 0 24px; }
-  .sh p { margin: 6px 0 0; color: var(--muted); }
-  .sh .btn-link { padding: 10px 18px; border-radius: 999px; background: var(--tile); color: var(--tile-ink); text-decoration: none; font-weight: 600; font-size: 14px; white-space: nowrap; }
-  section { margin-bottom: 88px; scroll-margin-top: 84px; }
-  /* poster cards with zero idle iframes + live preview on demand */
-  .thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 22px; list-style: none; padding: 0; margin: 0; }
-  .thumbs li[hidden] { display: none; }
-  .thumbs li { position: relative; }
-  .thumbs a { display: block; color: inherit; text-decoration: none; border-radius: 22px; padding: 10px 10px 16px; border: 1px solid var(--line); background: rgb(255 255 255 / .045); backdrop-filter: blur(20px) saturate(1.4); -webkit-backdrop-filter: blur(20px) saturate(1.4); box-shadow: inset 0 1px rgb(255 255 255 / .08); transition: translate .3s var(--ease-out), border-color .3s; }
-  .thumbs a:hover, .thumbs a:focus-visible { translate: 0 -4px; border-color: color-mix(in srgb, var(--tile) 70%, transparent); }
-  .thumb { position: relative; aspect-ratio: 16/10; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: #0c0d12; }
-  .thumb img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
-  .thumb iframe { position: absolute; left: 0; top: 0; width: 1280px; height: 800px; border: 0; transform-origin: 0 0; pointer-events: none; }
-  .live-btn { position: absolute; right: 18px; top: 18px; z-index: 3; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); background: rgba(11, 11, 15, .78); color: #eef0f6; font: 500 11px var(--mono); backdrop-filter: blur(8px); }
-  .live-btn:hover { border-color: var(--tile); }
-  .live-btn[aria-pressed="true"] { background: var(--tile); color: var(--tile-ink); border-color: transparent; }
-  .cap { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 14px 4px 0; }
-  .cap strong { font-size: 18px; font-weight: 600; } .cap span { color: var(--muted); font-size: 13px; }
-  .thumbs p { color: var(--muted); font-size: 14.5px; line-height: 1.45; margin: 6px 4px 0; }
-  .big { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  /* effect index */
-  .tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 20px; }
-  .chips { display: flex; gap: 6px; flex-wrap: wrap; } .chips + .chips { padding-left: 10px; border-left: 1px solid var(--line); }
-  .chips button { padding: 8px 15px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--muted); font: 500 14px Inter, system-ui, sans-serif; cursor: pointer; transition: background-color .2s, color .2s; }
-  .chips button[aria-pressed="true"] { background: var(--text); color: #0b0b0f; border-color: transparent; }
-  .tools select { margin-left: auto; padding: 8px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); color: inherit; font: 14px Inter, system-ui, sans-serif; }
-  .count { color: var(--muted); font-size: 14px; }
-  #fx { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; list-style: none; padding: 0; margin: 0; }
-  #fx li { position: relative; } #fx li[hidden] { display: none; }
-  #fx a { position: relative; display: flex; flex-direction: column; gap: 8px; height: 100%; padding: 18px 18px 16px; border-radius: 18px; border: 1px solid var(--line); background: rgb(255 255 255 / .045); backdrop-filter: blur(20px) saturate(1.4); -webkit-backdrop-filter: blur(20px) saturate(1.4); box-shadow: inset 0 1px rgb(255 255 255 / .08); color: inherit; text-decoration: none; transition: border-color .2s, background-color .2s, translate .25s var(--ease-out); }
-  #fx a:hover, #fx a:focus-visible { border-color: color-mix(in srgb, var(--tile) 60%, transparent); background: color-mix(in srgb, var(--panel) 85%, var(--tile)); translate: 0 -2px; }
-  #fx .k { display: flex; justify-content: space-between; align-items: center; padding-right: 40px; font: 500 11px var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
-  .wow { display: flex; gap: 3px; } .wow i { width: 10px; height: 4px; border-radius: 2px; background: var(--line); } .wow i.on { background: var(--tile); }
-  #fx strong { font-size: 16px; font-weight: 600; letter-spacing: -.005em; }
-  #fx p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  #fx .pl { margin-top: auto; display: flex; gap: 6px; } #fx .pl span { font-size: 12px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
-  .empty { color: var(--muted); padding: 32px 0; text-align: center; }
-  /* copy button + anchored popover */
-  .cp { position: absolute; top: 12px; right: 12px; z-index: 2; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 10px; border: 1px solid var(--line); background: rgb(11 11 15 / .6); color: var(--muted); font: 600 12px var(--mono); }
-  .cp:hover, .cp:focus-visible { color: var(--text); border-color: var(--tile); }
-  .cp::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 8px); right: 0; white-space: nowrap; padding: 5px 9px; border-radius: 8px; background: var(--text); color: #0b0b0f; font: 500 12px Inter, system-ui, sans-serif; opacity: 0; translate: 0 4px; pointer-events: none; transition: opacity .16s, translate .16s var(--ease-out); }
-  .cp:hover::after, .cp:focus-visible::after { opacity: 1; translate: 0; }
-  #pop { position-anchor: --src; position-area: bottom span-left; position-try-fallbacks: flip-block, flip-inline; margin: 8px 0; inset: auto; width: min(560px, calc(100vw - 32px)); max-height: 60vh; padding: 0; border-radius: 18px; border: 1px solid var(--line); color: var(--text);
-    background: rgb(22 22 30 / .84); backdrop-filter: blur(24px) saturate(1.5); -webkit-backdrop-filter: blur(24px) saturate(1.5); box-shadow: 0 30px 60px -20px rgb(0 0 0 / .6);
-    opacity: 0; scale: .96; translate: 0 -6px; transition: opacity .2s, scale .24s var(--ease-out), translate .24s var(--ease-out), display .24s allow-discrete, overlay .24s allow-discrete; }
-  #pop:popover-open { opacity: 1; scale: 1; translate: 0; display: flex; flex-direction: column; }
-  @starting-style { #pop:popover-open { opacity: 0; scale: .96; translate: 0 -6px; } }
-  @supports not (position-area: bottom) { #pop { position: fixed; inset: auto 16px 16px auto; } }
-  #pop header { display: flex; align-items: center; gap: 8px; padding: 12px 12px 12px 16px; border-bottom: 1px solid var(--line); }
-  #pop header strong { margin-right: auto; font-size: 14px; } #pop header button { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; font-size: 13px; }
-  #pop header .go { background: var(--tile); color: var(--tile-ink); border-color: transparent; }
-  #pop pre { white-space: pre-wrap; word-break: break-word; margin: 0; padding: 14px 16px; overflow: auto; font: 12px/1.55 var(--mono); color: #d8d6e2; }
-  @media (max-width: 1020px) { .big { grid-template-columns: 1fr; } .top nav { display: none; } }
-  @media (max-width: 600px) { .wrap { padding: 0 16px 80px; } .top { padding: 12px 16px; gap: 10px; } .search { flex: 1; width: auto; } .top b, .top .red-btn { display: none; } .hero .in { padding: 24px; } .thumbs { grid-template-columns: 1fr; } .stats { gap: 18px; flex-wrap: wrap; } .tools select { margin-left: 0; } .hero .player { display: none; } }
-</style>
+<title>Tact — Give your AI agent actual taste</title>
+<meta name="description" content="Open-source visual direction workbench for AI builders: compare 6 divergent styles, mix parts with live WCAG checks, test 16 WebGL2 shaders, and export a brand-agnostic DESIGN.md + token contract.">
+<link rel="alternate" hreflang="en" href="/">
+<link rel="alternate" hreflang="fr" href="/fr/">
+<link rel="stylesheet" href="shared/tact.css">
 </head>
 <body>
-<header class="top">
-  <b><i></i>Banque de design</b>
-  <nav aria-label="Sections">
-    <a href="#archetypes">Archétypes</a>
-    <a href="#collections">Collections</a>
-    <a href="#protos">Prototypes</a>
-    <a href="#effets">Effets</a>
-  </nav>
-  <a class="lab-cta" href="lab.html">Design Lab ↗</a>
-  <button type="button" class="red-btn" id="hdr-red" data-bank-reduced aria-pressed="false">Effets réduits</button>
-  <label class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="q" type="search" placeholder="Chercher style, proto ou effet" aria-label="Chercher un style, prototype ou effet"><kbd>/</kbd></label>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="inner header-row">
+    <a class="brand" href="index.html"><i class="brand-mark" aria-hidden="true"></i>Tact</a>
+    <nav class="nav-links" aria-label="Primary">
+      <a class="nav-link" href="#bench">Bench</a>
+      <a class="nav-link" href="#theater">WebGL Shaders</a>
+      <a class="nav-link" href="#archetypes">Archetypes</a>
+      <a class="nav-link" href="#contract">Contracts</a>
+      <a class="nav-link" href="bank.html">Effect Bank</a>
+    </nav>
+    <div class="header-actions">
+      <a class="pill-btn" href="fr/index.html" lang="fr">FR</a>
+      <button type="button" class="pill-btn" data-bank-reduced aria-pressed="false">Reduce effects</button>
+      <a class="btn btn-primary btn-sm" href="lab.html">Open Design Lab →</a>
+    </div>
+  </div>
 </header>
-<div class="wrap">
-  <div class="hero" id="hero"><canvas aria-label="Fond shader aurore"></canvas><div class="in">
-    <h1>Styles et animations à garder.</h1>
-    <div class="row"><p>7 archétypes complets sur le même brief, un Design Lab pour mélanger les directions, 12 prototypes réglables et 76 effets prêts à copier.</p><div class="stats" id="stats"></div></div>
-  </div></div>
 
-  <section id="archetypes">
-    <div class="sh">
-      <div><h2>Archétypes de style</h2><p>Le même brief client (KESTREL) décliné dans 7 directions radicalement différentes pour le Design Lab.</p></div>
-      <a class="btn-link" href="lab.html">Ouvrir le Design Lab (mixeur) →</a>
+<main id="main">
+  <section class="hero-sec" id="bench">
+    <div class="inner hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">Tact · Open-source design layer</p>
+        <h1>Give your AI agent actual taste.</h1>
+        <p class="lead">Stop shipping the same generic dark-purple SaaS grid. Compare six divergent styles on a shared brief, mix parts with live WCAG contrast checks, test WebGL2 shaders, and export a clean token contract.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="lab.html">Launch Design Lab →</a>
+          <a class="btn" href="bank.html">Browse 76 Effects &amp; 12 Protos</a>
+        </div>
+        <div class="hero-stats" aria-label="Project specifications">
+          <div class="stat-item"><strong>7</strong><span>style archetypes</span></div>
+          <div class="stat-item"><strong>16</strong><span>WebGL2 shaders · 12 KB</span></div>
+          <div class="stat-item"><strong>76</strong><span>CSS &amp; UI effects</span></div>
+          <div class="stat-item"><strong>0</strong><span>runtime dependencies</span></div>
+        </div>
+      </div>
+
+      <div class="bench-stage" aria-label="Interactive six-style metamorphosis bench">
+        <div class="style-tabs" id="hero-tabs" role="tablist" aria-label="Switch active style preset">
+          <button type="button" class="tab-btn" role="tab" data-style="industrial-sober" aria-selected="true">Industrial</button>
+          <button type="button" class="tab-btn" role="tab" data-style="monochrome-editorial" aria-selected="false">Editorial</button>
+          <button type="button" class="tab-btn" role="tab" data-style="immersive-cinematic" aria-selected="false">Cinematic</button>
+          <button type="button" class="tab-btn" role="tab" data-style="playful-editorial" aria-selected="false">Playful</button>
+          <button type="button" class="tab-btn" role="tab" data-style="technical-saas" aria-selected="false">Technical</button>
+          <button type="button" class="tab-btn" role="tab" data-style="swiss-brutalist" aria-selected="false">Brutalist</button>
+        </div>
+
+        <div class="meta-frame" id="meta-frame">
+          <canvas id="hero-cv" aria-label="Live WebGL2 shader backdrop synced to the active style preset">WebGL2 shader stage backdrop</canvas>
+          <div class="meta-top">
+            <span>KESTREL · TELEMETRY</span>
+            <span>412 STATIONS · 18 MS</span>
+          </div>
+          <div class="meta-card">
+            <span class="meta-kicker" id="meta-kicker">SYS-01 · 0 PX · MONOCHROME DARK</span>
+            <h2 id="meta-title">Measure every site, decide in real time.</h2>
+            <p id="meta-desc">Matte black, razor 0px corners, zero ornamental noise.</p>
+            <div class="meta-actions">
+              <a class="meta-cta" id="meta-open" href="styles/industrial-sober.html">Open full specimen ↗</a>
+              <a class="meta-ghost" href="lab.html">Mix in Lab</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="bench-meta">
+          <span id="bench-meta">radius: 0px · theme: dark · display: Hanken Grotesk · shader: contours</span>
+          <span>Pointer-reactive WebGL2 stage</span>
+        </div>
+      </div>
     </div>
-    <ul class="thumbs" id="styles-grid"></ul>
   </section>
 
-  <section id="collections">
-    <div class="sh"><div><h2>Collections</h2><p>Les catalogues d'effets, avec code, tri et filtres. Posters statiques au chargement, aperçu direct à la demande.</p></div></div>
-    <ul class="thumbs big" id="cols"></ul>
-  </section>
+  <section class="band" id="theater">
+    <div class="inner">
+      <div class="sec-head">
+        <div>
+          <h2>16 procedural WebGL2 shaders in 12 KB.</h2>
+          <p>Zero external Three.js bundle. Pointer-reactive, paused automatically offscreen and under reduced motion, with CSS fallbacks and instant GLSL copy.</p>
+        </div>
+        <a class="btn" href="protos/webgl.html">See all 16 in site mockups ↗</a>
+      </div>
 
-  <section id="protos">
-    <div class="sh"><div><h2>Prototypes</h2><p>Compositions interactives réglables avec export et import JSON.</p></div></div>
-    <ul class="thumbs" id="grid"></ul>
-  </section>
+      <div class="theater-controls">
+        <div class="style-tabs" id="theater-tabs" role="group" aria-label="Select shader">
+          <button type="button" class="tab-btn" data-shader="aurora" aria-pressed="true">Aurora</button>
+          <button type="button" class="tab-btn" data-shader="chrome" aria-pressed="false">Chrome</button>
+          <button type="button" class="tab-btn" data-shader="contours" aria-pressed="false">Contours</button>
+          <button type="button" class="tab-btn" data-shader="flow" aria-pressed="false">Flow</button>
+          <button type="button" class="tab-btn" data-shader="orb" aria-pressed="false">Orb</button>
+          <button type="button" class="tab-btn" data-shader="globe" aria-pressed="false">Globe</button>
+          <button type="button" class="tab-btn" data-shader="reveal" aria-pressed="false">Reveal</button>
+          <button type="button" class="tab-btn" data-shader="waves" aria-pressed="false">Waves</button>
+          <button type="button" class="tab-btn" data-shader="particles" aria-pressed="false">Particles</button>
+        </div>
+        <div class="swatches" id="theater-swatches" role="group" aria-label="Shader color mood">
+          <button type="button" class="sw-btn" data-mood="0" aria-pressed="true" aria-label="Amber and Frost"><i style="background:linear-gradient(135deg,#f2b84b 50%,#d8e1f0 50%)"></i></button>
+          <button type="button" class="sw-btn" data-mood="1" aria-pressed="false" aria-label="Emerald and Mist"><i style="background:linear-gradient(135deg,#3dff8a 50%,#c4ffd9 50%)"></i></button>
+          <button type="button" class="sw-btn" data-mood="2" aria-pressed="false" aria-label="Terracotta and Sand"><i style="background:linear-gradient(135deg,#e07a5f 50%,#f2cc8f 50%)"></i></button>
+        </div>
+      </div>
 
-  <section id="effets">
-    <div class="sh"><div><h2>Tous les effets</h2><p>Chaque carte mène à la démo ; le bouton &lt;/&gt; ouvre son code à copier.</p></div><span class="count" id="count"></span></div>
-    <div class="tools">
-      <div class="chips" id="cf" role="group" aria-label="Collection"></div>
-      <div class="chips" id="pf" role="group" aria-label="Plateforme"></div>
-      <select id="sort" aria-label="Ordre"><option value="page">Par collection</option><option value="wow">Plus spectaculaire</option><option value="use">Plus utile</option><option value="az">A à Z</option></select>
+      <div class="theater-stage" id="theater-stage">
+        <canvas id="theater-cv" aria-label="Interactive WebGL2 fragment shader theater">WebGL2 shader stage</canvas>
+        <div class="theater-hud">
+          <span class="hud-badge" id="theater-hud">SHADER: AURORA · AMBER / FROST</span>
+          <span class="hud-badge">PAUSED BY DEFAULT · PRESS PLAY</span>
+        </div>
+      </div>
+
+      <div class="shader-code-box">
+        <div class="shader-code-head">
+          <span>Active GLSL fragment shader (shared/shader.js)</span>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="copy-status" id="glsl-msg" aria-live="polite"></span>
+            <button type="button" class="btn btn-sm" id="copy-glsl">Copy GLSL</button>
+          </div>
+        </div>
+        <pre><code id="theater-glsl"></code></pre>
+      </div>
     </div>
-    <ul id="fx"></ul><p class="empty" id="empty" hidden>Aucun effet ne correspond.</p>
   </section>
-</div>
-<div id="pop" popover="manual" role="dialog" aria-labelledby="pop-t"><header><strong id="pop-t"></strong><button type="button" class="go" id="pop-copy">Copier</button><button type="button" popovertarget="pop" popovertargetaction="hide" aria-label="Fermer">✕</button></header><pre><code id="pop-code"></code></pre></div>
+
+  <section class="band" id="archetypes">
+    <div class="inner">
+      <div class="sec-head">
+        <div>
+          <h2>Seven archetypes, one shared brief.</h2>
+          <p>Every style renders the exact same realistic telemetry brief so teams compare direction, not copywriting.</p>
+        </div>
+        <a class="btn btn-primary" href="lab.html">Mix them in Design Lab →</a>
+      </div>
+
+      <div class="arch-grid" id="archetypes-grid">
+        <article class="arch-card">
+          <div class="arch-thumb"><img src="posters/industrial-sober.jpg" width="1280" height="800" alt="Industrial sober archetype preview"></div>
+          <p class="arch-ref">anduril.com · 0px · dark</p>
+          <h3>Industrial Sober</h3>
+          <p class="arch-desc">Pure matte black, razor 0px corners, full-frame media bento, zero ornament.</p>
+          <a class="arch-link" href="styles/industrial-sober.html">Open specimen ↗</a>
+        </article>
+        <article class="arch-card">
+          <div class="arch-thumb"><img src="posters/monochrome-editorial.jpg" width="1280" height="800" alt="Monochrome editorial archetype preview"></div>
+          <p class="arch-ref">editorial-taste · 10px · light</p>
+          <h3>Monochrome Editorial</h3>
+          <p class="arch-desc">Achromatic #EDEDED / #151515, Geist + Mono, 5px rhythm, shadowless glass.</p>
+          <a class="arch-link" href="styles/monochrome-editorial.html">Open specimen ↗</a>
+        </article>
+        <article class="arch-card">
+          <div class="arch-thumb"><img src="posters/immersive-cinematic.jpg" width="1280" height="800" alt="Immersive cinematic archetype preview"></div>
+          <p class="arch-ref">orchestrated.nl · hubtown · WebGL</p>
+          <h3>Immersive Cinematic</h3>
+          <p class="arch-desc">Full-frame WebGL scene, HUD perimeter, side chapters, visible Reduce Effects button.</p>
+          <a class="arch-link" href="styles/immersive-cinematic.html">Open specimen ↗</a>
+        </article>
+        <article class="arch-card">
+          <div class="arch-thumb"><img src="posters/playful-editorial.jpg" width="1280" height="800" alt="Playful editorial archetype preview"></div>
+          <p class="arch-ref">5lab.co · 22px · light</p>
+          <h3>Playful Editorial</h3>
+          <p class="arch-desc">Offset sans and italic Fraunces headline, rotating circular badge, mix-blend geometry.</p>
+          <a class="arch-link" href="styles/playful-editorial.html">Open specimen ↗</a>
+        </article>
+        <article class="arch-card">
+          <div class="arch-thumb"><img src="posters/technical-saas.jpg" width="1280" height="800" alt="Technical SaaS archetype preview"></div>
+          <p class="arch-ref">north.cloud · langchain · WebGL</p>
+          <h3>Technical SaaS</h3>
+          <p class="arch-desc">Stepped display headline, 4-crosshair viewfinder around flow shader, monospace density.</p>
+          <a class="arch-link" href="styles/technical-saas.html">Open specimen ↗</a>
+        </article>
+        <article class="arch-card">
+          <div class="arch-thumb"><img src="posters/warm-organic.jpg" width="1280" height="800" alt="Warm organic archetype preview"></div>
+          <p class="arch-ref">mode.com · svgator · WebGL</p>
+          <h3>Warm Organic</h3>
+          <p class="arch-desc">Warm sand, terracotta, and sage, Newsreader serif, 26px radii, light-mode lava shader.</p>
+          <a class="arch-link" href="styles/warm-organic.html">Open specimen ↗</a>
+        </article>
+        <article class="arch-card">
+          <div class="arch-thumb"><img src="posters/swiss-brutalist.jpg" width="1280" height="800" alt="Swiss brutalist archetype preview"></div>
+          <p class="arch-ref">International Style · 0px · light</p>
+          <h3>Swiss Brutalist</h3>
+          <p class="arch-desc">Pure white, 2px black structural grid, exposed numbered index rows, orange accent.</p>
+          <a class="arch-link" href="styles/swiss-brutalist.html">Open specimen ↗</a>
+        </article>
+        <article class="arch-card arch-card-wide">
+          <p class="arch-ref">design lab · hybrid mixer</p>
+          <h3>Combine 3 close and 3 far directions in one live workbench</h3>
+          <p class="arch-desc">Take palette polarity from Editorial, radii from Industrial, and a WebGL backdrop from Cinematic. Verify OKLCH WCAG AA/AAA ratios live and export style-dna.json or tokens.css with zero signup.</p>
+          <a class="btn btn-primary" href="lab.html" style="width:fit-content">Launch Design Lab →</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="contract">
+    <div class="inner contract-grid">
+      <div>
+        <h2>A brand-agnostic contract any coding agent can execute.</h2>
+        <p class="lead">Tact is standalone by design. Every lock emits standard JSON, CSS variables, and a verifiable DESIGN.md spec that drops into Claude Code, Codex, Cursor, or any downstream app engine.</p>
+        <div class="steps-list">
+          <div class="step-card">
+            <span>01 · DIVERGE</span>
+            <h3>Sample 3 near + 3 far directions</h3>
+            <p>Distance along six style axes guarantees the user sees real visual contrast before writing a line of product CSS.</p>
+          </div>
+          <div class="step-card">
+            <span>02 · MIX &amp; VERIFY</span>
+            <h3>Cherry-pick slots with live OKLCH WCAG</h3>
+            <p>Combine palette from one direction with typography or radius from another while contrast gates check AA/AAA live.</p>
+          </div>
+          <div class="step-card">
+            <span>03 · LOCK &amp; EMIT</span>
+            <h3>Hand off clean machine-readable files</h3>
+            <p>Export style-dna.json, tokens.css, DESIGN.md, or studio.json in one click with zero vendor lock-in.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="inspector" aria-label="Live contract output for the selected hero preset">
+        <div class="inspector-bar">
+          <div class="style-tabs" id="contract-tabs" role="group" aria-label="Contract format">
+            <button type="button" class="tab-btn" data-fmt="dna" aria-pressed="true">style-dna.json</button>
+            <button type="button" class="tab-btn" data-fmt="css" aria-pressed="false">tokens.css</button>
+            <button type="button" class="tab-btn" data-fmt="designmd" aria-pressed="false">DESIGN.md</button>
+            <button type="button" class="tab-btn" data-fmt="studio" aria-pressed="false">studio.json</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="copy-status" id="contract-msg" aria-live="polite"></span>
+            <button type="button" class="btn btn-sm" id="copy-contract">Copy</button>
+          </div>
+        </div>
+        <pre><code id="contract-out"></code></pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="start" style="border-bottom:0">
+    <div class="inner">
+      <div class="closing-box">
+        <div>
+          <h2>Start in the browser or pull the repo.</h2>
+          <p>Free, open-source, zero accounts, and static-file friendly. Open the Design Lab now or explore all 76 CSS, UI, and WebGL effects.</p>
+        </div>
+        <div class="cta-row" style="margin:0">
+          <a class="btn btn-primary" href="lab.html">Launch Design Lab →</a>
+          <a class="btn" href="bank.html">Open Effect Bank</a>
+          <a class="btn" href="https://github.com/bobcat88/design-bank" rel="noopener noreferrer">GitHub ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="inner footer-row">
+    <span>Tact · Standalone multi-style design bench</span>
+    <div class="footer-links">
+      <a href="lab.html">Design Lab</a>
+      <a href="bank.html">Effect Bank</a>
+      <a href="protos/webgl.html">WebGL Catalog</a>
+      <a href="fr/index.html" lang="fr">Version française</a>
+      <a href="https://github.com/bobcat88/design-bank" rel="noopener noreferrer">GitHub</a>
+    </div>
+  </div>
+</footer>
+
 <script src="shared/bank.js"></script>
 <script src="shared/shader.js"></script>
-<script src="shared/catalog.js"></script>
 <script src="shared/archetypes.js"></script>
-<script>
-  const $ = (s) => document.querySelector(s);
-  const PROTOS = [
-    ["agent", "Visage d'agent", "Personnage", "Goutte ou méduse qui écoute, réfléchit et répond."],
-    ["nodes", "Nœuds et fils", "Diagrammes", "Graphe aux formes et arrondis réglables, signal qui circule."],
-    ["stack", "Pile isométrique", "Scroll", "Couches qui s'empilent au fil du scroll."],
-    ["orbit", "Orbite", "Scroll", "Éléments en orbite autour d'un centre."],
-    ["bento", "Bento", "Scroll", "Grille de tuiles aux arrondis concaves et convexes."],
-    ["loaders", "Loaders tracés", "Loaders", "Vague, infini, commande et boucles qui se dessinent."],
-    ["ambient", "Fonds ambiants", "Fonds", "Particules, blobs, polygones ou tuiles derrière un contenu."],
-    ["marquee", "Bandes défilantes", "Fonds", "Deux rangées de vignettes en sens opposé."],
-    ["text", "Révélations de texte", "Texte", "Masque mot à mot, lettres floues, brouillage, surlignage."],
-    ["hover", "Interactions au curseur", "Interaction", "Bouton aimanté, bordure éclairée, carte inclinée, curseur qui suit."],
-    ["scrolly", "Récit au scroll", "Scroll", "Image qui s'ouvre, compteurs, section épinglée qui défile en largeur."],
-    ["landing", "Landing orbe chromé", "Page complète", "Orbe chromé au-dessus d'une eau qui reflète, 5 chapitres, parallaxe au pointeur."],
-  ];
-  const COLS = {
-    css: ["CSS moderne", "Techniques natives : scroll-driven, View Transitions, ancres, @starting-style, @property."],
-    wow: ["Effets 2026", "Gestes d'app et de site : palette, dock, verre liquide, îlot, streaming, odomètre."],
-    webgl: ["Shaders en situation", "Seize fonds WebGL (aurore, particules, vagues, orbe, globe…) montrés dans de vraies sections de site."],
-  };
-  const ARCHS = (window.ARCHETYPES_DATA && window.ARCHETYPES_DATA.archetypes) || [];
-  const PL = { w: "Site", d: "Bureau", m: "Mobile" };
-  const n = (page) => CATALOG.filter((e) => e[0] === page).length;
-
-  // Poster-first card: zero idle iframes on load; clicking "Direct" mounts a live ?embed iframe on demand.
-  function thumbCard(href, embedSrc, posterSrc, title, tag, blurb, searchText) {
-    return `<li data-search="${(searchText || `${title} ${tag} ${blurb}`).toLowerCase().replace(/"/g, '')}">
-      <a href="${href}">
-        <div class="thumb" data-embed="${embedSrc}"><img src="${posterSrc}" alt="Aperçu ${title}" width="1280" height="800" loading="lazy"></div>
-        <div class="cap"><strong>${title}</strong><span>${tag}</span></div>
-        <p>${blurb}</p>
-      </a>
-      <button type="button" class="live-btn" aria-pressed="false" title="Charger l'aperçu interactif">Direct</button>
-    </li>`;
-  }
-
-  $("#styles-grid").innerHTML = ARCHS.map((a) =>
-    thumbCard(a.page, `${a.page}?embed`, `posters/${a.id}.jpg`, a.name, a.references[0] || a.family, a.tagline, `${a.name} ${a.family} ${a.tagline} ${a.references.join(' ')} ${a.clientTypes.join(' ')}`)
-  ).join("");
-  $("#cols").innerHTML = Object.entries(COLS).map(([id, [t, d]]) =>
-    thumbCard(`protos/${id}.html`, `protos/${id}.html?embed`, `posters/${id}.jpg`, t, `${n(id)} effets`, d)
-  ).join("");
-  $("#grid").innerHTML = PROTOS.map(([id, t, c, d]) =>
-    thumbCard(`protos/${id}.html`, `protos/${id}.html?embed`, `posters/${id}.jpg`, t, c, d, `${id} ${t} ${c} ${d}`)
-  ).join("");
-  $("#stats").innerHTML = [[ARCHS.length, "archétypes"], [PROTOS.length, "prototypes"], [CATALOG.length, "effets"], [n("webgl"), "shaders"]].map(([v, l]) => `<div><strong>${v}</strong><span>${l}</span></div>`).join("");
-
-  // Live preview toggle: mounts at most one iframe per toggled card, cleans up on untoggle.
-  const fitOne = (box) => { const f = box.querySelector("iframe"); if (f) f.style.transform = `scale(${box.clientWidth / 1280})`; };
-  new ResizeObserver(() => document.querySelectorAll(".thumb").forEach(fitOne)).observe(document.body);
-  document.addEventListener("click", (e) => {
-    const btn = e.target.closest(".live-btn"); if (!btn) return;
-    e.preventDefault(); e.stopPropagation();
-    const box = btn.closest("li").querySelector(".thumb");
-    const on = btn.getAttribute("aria-pressed") === "true";
-    if (on) {
-      box.querySelector("iframe")?.remove();
-      btn.setAttribute("aria-pressed", "false"); btn.textContent = "Direct";
-    } else {
-      const f = document.createElement("iframe");
-      f.src = box.dataset.embed; f.tabIndex = -1; f.setAttribute("aria-hidden", "true");
-      box.appendChild(f); fitOne(box);
-      btn.setAttribute("aria-pressed", "true"); btn.textContent = "Poster";
-    }
-  });
-
-  // Effect index: built with DOM text so catalogue strings are never parsed as HTML
-  const fx = $("#fx"), items = CATALOG.map(([page, id, title, blurb, w, p, section, code], i) => {
-    const li = document.createElement("li"), a = document.createElement("a"); a.href = `protos/${page}.html#${id}`;
-    a.innerHTML = `<span class="k"><span></span><span class="wow" aria-label="wow ${w} sur 5">${[1, 2, 3, 4, 5].map((k) => `<i class="${k <= w ? "on" : ""}"></i>`).join("")}</span></span><strong></strong><p></p><span class="pl">${[...p].map((c) => `<span>${PL[c]}</span>`).join("")}</span>`;
-    a.querySelector(".k span").textContent = `${COLS[page][0]} · ${section}`; a.querySelector("strong").textContent = title; a.querySelector("p").textContent = blurb;
-    const cp = document.createElement("button"); cp.type = "button"; cp.className = "cp"; cp.textContent = "</>";
-    cp.dataset.tip = page === "webgl" ? "Code du shader" : "Code CSS"; cp.setAttribute("aria-label", `${cp.dataset.tip} : ${title}`);
-    cp.onclick = () => openCode(cp, title, code);
-    li.append(a, cp); return { li, page, title, w, p, i, text: `${title} ${blurb} ${section}`.toLowerCase() };
-  });
-
-  const thumbLis = [...document.querySelectorAll("#styles-grid li, #cols li, #grid li")];
-  let col = "all", plat = "all";
-  const chips = (el, list, on) => { el.innerHTML = list.map(([v, l], i) => `<button type="button" data-v="${v}" aria-pressed="${!i}">${l}</button>`).join("");
-    el.onclick = (e) => { const b = e.target.closest("button"); if (!b) return; el.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", x === b)); on(b.dataset.v); apply(); }; };
-  chips($("#cf"), [["all", "Tout"], ...Object.entries(COLS).map(([k, [t]]) => [k, t])], (v) => col = v);
-  chips($("#pf"), [["all", "Toutes plateformes"], ["w", "Site"], ["d", "Bureau"], ["m", "Mobile"]], (v) => plat = v);
-
-  const apply = () => {
-    const q = $("#q").value.trim().toLowerCase(), s = $("#sort").value;
-    // Filter archetypes, collections & prototypes too (fixes search ignoring PROTOS)
-    thumbLis.forEach((li) => { li.hidden = !!q && !li.dataset.search.includes(q); });
-    const by = { page: (a, b) => a.i - b.i, wow: (a, b) => b.w - a.w || a.i - b.i, use: (a, b) => a.w - b.w || a.i - b.i, az: (a, b) => a.title.localeCompare(b.title, "fr") }[s];
-    let shown = 0;
-    items.slice().sort(by).forEach((it) => { it.li.hidden = !((col === "all" || it.page === col) && (plat === "all" || it.p.includes(plat)) && (!q || it.text.includes(q))); shown += !it.li.hidden; fx.append(it.li); });
-    $("#count").textContent = `${shown} sur ${items.length}`; $("#empty").hidden = shown > 0;
-  };
-  $("#sort").onchange = apply;
-  $("#q").oninput = apply;
-  document.addEventListener("keydown", (e) => { if (e.key === "/" && !/INPUT|TEXTAREA/.test(document.activeElement?.tagName || "")) { e.preventDefault(); $("#q").focus(); } });
-  $("#hdr-red").onclick = () => Bank.setReduced(!Bank.reduced());
-  apply();
-
-  // Sticky code popover anchored to the clicked button
-  const pop = $("#pop"); let anchor;
-  function openCode(btn, title, code) {
-    if (anchor) anchor.style.anchorName = "";
-    if (anchor === btn && pop.matches(":popover-open")) { pop.hidePopover(); anchor = null; return; }
-    anchor = btn; btn.style.anchorName = "--src"; $("#pop-t").textContent = title; $("#pop-code").textContent = code; $("#pop-copy").textContent = "Copier";
-    if (pop.matches(":popover-open")) pop.hidePopover(); pop.showPopover();
-  }
-  $("#pop-copy").onclick = async () => { try { await navigator.clipboard.writeText($("#pop-code").textContent); $("#pop-copy").textContent = "Copié"; } catch { $("#pop-copy").textContent = "Copie refusée"; } };
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && pop.matches(":popover-open")) { pop.hidePopover(); anchor?.focus(); } });
-
-  // Hero: aurora shader, paused by default
-  Bank.player($("#hero"), Bank.shader($("#hero canvas"), "aurora", document.body));
-</script>
+<script src="shared/tact.js"></script>
 </body>
 </html>

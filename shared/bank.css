@@ -88,11 +88,16 @@ html.reduced-motion *, html.reduced-motion *::before, html.reduced-motion *::aft
 :hover > .player, :focus-within > .player, .player.show { opacity: 1; translate: 0; }
 @media (hover: none) { .player { opacity: 1; translate: 0; } }
 /* .player.player beats the catalogue's ".demo button" rule */
-.player.player button { flex: none; display: grid; place-items: center; width: 32px; height: 32px; margin: 0; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--text); fill: currentColor; line-height: 0; cursor: pointer; }
+.player.player button { flex: none; display: grid; place-items: center; width: 32px; height: 32px; margin: 0; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--text); fill: currentColor; line-height: 0; cursor: pointer; transition: background-color .18s var(--ease-out), transform .15s var(--ease-out), filter .18s var(--ease-out); }
 .player.player .pp { background: var(--tile); color: var(--tile-ink); }
-.player.player button:hover { background: color-mix(in srgb, var(--text) 12%, transparent); } .player.player .pp:hover { filter: brightness(1.1); background: var(--tile); }
+.player.player button:hover { background: color-mix(in srgb, var(--text) 12%, transparent); }
+.player.player button:active { transform: translateY(1px); }
+.player.player .pp:hover { filter: brightness(1.1); background: var(--tile); }
+.player.player .pp:active { transform: translateY(1px); filter: brightness(.95); }
 .player svg { display: block; }
-.player input { flex: 1; min-width: 0; height: 32px; margin: 0; background: transparent; appearance: none; -webkit-appearance: none; cursor: pointer; }
+.player input { flex: 1; min-width: 0; height: 32px; margin: 0; background: transparent; appearance: none; -webkit-appearance: none; cursor: pointer; transition: opacity .15s var(--ease-out); }
+.player input:hover { opacity: .92; }
+.player input:active { opacity: 1; transform: scaleY(1.08); }
 .player input::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: color-mix(in srgb, var(--text) 22%, transparent); }
 .player input::-moz-range-track { height: 4px; border-radius: 2px; background: color-mix(in srgb, var(--text) 22%, transparent); }
 .player input::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; margin-top: -4px; border-radius: 50%; background: var(--tile); border: 0; }

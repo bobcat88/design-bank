@@ -36,7 +36,7 @@ execFileSync(process.execPath, [path.join(ROOT, 'tools/catalog.mjs'), '--check']
 
 const styleFiles = fs.readdirSync(path.join(ROOT, 'styles')).filter((f) => f.endsWith('.html')).sort().map((f) => `styles/${f}`);
 const protoFiles = fs.readdirSync(path.join(ROOT, 'protos')).filter((f) => f.endsWith('.html')).sort().map((f) => `protos/${f}`);
-const allPages = ['index.html', 'lab.html', ...styleFiles, ...protoFiles];
+const allPages = ['index.html', 'fr/index.html', 'bank.html', 'lab.html', ...styleFiles, ...protoFiles];
 
 const browser = await openBrowser();
 const failures = [];
@@ -67,6 +67,18 @@ async function auditPage(rel, opts = {}) {
   }
 
   // Interactive smoke tests on key pages
+  if (!query && !reduced && width === 1920 && rel === 'index.html') {
+    await page.locator('#hero-tabs button').nth(2).click();
+    await page.locator('#hero-tabs button').nth(5).click();
+    await page.locator('#theater-tabs button').nth(3).click();
+    await page.locator('#theater-tabs button').nth(4).click();
+    await page.locator('#contract-tabs button').nth(1).click();
+    await page.locator('#contract-tabs button').nth(2).click();
+    const glsl = await page.locator('#theater-glsl').textContent();
+    const contract = await page.locator('#contract-out').textContent();
+    if (!glsl || !glsl.trim()) errors.push('index.html #theater-glsl is empty after shader switch');
+    if (!contract || !contract.trim()) errors.push('index.html #contract-out is empty after contract switch');
+  }
   if (!query && !reduced && width === 1920 && rel === 'protos/wow.html') {
     for (const id of ['w9', 'w13', 'w15', 'w17']) {
       const btn = page.locator(`#${id} [data-act="replay"]`);
@@ -103,12 +115,12 @@ for (const rel of allPages) {
 }
 
 // Mobile responsive overflow checks
-for (const rel of ['index.html', 'lab.html', 'protos/bento.html', 'protos/nodes.html', ...styleFiles]) {
+for (const rel of ['index.html', 'fr/index.html', 'bank.html', 'lab.html', 'protos/bento.html', 'protos/nodes.html', ...styleFiles]) {
   await auditPage(rel, { width: 390, height: 844 });
 }
 
 // Reduced-motion checks
-for (const rel of ['index.html', 'protos/landing.html', 'styles/immersive-cinematic.html']) {
+for (const rel of ['index.html', 'fr/index.html', 'protos/landing.html', 'styles/immersive-cinematic.html']) {
   await auditPage(rel, { width: 1920, height: 1080, reduced: true });
 }
 

@@ -29,17 +29,17 @@
   function mountNav() {
     if (isEmbed || document.documentElement.hasAttribute('data-no-nav')) return;
     const p = location.pathname.replace(/\\/g, '/');
-    const inSub = /\/(protos|styles)\/[^/]+$/.test(p);
-    const isIndex = /(?:^|\/)index\.html?$/.test(p) || p.endsWith('/');
-    if (isIndex && !inSub) return;
+    const inSub = /\/(protos|styles|fr)\/[^/]+$/.test(p);
+    const isTopLanding = /(?:^|\/)(?:index|bank)\.html?$/.test(p) || p.endsWith('/') || /\/fr\/?$/.test(p);
+    if (isTopLanding && !/\/(protos|styles)\//.test(p)) return;
     const bar = document.createElement('div');
     bar.className = 'bank-nav';
     bar.setAttribute('role', 'region');
-    bar.setAttribute('aria-label', 'Navigation banque');
-    const href = inSub ? '../index.html' : 'index.html';
-    const labHref = inSub ? '../lab.html' : 'lab.html';
+    bar.setAttribute('aria-label', 'Tact navigation');
+    const prefix = inSub ? '../' : '';
     const isLab = /(?:^|\/)lab\.html?$/.test(p);
-    bar.innerHTML = `<a href="${href}">← Banque</a>${isLab ? '' : `<a href="${labHref}">Design Lab</a>`}<button type="button" data-bank-reduced aria-pressed="${userReduced}" title="Réduire les animations">Effets réduits</button>`;
+    const isFr = document.documentElement.lang === 'fr';
+    bar.innerHTML = `<a href="${prefix}index.html">← Tact</a><a href="${prefix}bank.html">${isFr ? 'Banque' : 'Bank'}</a>${isLab ? '' : `<a href="${prefix}lab.html">Lab</a>`}<button type="button" data-bank-reduced aria-pressed="${userReduced}" title="Toggle reduced motion">${isFr ? 'Effets réduits' : 'Reduce effects'}</button>`;
     bar.querySelector('[data-bank-reduced]').addEventListener('click', () => setReduced(!userReduced));
     document.body.appendChild(bar);
   }

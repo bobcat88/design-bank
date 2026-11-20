@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="fr" data-base="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tact — Donnez du goût à votre agent IA</title>
+<meta name="description" content="Couche de direction artistique open-source pour développeurs et agents IA : comparez 6 styles divergents, mélangez avec contraste WCAG en direct, testez 16 shaders WebGL2 et exportez un contrat DESIGN.md + tokens.">
+<link rel="alternate" hreflang="en" href="/">
+<link rel="alternate" hreflang="fr" href="/fr/">
+<link rel="stylesheet" href="../shared/tact.css">
+</head>
+<body>
+<a class="skip" href="#main">Aller au contenu</a>
+
+<header class="site-header">
+  <div class="inner header-row">
+    <a class="brand" href="index.html"><i class="brand-mark" aria-hidden="true"></i>Tact</a>
+    <nav class="nav-links" aria-label="Navigation principale">
+      <a class="nav-link" href="#bench">Banc d'essai</a>
+      <a class="nav-link" href="#theater">Shaders WebGL</a>
+      <a class="nav-link" href="#archetypes">Archétypes</a>
+      <a class="nav-link" href="#contract">Contrats</a>
+      <a class="nav-link" href="../bank.html">Banque d'effets</a>
+    </nav>
+    <div class="header-actions">
+      <a class="pill-btn" href="../index.html" lang="en">EN</a>
+      <button type="button" class="pill-btn" data-bank-reduced aria-pressed="false">Effets réduits</button>
+      <a class="btn btn-primary btn-sm" href="../lab.html">Ouvrir le Lab →</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero-sec" id="bench">
+    <div class="inner hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">Tact · Couche design open-source</p>
+        <h1>Donnez du goût à votre agent IA.</h1>
+        <p class="lead">Arrêtez de livrer la même interface générique par défaut. Comparez six styles radicalement opposés sur un même brief, mélangez ce qui plaît avec vérification WCAG, testez nos shaders WebGL2 et exportez votre contrat.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="../lab.html">Ouvrir le Design Lab →</a>
+          <a class="btn" href="../bank.html">Explorer 76 effets &amp; 12 protos</a>
+        </div>
+        <div class="hero-stats" aria-label="Spécifications du projet">
+          <div class="stat-item"><strong>7</strong><span>archétypes de style</span></div>
+          <div class="stat-item"><strong>16</strong><span>shaders WebGL2 · 12 Ko</span></div>
+          <div class="stat-item"><strong>76</strong><span>effets CSS &amp; UI</span></div>
+          <div class="stat-item"><strong>0</strong><span>dépendance runtime</span></div>
+        </div>
+      </div>
+
+      <div class="bench-stage" aria-label="Banc interactif à six styles">
+        <div class="style-tabs" id="hero-tabs" role="tablist" aria-label="Choisir un style actif">
+          <button type="button" class="tab-btn" role="tab" data-style="industrial-sober" aria-selected="true">Industriel</button>
+          <button type="button" class="tab-btn" role="tab" data-style="monochrome-editorial" aria-selected="false">Éditorial</button>
+          <button type="button" class="tab-btn" role="tab" data-style="immersive-cinematic" aria-selected="false">Cinéma</button>
+          <button type="button" class="tab-btn" role="tab" data-style="playful-editorial" aria-selected="false">Studio</button>
+          <button type="button" class="tab-btn" role="tab" data-style="technical-saas" aria-selected="false">Technique</button>
+          <button type="button" class="tab-btn" role="tab" data-style="swiss-brutalist" aria-selected="false">Brutaliste</button>
+        </div>
+
+        <div class="meta-frame" id="meta-frame">
+          <canvas id="hero-cv" aria-label="Fond shader WebGL2 synchronisé avec le style sélectionné">Fond shader WebGL2</canvas>
+          <div class="meta-top">
+            <span>KESTREL · TÉLÉMÉTRIE</span>
+            <span>412 STATIONS · 18 MS</span>
+          </div>
+          <div class="meta-card">
+            <span class="meta-kicker" id="meta-kicker">SYS-01 · 0 PX · MONOCHROME SOMBRE</span>
+            <h2 id="meta-title">Mesurer chaque site, décider à la seconde.</h2>
+            <p id="meta-desc">Noir mat, bordures franches 0 px, zéro décoration superflue.</p>
+            <div class="meta-actions">
+              <a class="meta-cta" id="meta-open" href="../styles/industrial-sober.html">Ouvrir le spécimen ↗</a>
+              <a class="meta-ghost" href="../lab.html">Mélanger dans le Lab</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="bench-meta">
+          <span id="bench-meta">radius: 0px · theme: dark · display: Hanken Grotesk · shader: contours</span>
+          <span>Scène WebGL2 réactive au pointeur</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="theater">
+    <div class="inner">
+      <div class="sec-head">
+        <div>
+          <h2>16 shaders WebGL2 procéduraux en 12 Ko.</h2>
+          <p>Zéro dépendance Three.js. Réactifs au pointeur, mis en pause automatiquement hors écran et sous mouvement réduit, avec repli CSS et code GLSL prêt à copier.</p>
+        </div>
+        <a class="btn" href="../protos/webgl.html">Voir les 16 en maquette ↗</a>
+      </div>
+
+      <div class="theater-controls">
+        <div class="style-tabs" id="theater-tabs" role="group" aria-label="Choisir un shader">
+          <button type="button" class="tab-btn" data-shader="aurora" aria-pressed="true">Aurora</button>
+          <button type="button" class="tab-btn" data-shader="chrome" aria-pressed="false">Chrome</button>
+          <button type="button" class="tab-btn" data-shader="contours" aria-pressed="false">Contours</button>
+          <button type="button" class="tab-btn" data-shader="flow" aria-pressed="false">Flow</button>
+          <button type="button" class="tab-btn" data-shader="orb" aria-pressed="false">Orb</button>
+          <button type="button" class="tab-btn" data-shader="globe" aria-pressed="false">Globe</button>
+          <button type="button" class="tab-btn" data-shader="reveal" aria-pressed="false">Reveal</button>
+          <button type="button" class="tab-btn" data-shader="waves" aria-pressed="false">Waves</button>
+          <button type="button" class="tab-btn" data-shader="particles" aria-pressed="false">Particles</button>
+        </div>
+        <div class="swatches" id="theater-swatches" role="group" aria-label="Ambiance couleur du shader">
+          <button type="button" class="sw-btn" data-mood="0" aria-pressed="true" aria-label="Ambre et Givre"><i style="background:linear-gradient(135deg,#f2b84b 50%,#d8e1f0 50%)"></i></button>
+          <button type="button" class="sw-btn" data-mood="1" aria-pressed="false" aria-label="Émeraude et Brume"><i style="background:linear-gradient(135deg,#3dff8a 50%,#c4ffd9 50%)"></i></button>
+          <button type="button" class="sw-btn" data-mood="2" aria-pressed="false" aria-label="Terre cuite et Sable"><i style="background:linear-gradient(135deg,#e07a5f 50%,#f2cc8f 50%)"></i></button>
+        </div>
+      </div>
+
+      <div class="theater-stage" id="theater-stage">
+        <canvas id="theater-cv" aria-label="Théâtre interactif de shaders WebGL2">Scène WebGL2</canvas>
+        <div class="theater-hud">
+          <span class="hud-badge" id="theater-hud">SHADER: AURORA · AMBER / FROST</span>
+          <span class="hud-badge">EN PAUSE PAR DÉFAUT · CLIQUER LECTURE</span>
+        </div>
+      </div>
+
+      <div class="shader-code-box">
+        <div class="shader-code-head">
+          <span>Code GLSL actif (shared/shader.js)</span>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="copy-status" id="glsl-msg" aria-live="polite"></span>
+            <button type="button" class="btn btn-sm" id="copy-glsl">Copier le GLSL</button>
+          </div>
+        </div>
+        <pre><code id="theater-glsl"></code></pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="archetypes">
+    <div class="inner">
+      <div class="sec-head">
+        <div>
+          <h2>Sept archétypes sur un même brief.</h2>
+          <p>Chaque direction met en scène exactement les mêmes données métier pour comparer le style réel, pas le texte.</p>
+        </div>
+        <a class="btn btn-primary" href="../lab.html">Mélanger dans le Design Lab →</a>
+      </div>
+
+      <div class="arch-grid" id="archetypes-grid">
+        <article class="arch-card">
+          <div class="arch-thumb"><img src="../posters/industrial-sober.jpg" width="1280" height="800" alt="Aperçu Industriel sobre"></div>
+          <p class="arch-ref">anduril.com · 0px · sombre</p>
+          <h3>Industriel sobre</h3>
+          <p class="arch-desc">Noir mat, angles vifs 0 px, bento média plein cadre, aucune décoration.</p>
+          <a class="arch-link" href="../styles/industrial-sober.html">Ouvrir le spécimen ↗</a>
+        </article>
+        <article class="arch-card">
+          <div class="arch-thumb"><img src="../posters/monochrome-editorial.jpg" width="1280" height="800" alt="Aperçu Éditorial monochrome"></div>
+          <p class="arch-ref">editorial-taste · 10px · clair</p>
+          <h3>Éditorial monochrome</h3>
+          <p class="arch-desc">Achromatique #EDEDED / #151515, Geist + Mono, rythme 5 px, verre sans ombre.</p>
+          <a class="arch-link" href="../styles/monochrome-editorial.html">Ouvrir le spécimen ↗</a>
+        </article>
+        <article class="arch-card">
+          <div class="arch-thumb"><img src="../posters/immersive-cinematic.jpg" width="1280" height="800" alt="Aperçu Immersif cinéma"></div>
+          <p class="arch-ref">orchestrated.nl · hubtown · WebGL</p>
+          <h3>Immersif cinéma</h3>
+          <p class="arch-desc">Scène WebGL plein écran, cadre HUD, chapitres latéraux et bouton réduire les effets.</p>
+          <a class="arch-link" href="../styles/immersive-cinematic.html">Ouvrir le spécimen ↗</a>
+        </article>
+        <article class="arch-card">
+          <div class="arch-thumb"><img src="../posters/playful-editorial.jpg" width="1280" height="800" alt="Aperçu Joueur éditorial"></div>
+          <p class="arch-ref">5lab.co · 22px · clair</p>
+          <h3>Joueur éditorial</h3>
+          <p class="arch-desc">Titre décalé sans + Fraunces italique, badge circulaire tournant, formes mix-blend.</p>
+          <a class="arch-link" href="../styles/playful-editorial.html">Ouvrir le spécimen ↗</a>
+        </article>
+        <article class="arch-card">
+          <div class="arch-thumb"><img src="../posters/technical-saas.jpg" width="1280" height="800" alt="Aperçu Technique SaaS"></div>
+          <p class="arch-ref">north.cloud · langchain · WebGL</p>
+          <h3>Technique SaaS</h3>
+          <p class="arch-desc">Titre en escalier, viseur à 4 croix sur le shader flow et densité monospace.</p>
+          <a class="arch-link" href="../styles/technical-saas.html">Ouvrir le spécimen ↗</a>
+        </article>
+        <article class="arch-card">
+          <div class="arch-thumb"><img src="../posters/warm-organic.jpg" width="1280" height="800" alt="Aperçu Chaleureux organique"></div>
+          <p class="arch-ref">mode.com · svgator · WebGL</p>
+          <h3>Chaleureux organique</h3>
+          <p class="arch-desc">Sable chaud, terre cuite et sauge, Newsreader éditorial, rayons 26 px, shader clair.</p>
+          <a class="arch-link" href="../styles/warm-organic.html">Ouvrir le spécimen ↗</a>
+        </article>
+        <article class="arch-card">
+          <div class="arch-thumb"><img src="../posters/swiss-brutalist.jpg" width="1280" height="800" alt="Aperçu Suisse brutaliste"></div>
+          <p class="arch-ref">Style international · 0px · clair</p>
+          <h3>Suisse brutaliste</h3>
+          <p class="arch-desc">Blanc pur, grille noire 2 px apparente, index numéroté et accent orange vif.</p>
+          <a class="arch-link" href="../styles/swiss-brutalist.html">Ouvrir le spécimen ↗</a>
+        </article>
+        <article class="arch-card arch-card-wide">
+          <p class="arch-ref">design lab · mixeur hybride</p>
+          <h3>Combinez 3 styles proches et 3 écarts volontaires en direct</h3>
+          <p class="arch-desc">Prenez la palette d'Éditorial, les rayons d'Industriel et le shader WebGL de Cinéma. Vérifiez les ratios WCAG AA/AAA en OKLCH et exportez style-dna.json ou tokens.css sans inscription.</p>
+          <a class="btn btn-primary" href="../lab.html" style="width:fit-content">Ouvrir le Design Lab →</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="contract">
+    <div class="inner contract-grid">
+      <div>
+        <h2>Un contrat neutre lisible par n'importe quel agent de code.</h2>
+        <p class="lead">Tact reste indépendant par construction. Chaque verrouillage produit du JSON standard, des variables CSS et un fichier DESIGN.md prêt pour Claude Code, Codex, Cursor ou tout moteur applicatif.</p>
+        <div class="steps-list">
+          <div class="step-card">
+            <span>01 · DIVERGER</span>
+            <h3>3 directions proches + 3 écarts volontaires</h3>
+            <p>L'échantillonnage sur 6 axes garantit de vrais choix visuels avant d'écrire la moindre ligne de CSS produit.</p>
+          </div>
+          <div class="step-card">
+            <span>02 · MÉLANGER &amp; VÉRIFIER</span>
+            <h3>Piocher chaque pièce avec contrôle WCAG</h3>
+            <p>Assemblez la palette d'un style avec la typo ou les arrondis d'un autre en gardant des contrastes conformes.</p>
+          </div>
+          <div class="step-card">
+            <span>03 · VERROUILLER &amp; EXPORTER</span>
+            <h3>Livrer des contrats portables en un clic</h3>
+            <p>Copiez style-dna.json, tokens.css, DESIGN.md ou studio.json sans compte utilisateur ni dépendance propriétaire.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="inspector" aria-label="Sortie contrat en direct pour le style sélectionné">
+        <div class="inspector-bar">
+          <div class="style-tabs" id="contract-tabs" role="group" aria-label="Format du contrat">
+            <button type="button" class="tab-btn" data-fmt="dna" aria-pressed="true">style-dna.json</button>
+            <button type="button" class="tab-btn" data-fmt="css" aria-pressed="false">tokens.css</button>
+            <button type="button" class="tab-btn" data-fmt="designmd" aria-pressed="false">DESIGN.md</button>
+            <button type="button" class="tab-btn" data-fmt="studio" aria-pressed="false">studio.json</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="copy-status" id="contract-msg" aria-live="polite"></span>
+            <button type="button" class="btn btn-sm" id="copy-contract">Copier</button>
+          </div>
+        </div>
+        <pre><code id="contract-out"></code></pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="start" style="border-bottom:0">
+    <div class="inner">
+      <div class="closing-box">
+        <div>
+          <h2>Tester dans le navigateur ou cloner le dépôt.</h2>
+          <p>Gratuit, open-source, sans inscription et ouvrable en local. Lancez le Design Lab ou parcourez les 76 effets et 12 prototypes.</p>
+        </div>
+        <div class="cta-row" style="margin:0">
+          <a class="btn btn-primary" href="../lab.html">Ouvrir le Design Lab →</a>
+          <a class="btn" href="../bank.html">Banque d'effets</a>
+          <a class="btn" href="https://github.com/bobcat88/design-bank" rel="noopener noreferrer">GitHub ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="inner footer-row">
+    <span>Tact · Couche design multi-styles autonome</span>
+    <div class="footer-links">
+      <a href="../lab.html">Design Lab</a>
+      <a href="../bank.html">Banque d'effets</a>
+      <a href="../protos/webgl.html">Catalogue WebGL</a>
+      <a href="../index.html" lang="en">English version</a>
+      <a href="https://github.com/bobcat88/design-bank" rel="noopener noreferrer">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+<script src="../shared/bank.js"></script>
+<script src="../shared/shader.js"></script>
+<script src="../shared/archetypes.js"></script>
+<script src="../shared/tact.js"></script>
+</body>
+</html>
